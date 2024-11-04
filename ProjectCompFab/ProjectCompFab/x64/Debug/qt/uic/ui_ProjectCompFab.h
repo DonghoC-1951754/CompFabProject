@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'ProjectCompFab.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.2
+** Created by: Qt User Interface Compiler version 6.7.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -30,19 +30,19 @@ public:
     void setupUi(QMainWindow *ProjectCompFabClass)
     {
         if (ProjectCompFabClass->objectName().isEmpty())
-            ProjectCompFabClass->setObjectName(QString::fromUtf8("ProjectCompFabClass"));
+            ProjectCompFabClass->setObjectName("ProjectCompFabClass");
         ProjectCompFabClass->resize(600, 400);
         menuBar = new QMenuBar(ProjectCompFabClass);
-        menuBar->setObjectName(QString::fromUtf8("menuBar"));
+        menuBar->setObjectName("menuBar");
         ProjectCompFabClass->setMenuBar(menuBar);
         mainToolBar = new QToolBar(ProjectCompFabClass);
-        mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
+        mainToolBar->setObjectName("mainToolBar");
         ProjectCompFabClass->addToolBar(mainToolBar);
         centralWidget = new QWidget(ProjectCompFabClass);
-        centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
+        centralWidget->setObjectName("centralWidget");
         ProjectCompFabClass->setCentralWidget(centralWidget);
         statusBar = new QStatusBar(ProjectCompFabClass);
-        statusBar->setObjectName(QString::fromUtf8("statusBar"));
+        statusBar->setObjectName("statusBar");
         ProjectCompFabClass->setStatusBar(statusBar);
 
         retranslateUi(ProjectCompFabClass);

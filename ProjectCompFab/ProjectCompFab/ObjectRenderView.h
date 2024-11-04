@@ -11,6 +11,8 @@
 #include <QOpenGLExtraFunctions>
 #include <QMouseEvent>
 #include <QWheelEvent>
+#include "ObjectLoader.h"
+#include "SlicerPlane.h"
 
 
 class ObjectRenderView : public QOpenGLWidget, protected QOpenGLExtraFunctions
@@ -36,8 +38,9 @@ protected:
 
 private:
     Mesh* mesh;
-    GLuint VBO, VAO, EBO;
+    GLuint VBO, VAO, EBO, VBO1, VAO1, EBO1;
     void setupMesh();
+    void setupSlicer();
     QOpenGLShaderProgram shaderProgram;
     Ui::ProjectCompFabClass ui;
 

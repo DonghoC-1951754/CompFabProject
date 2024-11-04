@@ -18,6 +18,7 @@ void ObjectRenderView::initializeGL() {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     setupMesh();
+	//setupSlicer();
 
 	// Compile the shader program
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/vertex_shader.glsl");
@@ -51,6 +52,10 @@ void ObjectRenderView::paintGL() {
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+
+    //glBindVertexArray(VAO1);
+    //glDrawArrays(GL_TRIANGLES, 0, 3); // Adjust count based on your vertex data
+    //glBindVertexArray(0); // Unbind VAO
 
     shaderProgram.release();
 }
@@ -196,6 +201,28 @@ void ObjectRenderView::drawAxes() {
     glVertex3f(origin.x(), origin.y(), origin.z());
     glVertex3f(zAxis.x(), zAxis.y(), zAxis.z());
     glEnd();
+}
+
+void ObjectRenderView::setupSlicer() {
+	SlicerPlane slicer;
+    glGenVertexArrays(1, &VAO1);
+    glBindVertexArray(VAO1);
+
+    glGenBuffers(1, &VBO1);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO1);
+    glBufferData(GL_ARRAY_BUFFER, slicer.getVertices().size() * sizeof(float), slicer.getVertices().data(), GL_STATIC_DRAW);
+
+    // Generate and bind the EBO
+    glGenBuffers(1, &EBO1);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO1);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, slicer.getIndices().size() * sizeof(int), slicer.getIndices().data(), GL_STATIC_DRAW);
+
+    // Define the vertex attribute pointers
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (GLvoid*)0); // Position
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
+    glBindVertexArray(0); // Unbind VAO
 }
 
 ObjectRenderView::~ObjectRenderView()
