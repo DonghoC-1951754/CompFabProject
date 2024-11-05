@@ -1,0 +1,9 @@
+# Ignore everything
+*
+
+# Except .cpp and .h files
+!*.cpp
+!*.h
+
+# Optionally, include directories (if any) that contain .cpp and .h files
+!*/  # Allow all directories (optional)
