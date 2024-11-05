@@ -7,7 +7,7 @@
 
 # Allow all directories (necessary to track files in subdirectories)
 !*/
-
+Debug/
 # Ignore Visual Studio specific files and folders
 .vs/
 *.sln
