@@ -1,0 +1,22 @@
+# Ignore everything
+*
+
+# Except .cpp and .h files
+!*.cpp
+!*.h
+
+# Allow all directories (necessary to track files in subdirectories)
+!*/
+
+# Ignore the Debug folder
+Debug/
+
+# Ignore Visual Studio specific files and folders
+.vs/
+*.sln
+*.suo
+*.user
+bin/
+obj/
+Release/
+*.log
