@@ -5,5 +5,41 @@
 !*.cpp
 !*.h
 
-# Optionally, include directories (if any) that contain .cpp and .h files
-!*/  # Allow all directories (optional)
+# Allow all directories (necessary to track files in subdirectories)
+!*/
+
+# Ignore Visual Studio specific files and folders
+.vs/
+*.sln
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+bin/
+obj/
+Debug/
+Release/
+x64/
+x86/
+*.log
+*.tlog
+*.cache
+*.ilk
+*.idb
+*.pdb
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.dbmdl
+*.dbproj.schemaview
+*.dbproj
+*.jfm
+*.vsp
+*.vspx
+*.vspscc
+*.vssscc
+
+# Ignore build directories
+/build/
