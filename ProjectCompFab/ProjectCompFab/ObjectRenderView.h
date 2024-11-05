@@ -1,9 +1,6 @@
 #pragma once
-
-#include <QtWidgets/QMainWindow>
 #include "ui_ProjectCompFab.h"
 #include <QOpenGLWidget>
-#include <QOpenGLFunctions>
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 #include "ObjectLoader.h"
@@ -11,7 +8,6 @@
 #include <QOpenGLExtraFunctions>
 #include <QMouseEvent>
 #include <QWheelEvent>
-#include "ObjectLoader.h"
 #include "SlicerPlane.h"
 
 
@@ -38,9 +34,13 @@ protected:
 
 private:
     Mesh* mesh;
+    SlicerPlane* slicer;
     GLuint VBO, VAO, EBO, VBO1, VAO1, EBO1;
     void setupMesh();
     void setupSlicer();
+    void renderMesh();
+    void renderSlicer();
+    glm::vec3 findMidpoint();
     QOpenGLShaderProgram shaderProgram;
     Ui::ProjectCompFabClass ui;
 
@@ -54,4 +54,14 @@ private:
     QPoint lastMousePos;
     bool rotating = false; // True when right mouse button is held for rotation
     bool panning = false;  // True when middle mouse button is held for panning
+
+	float slicerHeight = 0.0f;
+    void setSlicerHeight(float height) { slicerHeight = height; };
+	float getSlicerHeight() { return slicerHeight; };
+
+public slots:
+    void setSliderSlicerHeight(int value) {
+        slicerHeight = static_cast<float>(value);
+        update(); // Refresh the OpenGL widget to reflect changes
+    }
 };

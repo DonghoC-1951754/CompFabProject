@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     QSplitter* splitter = new QSplitter(Qt::Horizontal, this);
 
     // OpenGL widget for rendering the 3D model
-    ObjectRenderView* widget = new ObjectRenderView();
+    widget = new ObjectRenderView();
 	widget->loadModel("./resources/cube.stl");  // Load the STL model
 
     // Side panel widget
@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     QPushButton* loadButton = new QPushButton("Load Model", sidePanel);
     QSlider* rotationSlider = new QSlider(Qt::Horizontal, sidePanel);
     rotationSlider->setRange(0, 360);
+    connect(rotationSlider, &QSlider::valueChanged, widget, &ObjectRenderView::setSliderSlicerHeight);
 
     // Add widgets to the panel layout
     panelLayout->addWidget(label);
@@ -48,4 +49,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     // Connect the slider to control rotation of the 3D model in the OpenGL widget
     //connect(rotationSlider, &QSlider::valueChanged, widget, &ModelViewer::setRotation);
+}
+
+MainWindow::~MainWindow() {
+	delete widget;
 }

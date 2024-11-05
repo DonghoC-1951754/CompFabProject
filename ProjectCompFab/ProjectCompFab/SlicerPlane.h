@@ -7,11 +7,12 @@ public:
 	std::vector<float> getVertices() { return vertices; };
 	std::vector<int> getIndices() { return indices; };
 private:
+	float width = 40.0f;
     std::vector<float> vertices{
-        -80.0f, 0.0f, -80.0f,
-         80.0f, 0.0f, -80.0f,
-         80.0f, 0.0f,  80.0f,
-        -80.0f, 0.0f,  80.0f,
+        -width, 0.0f, -width,
+		 width, 0.0f, -width,
+		 width, 0.0f,  width,
+        -width, 0.0f,  width,
     };
 	std::vector<int> indices{
 		0, 1, 2,

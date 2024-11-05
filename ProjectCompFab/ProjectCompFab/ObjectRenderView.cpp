@@ -5,6 +5,22 @@
 ObjectRenderView::ObjectRenderView(QWidget* parent)
     : QOpenGLWidget(parent), cameraPos(0.0f, 0.0f, 100.0f), targetPos(0.0f, 0.0f, 0.0f), zoomFactor(1.0f)
 {
+	slicer = new SlicerPlane();
+}
+
+ObjectRenderView::~ObjectRenderView()
+{
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+    glDeleteVertexArrays(1, &VAO1);
+    glDeleteBuffers(1, &VBO1);
+    glDeleteBuffers(1, &EBO1);
+	delete mesh;
+	mesh = nullptr;
+    delete slicer;
+	slicer = nullptr;
+
 }
 
 void ObjectRenderView::loadModel(const std::string& filename) {
@@ -16,9 +32,11 @@ void ObjectRenderView::initializeGL() {
     initializeOpenGLFunctions();
     glEnable(GL_DEPTH_TEST);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     setupMesh();
-	//setupSlicer();
+	setupSlicer();
 
 	// Compile the shader program
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/vertex_shader.glsl");
@@ -45,19 +63,48 @@ void ObjectRenderView::paintGL() {
     shaderProgram.setUniformValue("projection", projection);
 
     drawAxes();
+    renderMesh();
+    renderSlicer();
 
+    shaderProgram.release();
+}
+
+void ObjectRenderView::renderMesh() {
     // Set the cube color
     shaderProgram.setUniformValue("cubeColor", QVector4D(1.0f, 0.5f, 0.0f, 1.0f));
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    glBindVertexArray(0); // Unbind VAO
+    glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
+}
 
-    //glBindVertexArray(VAO1);
-    //glDrawArrays(GL_TRIANGLES, 0, 3); // Adjust count based on your vertex data
-    //glBindVertexArray(0); // Unbind VAO
+void ObjectRenderView::renderSlicer() {
+    QMatrix4x4 modelSlicer;
+    modelSlicer.setToIdentity();
+    glm::vec3 renderModelMidpoint = findMidpoint();
+    modelSlicer.translate(renderModelMidpoint.x, slicerHeight, renderModelMidpoint.z);
+    // Set the slicer color
+    shaderProgram.setUniformValue("cubeColor", QVector4D(0.5f, 0.5f, 0.5f, 0.3f));
+    // Translate the slicer (model matrix)
+    shaderProgram.setUniformValue("model", modelSlicer);
 
-    shaderProgram.release();
+    glBindVertexArray(VAO1);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);  // Adjust count based on your vertex data
+    glBindVertexArray(0); // Unbind VAO
+	glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
+}
+
+glm::vec3 ObjectRenderView::findMidpoint() {
+    std::vector<glm::vec3> vertices;;
+    for (auto& vertex : mesh->vertices) {
+        vertices.push_back(vertex.getPosition());
+    }
+    glm::vec3 sum(0.0f);
+    for (const auto& vertex : vertices) {
+        sum += vertex;
+    }
+    return sum / static_cast<float>(vertices.size());
 }
 
 void ObjectRenderView::resizeGL(int w, int h) {
@@ -204,18 +251,20 @@ void ObjectRenderView::drawAxes() {
 }
 
 void ObjectRenderView::setupSlicer() {
-	SlicerPlane slicer;
     glGenVertexArrays(1, &VAO1);
+    glGenBuffers(1, &VBO1);
+    glGenBuffers(1, &EBO1);
+
     glBindVertexArray(VAO1);
 
-    glGenBuffers(1, &VBO1);
+    
     glBindBuffer(GL_ARRAY_BUFFER, VBO1);
-    glBufferData(GL_ARRAY_BUFFER, slicer.getVertices().size() * sizeof(float), slicer.getVertices().data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, slicer->getVertices().size() * sizeof(float), slicer->getVertices().data(), GL_STATIC_DRAW);
 
     // Generate and bind the EBO
-    glGenBuffers(1, &EBO1);
+   
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO1);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, slicer.getIndices().size() * sizeof(int), slicer.getIndices().data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, slicer->getIndices().size() * sizeof(int), slicer->getIndices().data(), GL_STATIC_DRAW);
 
     // Define the vertex attribute pointers
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (GLvoid*)0); // Position
@@ -224,6 +273,3 @@ void ObjectRenderView::setupSlicer() {
     glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
     glBindVertexArray(0); // Unbind VAO
 }
-
-ObjectRenderView::~ObjectRenderView()
-{}
