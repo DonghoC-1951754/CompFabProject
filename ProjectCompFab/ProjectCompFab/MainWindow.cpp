@@ -25,14 +25,25 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Example widgets for the side panel
     QLabel* label = new QLabel("Model Controls", sidePanel);
     QPushButton* loadButton = new QPushButton("Load Model", sidePanel);
-    QSlider* rotationSlider = new QSlider(Qt::Horizontal, sidePanel);
-    rotationSlider->setRange(0, 360);
-    connect(rotationSlider, &QSlider::valueChanged, widget, &ObjectRenderView::setSliderSlicerHeight);
+
+    //QSlider* rotationSlider = new QSlider(Qt::Horizontal, sidePanel);
+    //rotationSlider->setRange(0, 360);
+
+    slicerHeightInputBox = new QDoubleSpinBox(sidePanel);
+    slicerHeightInputBox->setRange(0, 100.0);
+	slicerHeightInputBox->setSingleStep(0.1);
+	slicerHeightInputBox->setValue(0.0);
+
+    sliceButton = new QPushButton("Slice Model", sidePanel);
+
+    connect(slicerHeightInputBox, &QDoubleSpinBox::valueChanged, widget, &ObjectRenderView::setSliderSlicerHeight);
+	connect(sliceButton, &QPushButton::clicked, widget, &ObjectRenderView::sliceMesh);
 
     // Add widgets to the panel layout
     panelLayout->addWidget(label);
     panelLayout->addWidget(loadButton);
-    panelLayout->addWidget(rotationSlider);
+    panelLayout->addWidget(slicerHeightInputBox);
+	panelLayout->addWidget(sliceButton);
     panelLayout->addStretch(); // Add stretch to push widgets to the top
 
     // Add OpenGL widget and side panel to the splitter

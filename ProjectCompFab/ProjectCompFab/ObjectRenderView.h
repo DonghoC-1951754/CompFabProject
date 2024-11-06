@@ -19,6 +19,7 @@ public:
     ObjectRenderView(QWidget *parent = nullptr);
     void loadModel(const std::string& filename);
     ~ObjectRenderView();
+    SlicerPlane* getSlicer() { return slicer; };
 
 protected:
 
@@ -35,6 +36,7 @@ protected:
 private:
     Mesh* mesh;
     SlicerPlane* slicer;
+    
     GLuint VBO, VAO, EBO, VBO1, VAO1, EBO1;
     void setupMesh();
     void setupSlicer();
@@ -60,8 +62,12 @@ private:
 	float getSlicerHeight() { return slicerHeight; };
 
 public slots:
-    void setSliderSlicerHeight(int value) {
-        slicerHeight = static_cast<float>(value);
+    void setSliderSlicerHeight(float value) {
+        slicerHeight = value;
         update(); // Refresh the OpenGL widget to reflect changes
     }
+	void sliceMesh() {
+		slicer->slice(mesh, slicerHeight);
+		update(); // Refresh the OpenGL widget to reflect changes
+	}
 };

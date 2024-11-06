@@ -256,7 +256,6 @@ void ObjectRenderView::setupSlicer() {
     glGenBuffers(1, &EBO1);
 
     glBindVertexArray(VAO1);
-
     
     glBindBuffer(GL_ARRAY_BUFFER, VBO1);
     glBufferData(GL_ARRAY_BUFFER, slicer->getVertices().size() * sizeof(float), slicer->getVertices().data(), GL_STATIC_DRAW);
