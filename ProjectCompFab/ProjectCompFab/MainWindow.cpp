@@ -5,6 +5,7 @@
 #include <QPushButton>
 #include <QSlider>
 #include <QVBoxLayout>
+#include "SliceWindow.h"
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Create a central widget and set it as the main window's central widget
@@ -37,7 +38,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     sliceButton = new QPushButton("Slice Model", sidePanel);
 
     connect(slicerHeightInputBox, &QDoubleSpinBox::valueChanged, widget, &ObjectRenderView::setSliderSlicerHeight);
-	connect(sliceButton, &QPushButton::clicked, widget, &ObjectRenderView::sliceMesh);
+	connect(sliceButton, &QPushButton::clicked, this, &MainWindow::openSliceWindow);
 
     // Add widgets to the panel layout
     panelLayout->addWidget(label);
@@ -64,4 +65,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
 MainWindow::~MainWindow() {
 	delete widget;
+}
+
+void MainWindow::openSliceWindow() {
+	sliceWindow = new SliceWindow();
+	auto slice_vertices = widget->sliceMesh();
+	sliceWindow->show();
 }

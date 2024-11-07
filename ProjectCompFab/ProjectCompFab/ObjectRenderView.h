@@ -66,8 +66,8 @@ public slots:
         slicerHeight = value;
         update(); // Refresh the OpenGL widget to reflect changes
     }
-	void sliceMesh() {
-		slicer->slice(mesh, slicerHeight);
-		update(); // Refresh the OpenGL widget to reflect changes
+    std::vector<std::vector<glm::vec3>> sliceMesh() {
+		return slicer->slice(mesh, slicerHeight);
+		//update(); // Refresh the OpenGL widget to reflect changes
 	}
 };

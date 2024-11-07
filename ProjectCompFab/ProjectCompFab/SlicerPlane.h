@@ -7,7 +7,7 @@ public:
 	SlicerPlane() {};
 	std::vector<float> getVertices() { return vertices; };
 	std::vector<int> getIndices() { return indices; };
-	void slice(const Mesh* mesh, float slicerHeight);
+	std::vector<std::vector<glm::vec3>> slice(const Mesh* mesh, float slicerHeight);
 	std::vector<std::vector<glm::vec3>> getOrderedLineSegments();
 
 private:

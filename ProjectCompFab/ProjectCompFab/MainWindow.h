@@ -9,18 +9,20 @@
 * Contains RenderView and controls
 */
 class ObjectRenderView;
-class SliceRenderView;
+class SliceWindow;
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 public:
 	MainWindow(QWidget* parent = nullptr);
 	~MainWindow();
+private slots:
+	void openSliceWindow();
 private:
 	ObjectRenderView* widget;
-	SliceRenderView* sliceRenderWidget;
 	QDoubleSpinBox* slicerHeightInputBox;
 	QPushButton* sliceButton;
+	SliceWindow* sliceWindow;
 
 };
 

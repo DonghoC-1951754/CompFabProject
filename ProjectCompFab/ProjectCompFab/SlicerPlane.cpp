@@ -1,6 +1,7 @@
 #include "SlicerPlane.h"
+#include <algorithm>
 
-void SlicerPlane::slice(const Mesh* mesh, float slicerHeight) {
+std::vector<std::vector<glm::vec3>> SlicerPlane::slice(const Mesh* mesh, float slicerHeight) {
 	std::vector<unsigned int> meshIndices = mesh->indices;
 	std::vector<Vertex> meshVertices = mesh->vertices;
 
@@ -12,7 +13,7 @@ void SlicerPlane::slice(const Mesh* mesh, float slicerHeight) {
 		calcLineSegments(currentTriangle, slicerHeight);
 	}
 	auto test = getOrderedLineSegments();
-	int k = 0;
+	return getOrderedLineSegments();
 }
 
 void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, float slicerHeight) {
@@ -62,18 +63,31 @@ void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, float slicerHei
 
 std::vector<std::vector<glm::vec3>> SlicerPlane::getOrderedLineSegments() {
 	std::vector<std::vector<glm::vec3>> currentOrderedLineSegments;
-	float epsilon = 1.000f;
+	auto allUnorderedLineSegments = lineSegments;
+	float epsilon = 0.001f;
 	currentOrderedLineSegments.push_back(lineSegments[0]);
-	for (int j = 0; j < lineSegments.size(); ++j) {
-		for (int i = 0; i < lineSegments.size(); ++i) {
-			std::vector<glm::vec3> orderedLineSegment = currentOrderedLineSegments.back();
-			float distance = glm::distance(orderedLineSegment[1], lineSegments[i][0]);
-			if (distance < epsilon) {
-				currentOrderedLineSegments.push_back(lineSegments[i]);
+	allUnorderedLineSegments.erase(allUnorderedLineSegments.begin());
+
+	while (allUnorderedLineSegments.size() > 0) {
+		int i = 0;
+		std::vector<glm::vec3> tempLineSegment = currentOrderedLineSegments.back();
+		while (allUnorderedLineSegments.size() > 0) {
+			float distance1 = glm::distance(tempLineSegment[1], allUnorderedLineSegments[i][0]);
+			float distance2 = glm::distance(tempLineSegment[1], allUnorderedLineSegments[i][1]);
+			if (distance1 < epsilon) {
+				currentOrderedLineSegments.push_back(allUnorderedLineSegments[i]);
+				allUnorderedLineSegments.erase(allUnorderedLineSegments.begin() + i);
 				break;
 			}
+			else if (distance2 < epsilon) {
+				auto temp = allUnorderedLineSegments[i];
+				std::reverse(temp.begin(), temp.end());
+				currentOrderedLineSegments.push_back(temp);
+				allUnorderedLineSegments.erase(allUnorderedLineSegments.begin() + i);
+				break;
+			}
+			++i;
 		}
 	}
-	
 	return currentOrderedLineSegments;
 }
