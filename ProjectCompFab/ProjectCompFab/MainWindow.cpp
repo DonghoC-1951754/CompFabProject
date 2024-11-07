@@ -69,6 +69,7 @@ MainWindow::~MainWindow() {
 
 void MainWindow::openSliceWindow() {
 	sliceWindow = new SliceWindow();
-	auto slice_vertices = widget->sliceMesh();
+	auto orderedLineSegments = widget->sliceMesh();
+	sliceWindow->setSliceData(orderedLineSegments);
 	sliceWindow->show();
 }
