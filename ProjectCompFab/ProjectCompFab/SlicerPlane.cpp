@@ -1,10 +1,10 @@
 #include "SlicerPlane.h"
 #include <algorithm>
 
-std::vector<std::vector<glm::vec3>> SlicerPlane::slice(const Mesh* mesh, float slicerHeight) {
+std::vector<std::vector<glm::vec3>> SlicerPlane::slice(const Mesh* mesh, double slicerHeight) {
 	std::vector<unsigned int> meshIndices = mesh->indices;
 	std::vector<Vertex> meshVertices = mesh->vertices;
-
+	lineSegments.clear();
 	for (int i = 0; i < meshIndices.size(); i += 3) {
 		std::vector<Vertex> currentTriangle;
 		for (int j = 0; j < 3; j++) {
@@ -16,7 +16,7 @@ std::vector<std::vector<glm::vec3>> SlicerPlane::slice(const Mesh* mesh, float s
 	return getOrderedLineSegments();
 }
 
-void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, float slicerHeight) {
+void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, double slicerHeight) {
 	std::vector<int> isAboveIndex;
 	std::vector<int> isUnderIndex;
 	for (int i = 0; i < 3; i++) {
@@ -28,7 +28,7 @@ void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, float slicerHei
 			isUnderIndex.push_back(i);
 		}
 	}
-	float xA, yA, zA, xB, yB, zB;
+	double xA, yA, zA, xB, yB, zB;
 	if (isAboveIndex.size() == 2 || isUnderIndex.size() == 2) {
 		// Vertex 1 and 2 are both above/under the slicer plane
 		glm::vec3 vertex1;
@@ -64,7 +64,7 @@ void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, float slicerHei
 std::vector<std::vector<glm::vec3>> SlicerPlane::getOrderedLineSegments() {
 	std::vector<std::vector<glm::vec3>> currentOrderedLineSegments;
 	auto allUnorderedLineSegments = lineSegments;
-	float epsilon = 0.001f;
+	double epsilon = 0.000001;
 	currentOrderedLineSegments.push_back(lineSegments[0]);
 	allUnorderedLineSegments.erase(allUnorderedLineSegments.begin());
 

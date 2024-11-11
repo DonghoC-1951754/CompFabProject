@@ -54,6 +54,7 @@ void SliceRenderView::paintGL() {
 
 void SliceRenderView::setSliceData(const std::vector<std::vector<glm::vec3>> lineSegments) {
 	lineSegments2D.clear();
+	flattenedVertices.clear();
 	for (const auto& line : lineSegments) {
 		std::vector<glm::vec2> line2D;
 		for (const auto& point : line) {
@@ -61,15 +62,14 @@ void SliceRenderView::setSliceData(const std::vector<std::vector<glm::vec3>> lin
 		}
 		lineSegments2D.push_back(line2D);
 	}
-	
-}
-
-void SliceRenderView::setupSlice() {
 	flattenedVertices.clear();
 	for (const auto& line : lineSegments2D) {
 		flattenedVertices.insert(flattenedVertices.end(), line.begin(), line.end());
 	}
+	setupSlice();
+}
 
+void SliceRenderView::setupSlice() {
 	vao.bind();
 	vbo.bind();
 	vbo.allocate(flattenedVertices.data(), static_cast<int>(flattenedVertices.size() * sizeof(glm::vec2)));

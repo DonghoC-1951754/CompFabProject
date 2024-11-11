@@ -37,6 +37,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     sliceButton = new QPushButton("Slice Model", sidePanel);
 
+    sliceWindow = new SliceWindow();
+
     connect(slicerHeightInputBox, &QDoubleSpinBox::valueChanged, widget, &ObjectRenderView::setSliderSlicerHeight);
 	connect(sliceButton, &QPushButton::clicked, this, &MainWindow::openSliceWindow);
 
@@ -45,7 +47,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     panelLayout->addWidget(loadButton);
     panelLayout->addWidget(slicerHeightInputBox);
 	panelLayout->addWidget(sliceButton);
-    panelLayout->addStretch(); // Add stretch to push widgets to the top
+    panelLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
+	panelLayout->addWidget(sliceWindow, Qt::AlignBottom);
+    //panelLayout->addStretch(); // Add stretch to push widgets to the top
 
     // Add OpenGL widget and side panel to the splitter
     splitter->addWidget(widget);
@@ -68,8 +72,8 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::openSliceWindow() {
-	sliceWindow = new SliceWindow();
+	
 	auto orderedLineSegments = widget->sliceMesh();
 	sliceWindow->setSliceData(orderedLineSegments);
-	sliceWindow->show();
+	//sliceWindow->show();
 }

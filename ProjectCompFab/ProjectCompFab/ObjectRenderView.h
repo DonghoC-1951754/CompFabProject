@@ -57,16 +57,17 @@ private:
     bool rotating = false; // True when right mouse button is held for rotation
     bool panning = false;  // True when middle mouse button is held for panning
 
-	float slicerHeight = 0.0f;
-    void setSlicerHeight(float height) { slicerHeight = height; };
-	float getSlicerHeight() { return slicerHeight; };
+	double slicerHeight = 0.0;
+    void setSlicerHeight(double height) { slicerHeight = height; };
+	double getSlicerHeight() { return slicerHeight; };
 
 public slots:
-    void setSliderSlicerHeight(float value) {
+    void setSliderSlicerHeight(double value) {
         slicerHeight = value;
         update(); // Refresh the OpenGL widget to reflect changes
     }
     std::vector<std::vector<glm::vec3>> sliceMesh() {
+        slicerHeight += 0.00000001;
 		return slicer->slice(mesh, slicerHeight);
 		//update(); // Refresh the OpenGL widget to reflect changes
 	}
