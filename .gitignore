@@ -13,7 +13,6 @@ Debug/
 
 # Ignore Visual Studio specific files and folders
 .vs/
-*.sln
 *.suo
 *.user
 bin/
