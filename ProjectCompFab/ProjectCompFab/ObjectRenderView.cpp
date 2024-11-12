@@ -26,6 +26,14 @@ ObjectRenderView::~ObjectRenderView()
 void ObjectRenderView::loadModel(const std::string& filename) {
     ObjectLoader loader;
     mesh = loader.loadSTL(filename);  // Load the model
+
+
+}
+
+void ObjectRenderView::resetRendering() {
+    makeCurrent();
+	setupMesh();
+    update();
 }
 
 void ObjectRenderView::initializeGL() {

@@ -20,6 +20,7 @@ public:
     void loadModel(const std::string& filename);
     ~ObjectRenderView();
     SlicerPlane* getSlicer() { return slicer; };
+    void resetRendering();
 
 protected:
 

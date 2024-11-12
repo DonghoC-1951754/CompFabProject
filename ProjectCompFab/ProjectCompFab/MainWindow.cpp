@@ -6,6 +6,7 @@
 #include <QSlider>
 #include <QVBoxLayout>
 #include "SliceWindow.h"
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Create a central widget and set it as the main window's central widget
@@ -17,7 +18,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     // OpenGL widget for rendering the 3D model
     widget = new ObjectRenderView();
-	widget->loadModel("./resources/cube-sphere.stl");  // Load the STL model
+    widget->loadModel("./resources/cube.stl");
+	  // Load the STL model
 
     // Side panel widget
     QWidget* sidePanel = new QWidget();
@@ -25,7 +27,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     // Example widgets for the side panel
     QLabel* label = new QLabel("Model Controls", sidePanel);
-    QPushButton* loadButton = new QPushButton("Load Model", sidePanel);
+    loadButton = new QPushButton("Load Model", sidePanel);
 
     //QSlider* rotationSlider = new QSlider(Qt::Horizontal, sidePanel);
     //rotationSlider->setRange(0, 360);
@@ -41,6 +43,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     connect(slicerHeightInputBox, &QDoubleSpinBox::valueChanged, widget, &ObjectRenderView::setSliderSlicerHeight);
 	connect(sliceButton, &QPushButton::clicked, this, &MainWindow::openSliceWindow);
+	connect(loadButton, &QPushButton::clicked, this, &MainWindow::openLoadModelDialog);
 
     // Add widgets to the panel layout
     panelLayout->addWidget(label);
@@ -75,4 +78,15 @@ void MainWindow::openSliceWindow() {
 	
 	auto orderedLineSegments = widget->sliceMesh();
 	sliceWindow->setSliceData(orderedLineSegments);
+}
+
+void MainWindow::openLoadModelDialog() {
+    QString filePath = QFileDialog::getOpenFileName(this, "Open File", "", "All Files (*)");
+    if (!filePath.isEmpty()) {
+		modelFilePath = filePath.toStdString();
+        widget->loadModel(modelFilePath);
+        widget->resetRendering();
+    }
+    qDebug() << "Empty filepath!";  // Print file path to console
+
 }

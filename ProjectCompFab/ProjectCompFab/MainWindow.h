@@ -16,13 +16,18 @@ class MainWindow : public QMainWindow
 public:
 	MainWindow(QWidget* parent = nullptr);
 	~MainWindow();
+
 private slots:
 	void openSliceWindow();
+	void openLoadModelDialog();
 private:
 	ObjectRenderView* widget;
 	QDoubleSpinBox* slicerHeightInputBox;
 	QPushButton* sliceButton;
 	SliceWindow* sliceWindow;
+	QPushButton* loadButton;
+
+	std::string modelFilePath;
 
 };
 
