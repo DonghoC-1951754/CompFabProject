@@ -4,6 +4,7 @@
 # Except .cpp and .h files
 !*.cpp
 !*.h
+!*.sln
 
 # Allow all directories (necessary to track files in subdirectories)
 !*/
