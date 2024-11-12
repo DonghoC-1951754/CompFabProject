@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     // OpenGL widget for rendering the 3D model
     widget = new ObjectRenderView();
-	widget->loadModel("./resources/cube.stl");  // Load the STL model
+	widget->loadModel("./resources/cube-sphere.stl");  // Load the STL model
 
     // Side panel widget
     QWidget* sidePanel = new QWidget();
@@ -75,5 +75,4 @@ void MainWindow::openSliceWindow() {
 	
 	auto orderedLineSegments = widget->sliceMesh();
 	sliceWindow->setSliceData(orderedLineSegments);
-	//sliceWindow->show();
 }

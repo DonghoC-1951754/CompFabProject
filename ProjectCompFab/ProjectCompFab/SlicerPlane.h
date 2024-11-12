@@ -22,9 +22,11 @@ private:
 		0, 1, 2,
 		2, 3, 0
 	};
-
+	double epsilon = 0.00000001;
+	std::vector<std::vector<glm::vec3>> orderedLineSegments;
 	std::vector<std::vector<glm::vec3>> lineSegments;
-
+	std::vector<std::vector<glm::vec3>> pointSegments;
+	bool nextIsPointSegment(std::vector<glm::vec3> lineSegment);
 	void calcLineSegments(std::vector<Vertex> triangle, double slicerHeight);
 	void calcIntersectionPoint(Vertex a, Vertex b, double slicerHeight);
 };

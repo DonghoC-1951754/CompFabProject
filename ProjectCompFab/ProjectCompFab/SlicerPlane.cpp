@@ -12,7 +12,7 @@ std::vector<std::vector<glm::vec3>> SlicerPlane::slice(const Mesh* mesh, double 
 		}
 		calcLineSegments(currentTriangle, slicerHeight);
 	}
-	auto test = getOrderedLineSegments();
+	//auto test = getOrderedLineSegments();
 	return getOrderedLineSegments();
 }
 
@@ -20,7 +20,6 @@ void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, double slicerHe
 	std::vector<int> isAboveIndex;
 	std::vector<int> isUnderIndex;
 	for (int i = 0; i < 3; i++) {
-		//isAbove.push_back(triangle[i].getPosition().y > slicerHeight);
 		if (triangle[i].getPosition().y > slicerHeight) {
 			isAboveIndex.push_back(i);
 		}
@@ -28,7 +27,7 @@ void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, double slicerHe
 			isUnderIndex.push_back(i);
 		}
 	}
-	double xA, yA, zA, xB, yB, zB;
+	float xA, yA, zA, xB, yB, zB;
 	if (isAboveIndex.size() == 2 || isUnderIndex.size() == 2) {
 		// Vertex 1 and 2 are both above/under the slicer plane
 		glm::vec3 vertex1;
@@ -54,40 +53,61 @@ void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, double slicerHe
 		zB = vertex2.z + (slicerHeight - vertex2.y) * (vertex3.z - vertex2.z) / (vertex3.y - vertex2.y);
 		yB = slicerHeight;
 		std::vector<glm::vec3> lineSegment;
-		lineSegment.push_back(glm::vec3(xA, yA, zA));
-		lineSegment.push_back(glm::vec3(xB, yB, zB));
-		lineSegments.push_back(lineSegment);
+		std::vector<glm::vec3> pointSegment;
+		if (xA == xB && zA == zB && yA == yB) {
+			pointSegment.push_back(glm::vec3(xA, yA, zA));
+			pointSegment.push_back(glm::vec3(xB, yB, zB));
+			pointSegments.push_back(pointSegment);
+		}
+		else {
+			lineSegment.push_back(glm::vec3(xA, yA, zA));
+			lineSegment.push_back(glm::vec3(xB, yB, zB));
+			lineSegments.push_back(lineSegment);
+		}
 	}
 	
 }
 
-std::vector<std::vector<glm::vec3>> SlicerPlane::getOrderedLineSegments() {
-	std::vector<std::vector<glm::vec3>> currentOrderedLineSegments;
-	auto allUnorderedLineSegments = lineSegments;
-	double epsilon = 0.000001;
-	currentOrderedLineSegments.push_back(lineSegments[0]);
-	allUnorderedLineSegments.erase(allUnorderedLineSegments.begin());
+bool SlicerPlane::nextIsPointSegment(std::vector<glm::vec3> lineSegment) {
+	auto endPoint = lineSegment[1];
+	for (int i = 0; i < pointSegments.size(); i++) {
+		if (glm::distance(endPoint, pointSegments[i][0]) < epsilon) {
+			orderedLineSegments.push_back(pointSegments[i]);
+			pointSegments.erase(pointSegments.begin() + i);
+			return true;
+		}
+	}
+	return false;
+}
 
-	while (allUnorderedLineSegments.size() > 0) {
+std::vector<std::vector<glm::vec3>> SlicerPlane::getOrderedLineSegments() {
+	auto unorderedLineSegments = lineSegments;
+	orderedLineSegments.push_back(lineSegments[0]);
+	unorderedLineSegments.erase(unorderedLineSegments.begin());
+
+	while (unorderedLineSegments.size() > 0) {
 		int i = 0;
-		std::vector<glm::vec3> tempLineSegment = currentOrderedLineSegments.back();
-		while (allUnorderedLineSegments.size() > 0) {
-			float distance1 = glm::distance(tempLineSegment[1], allUnorderedLineSegments[i][0]);
-			float distance2 = glm::distance(tempLineSegment[1], allUnorderedLineSegments[i][1]);
+		std::vector<glm::vec3> tempLineSegment = orderedLineSegments.back();
+		if (nextIsPointSegment(tempLineSegment)) {
+			continue;
+		}
+		while (unorderedLineSegments.size() > 0) {
+			float distance1 = glm::distance(tempLineSegment[1], unorderedLineSegments[i][0]);
+			float distance2 = glm::distance(tempLineSegment[1], unorderedLineSegments[i][1]);
 			if (distance1 < epsilon) {
-				currentOrderedLineSegments.push_back(allUnorderedLineSegments[i]);
-				allUnorderedLineSegments.erase(allUnorderedLineSegments.begin() + i);
+				orderedLineSegments.push_back(unorderedLineSegments[i]);
+				unorderedLineSegments.erase(unorderedLineSegments.begin() + i);
 				break;
 			}
 			else if (distance2 < epsilon) {
-				auto temp = allUnorderedLineSegments[i];
+				auto temp = unorderedLineSegments[i];
 				std::reverse(temp.begin(), temp.end());
-				currentOrderedLineSegments.push_back(temp);
-				allUnorderedLineSegments.erase(allUnorderedLineSegments.begin() + i);
+				orderedLineSegments.push_back(temp);
+				unorderedLineSegments.erase(unorderedLineSegments.begin() + i);
 				break;
 			}
 			++i;
 		}
 	}
-	return currentOrderedLineSegments;
+	return orderedLineSegments;
 }

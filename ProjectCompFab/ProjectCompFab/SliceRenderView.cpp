@@ -7,8 +7,6 @@ void SliceRenderView::initializeGL() {
 	initializeOpenGLFunctions();
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/slice_shaders/vertex_shader.glsl");
 	shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/slice_shaders/fragment_shader.glsl");
@@ -17,7 +15,7 @@ void SliceRenderView::initializeGL() {
 	vao.create();
 	vbo.create();
 
-	setupSlice();
+	//setupSlice();
 }
 
 void SliceRenderView::resizeGL(int w, int h) {
@@ -26,12 +24,21 @@ void SliceRenderView::resizeGL(int w, int h) {
 
 void SliceRenderView::paintGL() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
 	shaderProgram.bind();
 	vao.bind();
+	vbo.bind();
+
+	// Set attribute pointers
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), nullptr);
+	glEnableVertexAttribArray(0);
+
+	vbo.allocate(flattenedVertices.data(), static_cast<int>(flattenedVertices.size() * sizeof(glm::vec2)));
 
 	QMatrix4x4 model, view, projection;
 	model.setToIdentity();
+	projection.setToIdentity();
+	view.setToIdentity();
 
 	// position, where looking, leave be
 	view.lookAt(QVector3D(0, 0, 200), QVector3D(0, 0, 0), QVector3D(0, 1, 0));
@@ -49,6 +56,7 @@ void SliceRenderView::paintGL() {
 	}
 
 	vao.release();
+	vbo.release();
 	shaderProgram.release();
 }
 
@@ -62,24 +70,25 @@ void SliceRenderView::setSliceData(const std::vector<std::vector<glm::vec3>> lin
 		}
 		lineSegments2D.push_back(line2D);
 	}
-	flattenedVertices.clear();
 	for (const auto& line : lineSegments2D) {
 		flattenedVertices.insert(flattenedVertices.end(), line.begin(), line.end());
 	}
-	setupSlice();
+	//setupSlice();
+
 }
 
 void SliceRenderView::setupSlice() {
-	vao.bind();
-	vbo.bind();
-	vbo.allocate(flattenedVertices.data(), static_cast<int>(flattenedVertices.size() * sizeof(glm::vec2)));
+	vao.create();
+	vbo.create();
+	//vao.bind();
+	//vbo.bind();
 
-	shaderProgram.bind();
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), nullptr);
-	glEnableVertexAttribArray(0);
+	//// Set attribute pointers
+	//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), nullptr);
+	//glEnableVertexAttribArray(0);
 
-	vbo.release();
-	vao.release();
+	//vbo.release();
+	//vao.release();
 }
 
 SliceRenderView::~SliceRenderView() {
