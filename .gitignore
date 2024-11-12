@@ -5,6 +5,11 @@
 !*.cpp
 !*.h
 !*.sln
+!*.vcxproj.user
+!*.vcxproj.filters
+!*.vcxproj
+!*.qrc
+
 
 # Allow all directories (necessary to track files in subdirectories)
 !*/
