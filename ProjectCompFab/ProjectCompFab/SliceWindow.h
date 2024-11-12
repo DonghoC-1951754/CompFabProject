@@ -9,7 +9,7 @@ class SliceWindow : public QWidget {
 public:
     SliceWindow(QWidget* parent = nullptr);
     ~SliceWindow();
-	void setSliceData(const std::vector<std::vector<glm::vec3>> lineSegments);
+	void setSliceData(const std::vector<std::vector<glm::dvec3>> lineSegments);
 
 private:
     SliceRenderView* sliceRenderWidget;

@@ -12,7 +12,7 @@ class SliceRenderView : public QOpenGLWidget, protected QOpenGLExtraFunctions
 public:
     SliceRenderView(QWidget* parent = nullptr);
     ~SliceRenderView();
-	void setSliceData(const std::vector<std::vector<glm::vec3>> lineSegments);
+	void setSliceData(const std::vector<std::vector<glm::dvec3>> lineSegments);
 
 protected:
     void initializeGL() override;

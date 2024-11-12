@@ -60,7 +60,7 @@ void SliceRenderView::paintGL() {
 	shaderProgram.release();
 }
 
-void SliceRenderView::setSliceData(const std::vector<std::vector<glm::vec3>> lineSegments) {
+void SliceRenderView::setSliceData(const std::vector<std::vector<glm::dvec3>> lineSegments) {
 	lineSegments2D.clear();
 	flattenedVertices.clear();
 	for (const auto& line : lineSegments) {

@@ -23,7 +23,7 @@ SliceWindow::SliceWindow(QWidget* parent)
     setFixedSize(300, 300);  // Adjust size as needed
 }
 
-void SliceWindow::setSliceData(const std::vector<std::vector<glm::vec3>> lineSegments) {
+void SliceWindow::setSliceData(const std::vector<std::vector<glm::dvec3>> lineSegments) {
 	sliceRenderWidget->setSliceData(lineSegments);
     sliceRenderWidget->update();
 }
