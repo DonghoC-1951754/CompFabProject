@@ -9,6 +9,7 @@
 !*.vcxproj.filters
 !*.vcxproj
 !*.qrc
+!glad.c
 
 
 # Allow all directories (necessary to track files in subdirectories)
