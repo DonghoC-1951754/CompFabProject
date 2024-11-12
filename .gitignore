@@ -1,0 +1,9 @@
+# Ignore everything
+*
+
+# Except .cpp and .h files
+!*.cpp
+!*.h
+!*.sln
+!includes/
+!lib/
