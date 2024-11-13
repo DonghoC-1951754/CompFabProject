@@ -77,6 +77,9 @@ MainWindow::~MainWindow() {
 void MainWindow::openSliceWindow() {
 	auto orderedLineSegments = widget->sliceMesh();
 	sliceWindow->setSliceData(orderedLineSegments);
+
+    SlicerPlane* slicer = widget->getSlicer();
+	slicer->setContours(orderedLineSegments);
 }
 
 void MainWindow::openLoadModelDialog() {

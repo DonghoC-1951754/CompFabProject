@@ -45,8 +45,6 @@ void SliceRenderView::paintGL() {
 }
 
 void SliceRenderView::setSliceData(const std::vector< std::vector<std::vector<glm::dvec3>>> polygons) {
-	//lineSegments2D.clear();
-	//flattenedVertices.clear();
 	polygons2D.clear();
 	for (const auto& polygon : polygons) {
 		std::vector<std::vector<glm::vec2>> tempLineSegments2D;

@@ -18,6 +18,15 @@ std::vector< std::vector<std::vector<glm::dvec3>>> SlicerPlane::slice(const Mesh
 	return polygonsOfOrderedLineSegments;
 }
 
+void SlicerPlane::setContours(std::vector<std::vector<std::vector<glm::dvec3>>> polygons)
+{
+	for (const auto& polygon : polygons) {
+		Clipper2Lib::PathD currentContour;
+		auto flattenedPolygon = getFlattenedPolygon(polygon);
+
+	}
+}
+
 void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, double slicerHeight) {
 	std::vector<int> isAboveIndex;
 	std::vector<int> isUnderIndex;
@@ -101,4 +110,17 @@ std::vector<std::vector<glm::dvec3>> SlicerPlane::getSingleOrderedPolygon(std::v
 		}
 	}
 	return orderedPolygon;
+}
+
+std::vector<glm::dvec3> SlicerPlane::getFlattenedPolygon(std::vector<std::vector<glm::dvec3>> singlePolygon)
+{
+	//std::vector<std::vector<glm::dvec3>> tempLineSegments2D;
+	std::vector<glm::dvec3> flattenedPolygon;
+	std::vector<glm::dvec3> lastLine;
+	for (const auto& line : singlePolygon) {
+		flattenedPolygon.push_back(line[0]);
+		lastLine = line;
+	}
+	flattenedPolygon.push_back(lastLine[1]);
+	return flattenedPolygon;
 }

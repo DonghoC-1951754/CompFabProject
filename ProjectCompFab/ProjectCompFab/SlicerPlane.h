@@ -11,7 +11,7 @@ public:
 	std::vector<float> getVertices() { return vertices; };
 	std::vector<int> getIndices() { return indices; };
 	std::vector< std::vector<std::vector<glm::dvec3>>> slice(const Mesh* mesh, double slicerHeight);
-	
+	void setContours(std::vector< std::vector<std::vector<glm::dvec3>>> polygons);
 
 private:
 	float width = 40.0f;
@@ -31,5 +31,8 @@ private:
 	void calcLineSegments(std::vector<Vertex> triangle, double slicerHeight);
 	void fillPolygonWithOrderedSegments();
 	std::vector<std::vector<glm::dvec3>> getSingleOrderedPolygon(std::vector<std::vector<glm::dvec3>>& remainingUnorderedLineSegments);
+	std::vector<glm::dvec3> getFlattenedPolygon(std::vector<std::vector<glm::dvec3>> singlePolygon);
+
+	Clipper2Lib::PathsD contours;
 };
 
