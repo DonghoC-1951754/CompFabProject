@@ -4,8 +4,8 @@
 # Allow specific file types
 !*/includes/
 !*/includes/**
-!*/lib/
-!*/lib/**
+!./ProjectCompFab/ProjectCompFab/lib/
+!./ProjectCompFab/ProjectCompFab/lib/**
 !*/resources/
 !*/resources/**
 !*/shaders/
