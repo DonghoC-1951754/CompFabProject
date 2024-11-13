@@ -1,6 +1,4 @@
 # Ignore the includes and lib folders
-includes/
-lib/
 .vs/
 
 # Allow everything else
