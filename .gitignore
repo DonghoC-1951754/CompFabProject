@@ -1,9 +1,6 @@
-# Ignore everything
-*
+# Ignore the includes and lib folders
+includes/
+lib/
 
-# Except .cpp and .h files
-!*.cpp
-!*.h
-!*.sln
-!includes/
-!lib/
+# Allow everything else
+!*/
