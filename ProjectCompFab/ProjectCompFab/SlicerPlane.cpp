@@ -3,11 +3,10 @@
 #include <qDebug>
 
 std::vector< std::vector<std::vector<glm::dvec3>>> SlicerPlane::slice(const Mesh* mesh, double slicerHeight) {
-	orderedLineSegments.clear();
 	polygonsOfOrderedLineSegments.clear();
+	lineSegments.clear();
 	std::vector<unsigned int> meshIndices = mesh->indices;
 	std::vector<Vertex> meshVertices = mesh->vertices;
-	lineSegments.clear();
 	for (int i = 0; i < meshIndices.size(); i += 3) {
 		std::vector<Vertex> currentTriangle;
 		for (int j = 0; j < 3; j++) {
@@ -15,8 +14,8 @@ std::vector< std::vector<std::vector<glm::dvec3>>> SlicerPlane::slice(const Mesh
 		}
 		calcLineSegments(currentTriangle, slicerHeight);
 	}
-	//auto test = getOrderedLineSegments();
-	return getOrderedLineSegments();
+	fillPolygonWithOrderedSegments();
+	return polygonsOfOrderedLineSegments;
 }
 
 void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, double slicerHeight) {
@@ -63,40 +62,44 @@ void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, double slicerHe
 	
 }
 
-std::vector< std::vector<std::vector<glm::dvec3>>> SlicerPlane::getOrderedLineSegments() {
-	auto unorderedLineSegments = lineSegments;
-	orderedLineSegments.push_back(lineSegments[0]);
-	unorderedLineSegments.erase(unorderedLineSegments.begin());
-
+void SlicerPlane::fillPolygonWithOrderedSegments() {
+	std::vector<std::vector<glm::dvec3>> unorderedLineSegments = lineSegments;
 	while (unorderedLineSegments.size() > 0) {
+		std::vector<std::vector<glm::dvec3>> singleOrderedPolygon;
+		singleOrderedPolygon = getSingleOrderedPolygon(unorderedLineSegments);
+		polygonsOfOrderedLineSegments.push_back(singleOrderedPolygon);
+	}
+}
+
+std::vector<std::vector<glm::dvec3>> SlicerPlane::getSingleOrderedPolygon(std::vector<std::vector<glm::dvec3>>& remainingUnorderedLineSegments) {
+	std::vector<std::vector<glm::dvec3>> orderedPolygon;
+	// Add the first line segment to the ordered polygon and remove it from remainingUnorderedLineSegments
+	orderedPolygon.push_back(remainingUnorderedLineSegments[0]);
+	remainingUnorderedLineSegments.erase(remainingUnorderedLineSegments.begin());
+
+	while (remainingUnorderedLineSegments.size() > 0) {
 		int i = 0;
-		std::vector<glm::dvec3> tempLineSegment = orderedLineSegments.back();
-		while (unorderedLineSegments.size() > 0 && i < unorderedLineSegments.size()) {
-			double distance1 = glm::distance(tempLineSegment[1], unorderedLineSegments[i][0]);
-			double distance2 = glm::distance(tempLineSegment[1], unorderedLineSegments[i][1]);
+		std::vector<glm::dvec3> latestOrderedSegment = orderedPolygon.back();
+		while (i < remainingUnorderedLineSegments.size()) {
+			double distance1 = glm::distance(latestOrderedSegment[1], remainingUnorderedLineSegments[i][0]);
+			double distance2 = glm::distance(latestOrderedSegment[1], remainingUnorderedLineSegments[i][1]);
 			if (distance1 < epsilon) {
-				orderedLineSegments.push_back(unorderedLineSegments[i]);
-				unorderedLineSegments.erase(unorderedLineSegments.begin() + i);
+				orderedPolygon.push_back(remainingUnorderedLineSegments[i]);
+				remainingUnorderedLineSegments.erase(remainingUnorderedLineSegments.begin() + i);
 				break;
 			}
 			else if (distance2 < epsilon) {
-				auto temp = unorderedLineSegments[i];
+				auto temp = remainingUnorderedLineSegments[i];
 				std::reverse(temp.begin(), temp.end());
-				orderedLineSegments.push_back(temp);
-				unorderedLineSegments.erase(unorderedLineSegments.begin() + i);
+				orderedPolygon.push_back(temp);
+				remainingUnorderedLineSegments.erase(remainingUnorderedLineSegments.begin() + i);
 				break;
 			}
-			++i;
-
-		}
-		if (i == unorderedLineSegments.size()) {
-			polygonsOfOrderedLineSegments.push_back(orderedLineSegments);
-			if (unorderedLineSegments.size() > 0) {
-				orderedLineSegments.clear();
-				orderedLineSegments.push_back(unorderedLineSegments[0]);
-				unorderedLineSegments.erase(unorderedLineSegments.begin());
+			else if (i == remainingUnorderedLineSegments.size() - 1) {
+				return orderedPolygon;
 			}
+			++i;
 		}
 	}
-	return polygonsOfOrderedLineSegments;
+	return orderedPolygon;
 }

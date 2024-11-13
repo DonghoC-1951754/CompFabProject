@@ -21,7 +21,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     widget->loadModel("./resources/hole-test(easy).stl");
 	  // Load the STL model
 
-
     // Side panel widget
     QWidget* sidePanel = new QWidget();
     QVBoxLayout* panelLayout = new QVBoxLayout(sidePanel);
@@ -34,7 +33,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     //rotationSlider->setRange(0, 360);
 
     slicerHeightInputBox = new QDoubleSpinBox(sidePanel);
-    slicerHeightInputBox->setRange(0, 100.0);
+    slicerHeightInputBox->setRange(-100.0, 100.0);
 	slicerHeightInputBox->setSingleStep(0.1);
 	slicerHeightInputBox->setValue(0.0);
 
@@ -82,7 +81,9 @@ void MainWindow::openSliceWindow() {
 }
 
 void MainWindow::openLoadModelDialog() {
-    QString filePath = QFileDialog::getOpenFileName(this, "Open File", "", "All Files (*)");
+	QFileDialog dialog(this);
+    dialog.setDirectory("./resources");
+    QString filePath = dialog.getOpenFileName(this, "Open File", "", "STL Files (*.stl)");
     if (!filePath.isEmpty()) {
 		modelFilePath = filePath.toStdString();
         widget->loadModel(modelFilePath);
