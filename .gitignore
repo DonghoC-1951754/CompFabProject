@@ -2,14 +2,14 @@
 *
 
 # Allow specific file types
-!*/includes/
-!*/includes/**
+!/ProjectCompFab/ProjectCompFab/includes/
+!/ProjectCompFab/ProjectCompFab/includes/**
 !/ProjectCompFab/ProjectCompFab/lib/
 !/ProjectCompFab/ProjectCompFab/lib/**
-!*/resources/
-!*/resources/**
-!*/shaders/
-!*/shaders/**
+!/ProjectCompFab/ProjectCompFab/resources/
+!/ProjectCompFab/ProjectCompFab/resources/**
+!/ProjectCompFab/ProjectCompFab/shaders/
+!/ProjectCompFab/ProjectCompFab/shaders/**
 !*.h
 !*.cpp
 !*.sln
