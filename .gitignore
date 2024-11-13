@@ -9,6 +9,14 @@
 !*.vcxproj.filters
 !*.ui
 !*.qrc
+!includes/
+!includes/**
+!lib/
+!lib/**
+!resources/
+!resources/**
+!shaders/
+!shaders/**
 
 # Allow directories (required to ensure Git traverses directories to find allowed files)
 !*/
