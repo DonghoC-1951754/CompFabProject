@@ -22,7 +22,7 @@ private:
 		0, 1, 2,
 		2, 3, 0
 	};
-	double epsilon = 0.00000001;
+	double epsilon = 0.000000001;
 	std::vector<std::vector<glm::dvec3>> orderedLineSegments;
 	std::vector<std::vector<glm::dvec3>> lineSegments;
 	//std::vector<std::vector<glm::vec3>> pointSegments;

@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     // OpenGL widget for rendering the 3D model
     widget = new ObjectRenderView();
-    widget->loadModel("./resources/cube.stl");
+    widget->loadModel("./resources/hole-test(easy).stl");
 	  // Load the STL model
 
     // Side panel widget

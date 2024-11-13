@@ -1,13 +1,15 @@
 #include "ObjectLoader.h"
 #include <iostream>
 #include <vector>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 ObjectLoader::ObjectLoader() {
 }
 
 Mesh* ObjectLoader::loadSTL(const std::string& filename) {
     Assimp::Importer importer;
-
+    glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     // Load the STL file
     const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
 
@@ -24,6 +26,18 @@ Mesh* ObjectLoader::loadSTL(const std::string& filename) {
         Vertex vertex;
         glm::vec3 temp_vector3;
 
+        // Convert aiVector3D to glm::vec4 for matrix multiplication
+        glm::vec4 vertexMatrix(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z, 1.0f);
+
+        // Apply the rotation matrix
+
+        vertexMatrix = rotationMatrix * vertexMatrix;
+
+        // Update vertex position in the mesh
+        mesh->mVertices[i].x = vertexMatrix.x;
+        mesh->mVertices[i].y = vertexMatrix.y;
+        mesh->mVertices[i].z = vertexMatrix.z;
+
         // Set vertex position
         temp_vector3.x = mesh->mVertices[i].x;
         temp_vector3.y = mesh->mVertices[i].y;
@@ -35,17 +49,6 @@ Mesh* ObjectLoader::loadSTL(const std::string& filename) {
         temp_vector3.y = mesh->mNormals[i].y;
         temp_vector3.z = mesh->mNormals[i].z;
         vertex.setNormal(temp_vector3);
-
-        // Set texture coordinates if they exist
-        if (mesh->mTextureCoords[0]) {
-            glm::vec2 temp_vector2;
-            temp_vector2.x = mesh->mTextureCoords[0][i].x;
-            temp_vector2.y = mesh->mTextureCoords[0][i].y;
-            vertex.setTextureCoords(temp_vector2);
-        }
-        else {
-            vertex.setTextureCoords(glm::vec2(0.0f, 0.0f)); // Default texture coordinates
-        }
 
         vertices.push_back(vertex); // Add the vertex to the list
     }

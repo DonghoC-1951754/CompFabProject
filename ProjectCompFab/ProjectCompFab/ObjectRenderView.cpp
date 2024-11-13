@@ -61,6 +61,7 @@ void ObjectRenderView::paintGL() {
     // Setup model, view and projection matrices
     QMatrix4x4 model, view, projection;
     model.setToIdentity();
+    
 
     // position, where looking, leave be
     view.lookAt(cameraPos, targetPos, QVector3D(0, 1, 0));
@@ -79,7 +80,10 @@ void ObjectRenderView::paintGL() {
 
 void ObjectRenderView::renderMesh() {
     // Set the cube color
+    QMatrix4x4 model;
+    //model.rotate(-90, 1.0f, 0.0f, 0.0f);
     shaderProgram.setUniformValue("cubeColor", QVector4D(1.0f, 0.5f, 0.0f, 1.0f));
+    shaderProgram.setUniformValue("model", model);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, 0);
@@ -90,6 +94,7 @@ void ObjectRenderView::renderMesh() {
 void ObjectRenderView::renderSlicer() {
     QMatrix4x4 modelSlicer;
     modelSlicer.setToIdentity();
+    //modelSlicer.rotate(60, 1.0f, 0.0f, 0.0f);
     glm::vec3 renderModelMidpoint = findMidpoint();
     modelSlicer.translate(renderModelMidpoint.x, slicerHeight, renderModelMidpoint.z);
     // Set the slicer color
