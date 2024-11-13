@@ -2,14 +2,14 @@
 *
 
 # Allow specific file types
-!includes/
-!includes/**
-!lib/
-!lib/**
-!resources/
-!resources/**
-!shaders/
-!shaders/**
+!*/includes/
+!*/includes/**
+!*/lib/
+!*/lib/**
+!*/resources/
+!*/resources/**
+!*/shaders/
+!*/shaders/**
 !*.h
 !*.cpp
 !*.sln
