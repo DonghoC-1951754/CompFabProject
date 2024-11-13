@@ -285,3 +285,4 @@ void ObjectRenderView::setupSlicer() {
     glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
     glBindVertexArray(0); // Unbind VAO
 }
+

@@ -4,6 +4,7 @@
 
 std::vector< std::vector<std::vector<glm::dvec3>>> SlicerPlane::slice(const Mesh* mesh, double slicerHeight) {
 	orderedLineSegments.clear();
+	polygonsOfOrderedLineSegments.clear();
 	std::vector<unsigned int> meshIndices = mesh->indices;
 	std::vector<Vertex> meshVertices = mesh->vertices;
 	lineSegments.clear();
