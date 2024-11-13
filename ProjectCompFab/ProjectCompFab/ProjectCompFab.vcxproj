@@ -11,11 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{870CF904-EC3C-4364-B7EB-FC7E3B95521C}</ProjectGuid>
+    <ProjectGuid>{EB5FE5D7-561B-45E4-9048-71729627E59A}</ProjectGuid>
     <Keyword>QtVS_v304</Keyword>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0</WindowsTargetPlatformVersion>
-    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')"
+      >$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -36,19 +37,20 @@
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
-    <QtInstall>6.7.3_msvc2019_64</QtInstall>
-    <QtModules>core;gui;widgets;opengl;openglwidgets</QtModules>
+    <QtInstall>6.7.3_msvc2022_64</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
-    <QtQMakeTemplate>vcapp</QtQMakeTemplate>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
-    <QtInstall>6.7.3_msvc2019_64</QtInstall>
-    <QtModules>core;gui;widgets;opengl;openglwidgets</QtModules>
+    <QtInstall>6.7.3_msvc2022_64</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
-    <QtQMakeTemplate>vcapp</QtQMakeTemplate>
   </PropertyGroup>
-  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
-    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  <Target Name="QtMsBuildNotFound"
+    BeforeTargets="CustomBuild;ClCompile"
+    Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High"
+      Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
   </Target>
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
@@ -65,24 +67,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Dongho Chun\Documents\Informatica\2de master\Computational Fabrication\GitHub\CompFabProject\ProjectCompFab\ProjectCompFab\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>C:\Users\Dongho Chun\Documents\Informatica\2de master\Computational Fabrication\GitHub\CompFabProject\ProjectCompFab\ProjectCompFab\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc143-mt.lib;glfw3.lib;glfw3_mt.lib;glfw3dll.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\Dongho Chun\Documents\Informatica\2de master\Computational Fabrication\GitHub\CompFabProject\ProjectCompFab\ProjectCompFab\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>C:\Users\Dongho Chun\Documents\Informatica\2de master\Computational Fabrication\GitHub\CompFabProject\ProjectCompFab\ProjectCompFab\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc143-mt.lib;glfw3.lib;glfw3_mt.lib;glfw3dll.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -112,39 +96,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="glad.c" />
-    <ClCompile Include="SliceRenderView.cpp" />
-    <ClCompile Include="SlicerPlane.cpp" />
-    <ClCompile Include="SliceWindow.cpp" />
-    <QtRcc Include="ProjectCompFab.qrc" />
-    <QtUic Include="ProjectCompFab.ui" />
-    <QtMoc Include="ObjectRenderView.h" />
-    <ClCompile Include="MainWindow.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="ObjectLoader.cpp" />
-    <ClCompile Include="ObjectRenderView.cpp" />
-    <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="resources\cube-sphere.stl" />
-    <None Include="resources\cube.stl" />
-    <None Include="resources\hole-test(advanced).stl" />
-    <None Include="resources\hole-test(easy).stl" />
-    <None Include="resources\hole-test(medium).stl" />
-    <None Include="resources\perimeter-test(easy).stl" />
-    <None Include="resources\perimeter-test(medium).stl" />
-    <None Include="resources\roof-test.stl" />
-    <None Include="resources\support-test.stl" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="MainWindow.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="ObjectLoader.h" />
-    <QtMoc Include="SliceRenderView.h" />
-    <ClInclude Include="SlicerPlane.h" />
-    <QtMoc Include="SliceWindow.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="Vertex.h" />
+    <QtRcc Include="ProjectCompFab.qrc"/>
+    <QtUic Include="ProjectCompFab.ui"/>
+    <QtMoc Include="ProjectCompFab.h"/>
+    <ClCompile Include="ProjectCompFab.cpp"/>
+    <ClCompile Include="main.cpp"/>
+
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
