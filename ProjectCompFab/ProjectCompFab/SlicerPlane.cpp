@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <qDebug>
 
-std::vector<std::vector<glm::dvec3>> SlicerPlane::slice(const Mesh* mesh, double slicerHeight) {
+std::vector< std::vector<std::vector<glm::dvec3>>> SlicerPlane::slice(const Mesh* mesh, double slicerHeight) {
 	orderedLineSegments.clear();
 	std::vector<unsigned int> meshIndices = mesh->indices;
 	std::vector<Vertex> meshVertices = mesh->vertices;
@@ -62,7 +62,7 @@ void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, double slicerHe
 	
 }
 
-std::vector<std::vector<glm::dvec3>> SlicerPlane::getOrderedLineSegments() {
+std::vector< std::vector<std::vector<glm::dvec3>>> SlicerPlane::getOrderedLineSegments() {
 	auto unorderedLineSegments = lineSegments;
 	orderedLineSegments.push_back(lineSegments[0]);
 	unorderedLineSegments.erase(unorderedLineSegments.begin());
@@ -70,7 +70,7 @@ std::vector<std::vector<glm::dvec3>> SlicerPlane::getOrderedLineSegments() {
 	while (unorderedLineSegments.size() > 0) {
 		int i = 0;
 		std::vector<glm::dvec3> tempLineSegment = orderedLineSegments.back();
-		while (unorderedLineSegments.size() > 0) {
+		while (unorderedLineSegments.size() > 0 && i < unorderedLineSegments.size()) {
 			double distance1 = glm::distance(tempLineSegment[1], unorderedLineSegments[i][0]);
 			double distance2 = glm::distance(tempLineSegment[1], unorderedLineSegments[i][1]);
 			if (distance1 < epsilon) {
@@ -86,7 +86,16 @@ std::vector<std::vector<glm::dvec3>> SlicerPlane::getOrderedLineSegments() {
 				break;
 			}
 			++i;
+
+		}
+		if (i == unorderedLineSegments.size()) {
+			polygonsOfOrderedLineSegments.push_back(orderedLineSegments);
+			if (unorderedLineSegments.size() > 0) {
+				orderedLineSegments.clear();
+				orderedLineSegments.push_back(unorderedLineSegments[0]);
+				unorderedLineSegments.erase(unorderedLineSegments.begin());
+			}
 		}
 	}
-	return orderedLineSegments;
+	return polygonsOfOrderedLineSegments;
 }
