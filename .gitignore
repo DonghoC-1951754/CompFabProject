@@ -2,13 +2,6 @@
 *
 
 # Allow specific file types
-!*.h
-!*.cpp
-!*.sln
-!*.vcxproj
-!*.vcxproj.filters
-!*.ui
-!*.qrc
 !includes/
 !includes/**
 !lib/
@@ -17,6 +10,14 @@
 !resources/**
 !shaders/
 !shaders/**
+!*.h
+!*.cpp
+!*.sln
+!*.vcxproj
+!*.vcxproj.filters
+!*.ui
+!*.qrc
+
 
 # Allow directories (required to ensure Git traverses directories to find allowed files)
 !*/
