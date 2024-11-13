@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     widget->loadModel("./resources/hole-test(easy).stl");
 	  // Load the STL model
 
+
     // Side panel widget
     QWidget* sidePanel = new QWidget();
     QVBoxLayout* panelLayout = new QVBoxLayout(sidePanel);
