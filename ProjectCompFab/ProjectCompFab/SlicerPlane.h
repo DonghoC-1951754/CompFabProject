@@ -2,9 +2,7 @@
 #include <vector>
 #include "Mesh.h"
 #include "clipper2/clipper.h"
-#include "clipper2/*"
 
-//using namespace Clipper2Lib;
 class SlicerPlane
 {
 
@@ -16,7 +14,6 @@ public:
 	
 
 private:
-	Clipper2Lib::Clipper64 clipper;
 	float width = 40.0f;
     std::vector<float> vertices{
         -width, 0.0f, -width,

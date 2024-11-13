@@ -75,7 +75,6 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::openSliceWindow() {
-	
 	auto orderedLineSegments = widget->sliceMesh();
 	sliceWindow->setSliceData(orderedLineSegments);
 }

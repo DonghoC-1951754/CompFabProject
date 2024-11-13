@@ -59,7 +59,6 @@ void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, double slicerHe
 		lineSegment.push_back(glm::dvec3(xB, yB, zB));
 		lineSegments.push_back(lineSegment);
 	}
-	
 }
 
 void SlicerPlane::fillPolygonWithOrderedSegments() {
