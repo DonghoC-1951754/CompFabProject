@@ -1,5 +1,14 @@
-# Ignore the includes and lib folders
-.vs/
+# Ignore everything
+*
 
-# Allow everything else
+# Allow specific file types
+!*.h
+!*.cpp
+!*.sln
+!*.vcxproj
+!*.vcxproj.filters
+!*.ui
+!*.qrc
+
+# Allow directories (required to ensure Git traverses directories to find allowed files)
 !*/
