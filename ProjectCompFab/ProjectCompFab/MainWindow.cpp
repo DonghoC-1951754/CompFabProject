@@ -7,6 +7,7 @@
 #include <QVBoxLayout>
 #include "SliceWindow.h"
 #include <QFileDialog>
+//#include "clipper2/clipper.h"
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Create a central widget and set it as the main window's central widget
@@ -80,6 +81,7 @@ void MainWindow::openSliceWindow() {
 
     SlicerPlane* slicer = widget->getSlicer();
 	slicer->setContours(orderedLineSegments);
+	Clipper2Lib::PathsD polygons = slicer->compilePolygons();
 }
 
 void MainWindow::openLoadModelDialog() {

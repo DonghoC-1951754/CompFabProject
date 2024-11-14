@@ -12,6 +12,7 @@ public:
 	std::vector<int> getIndices() { return indices; };
 	std::vector< std::vector<std::vector<glm::dvec3>>> slice(const Mesh* mesh, double slicerHeight);
 	void setContours(std::vector< std::vector<std::vector<glm::dvec3>>> polygons);
+	Clipper2Lib::PathsD compilePolygons();
 
 private:
 	float width = 40.0f;

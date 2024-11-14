@@ -112,6 +112,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="clipper.engine.cpp" />
+    <ClCompile Include="clipper.offset.cpp" />
+    <ClCompile Include="clipper.rectclip.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="SliceRenderView.cpp" />
     <ClCompile Include="SlicerPlane.cpp" />

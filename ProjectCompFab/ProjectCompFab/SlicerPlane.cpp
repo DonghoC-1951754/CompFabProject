@@ -20,11 +20,24 @@ std::vector< std::vector<std::vector<glm::dvec3>>> SlicerPlane::slice(const Mesh
 
 void SlicerPlane::setContours(std::vector<std::vector<std::vector<glm::dvec3>>> polygons)
 {
+	contours.clear();
 	for (const auto& polygon : polygons) {
 		Clipper2Lib::PathD currentContour;
 		auto flattenedPolygon = getFlattenedPolygon(polygon);
-
+		for (const auto& vertex : flattenedPolygon) {
+			currentContour.push_back(Clipper2Lib::PointD(vertex.x, vertex.z));
+		}
+		contours.push_back(currentContour);
 	}
+}
+
+Clipper2Lib::PathsD SlicerPlane::compilePolygons()
+{
+	Clipper2Lib::ClipperD clipper;
+	clipper.AddSubject(contours);
+	Clipper2Lib::PathsD unionResult;
+	clipper.Execute(Clipper2Lib::ClipType::Union, Clipper2Lib::FillRule::EvenOdd, unionResult);
+	return unionResult;
 }
 
 void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, double slicerHeight) {
