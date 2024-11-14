@@ -13,6 +13,8 @@ public:
 	std::vector< std::vector<std::vector<glm::dvec3>>> slice(const Mesh* mesh, double slicerHeight);
 	void setContours(std::vector< std::vector<std::vector<glm::dvec3>>> polygons);
 	Clipper2Lib::PathsD compilePolygons();
+	void setLayerHeight(double layerHeight) { this->layerHeight = layerHeight; };
+	double getLayerHeight() { return layerHeight; };
 
 private:
 	float width = 40.0f;
@@ -33,6 +35,8 @@ private:
 	void fillPolygonWithOrderedSegments();
 	std::vector<std::vector<glm::dvec3>> getSingleOrderedPolygon(std::vector<std::vector<glm::dvec3>>& remainingUnorderedLineSegments);
 	std::vector<glm::dvec3> getFlattenedPolygon(std::vector<std::vector<glm::dvec3>> singlePolygon);
+
+	double layerHeight;
 
 	Clipper2Lib::PathsD contours;
 };

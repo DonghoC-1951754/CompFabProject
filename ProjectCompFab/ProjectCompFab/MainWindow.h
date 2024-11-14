@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <QDoubleSpinBox>
 #include <QPushButton>
+#include <QVBoxLayout>
 
 /*
 * Window that shows all widgets and controls in 1 place
@@ -16,7 +17,9 @@ class MainWindow : public QMainWindow
 public:
 	MainWindow(QWidget* parent = nullptr);
 	~MainWindow();
-
+public slots:
+	void changeSlicerHeight(double height);
+	void changeLayerHeight(double layerHeight);
 private slots:
 	void openSliceWindow();
 	void openLoadModelDialog();
@@ -26,8 +29,13 @@ private:
 	QPushButton* sliceButton;
 	SliceWindow* sliceWindow;
 	QPushButton* loadButton;
+	QVBoxLayout* panelLayout;
+	QWidget* gridWidget;
+	std::vector<QDoubleSpinBox*> slicingParameterInputBoxes;
+	
 
 	std::string modelFilePath;
+	void createSlicingParameterWidgets();
 
 };
 

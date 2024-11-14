@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     // Side panel widget
     QWidget* sidePanel = new QWidget();
-    QVBoxLayout* panelLayout = new QVBoxLayout(sidePanel);
+    panelLayout = new QVBoxLayout(sidePanel);
 
     // Example widgets for the side panel
     QLabel* label = new QLabel("Model Controls", sidePanel);
@@ -42,15 +42,20 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     sliceWindow = new SliceWindow();
 
-    connect(slicerHeightInputBox, &QDoubleSpinBox::valueChanged, widget, &ObjectRenderView::setSliderSlicerHeight);
+	createSlicingParameterWidgets();
+
+    //connect(slicerHeightInputBox, &QDoubleSpinBox::valueChanged, widget, &ObjectRenderView::setSliderSlicerHeight);
+    connect(slicerHeightInputBox, &QDoubleSpinBox::valueChanged, this, &MainWindow::changeSlicerHeight);
 	connect(sliceButton, &QPushButton::clicked, this, &MainWindow::openSliceWindow);
 	connect(loadButton, &QPushButton::clicked, this, &MainWindow::openLoadModelDialog);
 
+    
     // Add widgets to the panel layout
     panelLayout->addWidget(label);
     panelLayout->addWidget(loadButton);
     panelLayout->addWidget(slicerHeightInputBox);
 	panelLayout->addWidget(sliceButton);
+    panelLayout->addWidget(gridWidget);
     panelLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	panelLayout->addWidget(sliceWindow, Qt::AlignBottom);
     //panelLayout->addStretch(); // Add stretch to push widgets to the top
@@ -71,11 +76,28 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     //connect(rotationSlider, &QSlider::valueChanged, widget, &ModelViewer::setRotation);
 }
 
+void MainWindow::changeSlicerHeight(double height) {
+	SlicerPlane* slicer = widget->getSlicer();
+	double layerHeight = slicer->getLayerHeight();
+    
+    //widget->setSliderSlicerHeight(height + layerHeight);
+    double slicerHeight = widget->getSlicerHeight();
+	widget->setSlicerHeight(height);
+
+}
+
 MainWindow::~MainWindow() {
 	delete widget;
 }
 
+void MainWindow::changeLayerHeight(double layerHeight)
+{
+	widget->getSlicer()->setLayerHeight(layerHeight);
+	slicerHeightInputBox->setSingleStep(layerHeight);
+}
+
 void MainWindow::openSliceWindow() {
+
 	auto orderedLineSegments = widget->sliceMesh();
 	sliceWindow->setSliceData(orderedLineSegments);
 
@@ -95,4 +117,30 @@ void MainWindow::openLoadModelDialog() {
     }
     qDebug() << "Empty filepath!";  // Print file path to console
 
+}
+
+void MainWindow::createSlicingParameterWidgets()
+{
+    gridWidget = new QWidget;
+    QGridLayout* gridLayout = new QGridLayout(gridWidget);
+    std::vector<QLabel*> labels;
+    
+    labels.push_back(new QLabel(QString("Layer height").arg(1)));
+    labels.push_back(new QLabel(QString("Number of shells").arg(2)));
+    labels.push_back(new QLabel(QString("Nozzle diameter").arg(3)));
+    labels.push_back(new QLabel(QString("Printing temperature").arg(4)));
+    labels.push_back(new QLabel(QString("Printing speed").arg(5)));
+    labels.push_back(new QLabel(QString("Infill density").arg(6)));
+    labels.push_back(new QLabel(QString("Enable/disable supports").arg(7)));
+
+    for (int row = 0; row < 7; ++row) {
+		slicingParameterInputBoxes.push_back(new QDoubleSpinBox);
+        gridLayout->addWidget(labels[row], row, 0);
+        gridLayout->addWidget(slicingParameterInputBoxes[row], row, 1);
+    }
+
+    //connect(slicingParameterInputBoxes[0], &QDoubleSpinBox::valueChanged, widget, &ObjectRenderView::changeLayerHeight);
+    connect(slicingParameterInputBoxes[0], &QDoubleSpinBox::valueChanged, this, &MainWindow::changeLayerHeight);
+    
+    gridWidget->setLayout(gridLayout);
 }
