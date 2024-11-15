@@ -36,8 +36,12 @@ namespace {
 struct qt_meta_stringdata_CLASSMainWindowENDCLASS_t {};
 constexpr auto qt_meta_stringdata_CLASSMainWindowENDCLASS = QtMocHelpers::stringData(
     "MainWindow",
-    "openSliceWindow",
+    "changeSlicerHeight",
     "",
+    "height",
+    "changeLayerHeight",
+    "layerHeight",
+    "openSliceWindow",
     "openLoadModelDialog"
 );
 #else  // !QT_MOC_HAS_STRINGDATA
@@ -51,7 +55,7 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSMainWindowENDCLASS[] = {
       12,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   14, // methods
+       4,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -59,10 +63,14 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSMainWindowENDCLASS[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    0,   26,    2, 0x08,    1 /* Private */,
-       3,    0,   27,    2, 0x08,    2 /* Private */,
+       1,    1,   38,    2, 0x0a,    1 /* Public */,
+       4,    1,   41,    2, 0x0a,    3 /* Public */,
+       6,    0,   44,    2, 0x08,    5 /* Private */,
+       7,    0,   45,    2, 0x08,    6 /* Private */,
 
  // slots: parameters
+    QMetaType::Void, QMetaType::Double,    3,
+    QMetaType::Void, QMetaType::Double,    5,
     QMetaType::Void,
     QMetaType::Void,
 
@@ -78,6 +86,12 @@ Q_CONSTINIT const QMetaObject MainWindow::staticMetaObject = { {
     qt_incomplete_metaTypeArray<qt_meta_stringdata_CLASSMainWindowENDCLASS_t,
         // Q_OBJECT / Q_GADGET
         QtPrivate::TypeAndForceComplete<MainWindow, std::true_type>,
+        // method 'changeSlicerHeight'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<double, std::false_type>,
+        // method 'changeLayerHeight'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<double, std::false_type>,
         // method 'openSliceWindow'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'openLoadModelDialog'
@@ -92,12 +106,13 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         auto *_t = static_cast<MainWindow *>(_o);
         (void)_t;
         switch (_id) {
-        case 0: _t->openSliceWindow(); break;
-        case 1: _t->openLoadModelDialog(); break;
+        case 0: _t->changeSlicerHeight((*reinterpret_cast< std::add_pointer_t<double>>(_a[1]))); break;
+        case 1: _t->changeLayerHeight((*reinterpret_cast< std::add_pointer_t<double>>(_a[1]))); break;
+        case 2: _t->openSliceWindow(); break;
+        case 3: _t->openLoadModelDialog(); break;
         default: ;
         }
     }
-    (void)_a;
 }
 
 const QMetaObject *MainWindow::metaObject() const
@@ -119,13 +134,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 4)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 4;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 2)
+        if (_id < 4)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 2;
+        _id -= 4;
     }
     return _id;
 }

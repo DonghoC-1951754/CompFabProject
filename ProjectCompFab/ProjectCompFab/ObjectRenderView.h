@@ -22,6 +22,9 @@ public:
     SlicerPlane* getSlicer() { return slicer; };
     void resetRendering();
 
+	double getSlicerHeight() { return slicerHeight; };
+    void setSlicerHeight(double height) { slicerHeight = height; update(); };
+
 protected:
 
     void initializeGL() override;
@@ -59,17 +62,20 @@ private:
     bool panning = false;  // True when middle mouse button is held for panning
 
 	double slicerHeight = 0.0;
-    void setSlicerHeight(double height) { slicerHeight = height; };
-	double getSlicerHeight() { return slicerHeight; };
+    /*void setSlicerHeight(double height) { slicerHeight = height; };*/
+	//double getSlicerHeight() { return slicerHeight; };
 
 public slots:
     void setSliderSlicerHeight(double value) {
         slicerHeight = value;
-        update(); // Refresh the OpenGL widget to reflect changes
+        update();
     }
     std::vector< std::vector<std::vector<glm::dvec3>>> sliceMesh() {
         slicerHeight += 0.00000001;
 		return slicer->slice(mesh, slicerHeight);
-		//update(); // Refresh the OpenGL widget to reflect changes
+	}
+	void changeLayerHeight(double value) {
+		slicer->setLayerHeight(value);
+        
 	}
 };
