@@ -7,6 +7,7 @@
 #include <QVBoxLayout>
 #include "SliceWindow.h"
 #include <QFileDialog>
+#include "GcodeCreator.h"
 //#include "clipper2/clipper.h"
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
@@ -77,8 +78,9 @@ MainWindow::~MainWindow() {
 
 void MainWindow::openSliceWindow() {
 	auto orderedLineSegments = widget->sliceMesh();
+    GcodeCreator GCreator;
+    GCreator.generateGCode(orderedLineSegments, "Test");
 	sliceWindow->setSliceData(orderedLineSegments);
-
     SlicerPlane* slicer = widget->getSlicer();
 	slicer->setContours(orderedLineSegments);
 	Clipper2Lib::PathsD polygons = slicer->compilePolygons();

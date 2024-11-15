@@ -10,6 +10,7 @@
 */
 class ObjectRenderView;
 class SliceWindow;
+class GcodeCreator;
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT

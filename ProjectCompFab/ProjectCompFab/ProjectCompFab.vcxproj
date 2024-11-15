@@ -115,6 +115,7 @@
     <ClCompile Include="clipper.engine.cpp" />
     <ClCompile Include="clipper.offset.cpp" />
     <ClCompile Include="clipper.rectclip.cpp" />
+    <ClCompile Include="GcodeCreator.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="SliceRenderView.cpp" />
     <ClCompile Include="SlicerPlane.cpp" />
@@ -141,6 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="MainWindow.h" />
+    <ClInclude Include="GcodeCreator.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="ObjectLoader.h" />
     <QtMoc Include="SliceRenderView.h" />
