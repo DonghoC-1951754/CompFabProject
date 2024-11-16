@@ -3,6 +3,7 @@
 #include "SliceRenderView.h"
 
 
+
 SliceWindow::SliceWindow(QWidget* parent)
     : QWidget(parent) {
 
@@ -26,6 +27,12 @@ SliceWindow::SliceWindow(QWidget* parent)
 void SliceWindow::setSliceData(const std::vector< std::vector<std::vector<glm::dvec3>>> lineSegments) {
 	sliceRenderWidget->setSliceData(lineSegments);
     sliceRenderWidget->update();
+}
+
+void SliceWindow::setSLiceDataClipper(Clipper2Lib::PathsD polygons)
+{
+	sliceRenderWidget->setSliceDataClipper(polygons);
+	sliceRenderWidget->update();
 }
 
 SliceWindow::~SliceWindow() {}

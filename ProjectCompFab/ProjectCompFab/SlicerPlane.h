@@ -36,7 +36,7 @@ private:
 	std::vector<std::vector<glm::dvec3>> getSingleOrderedPolygon(std::vector<std::vector<glm::dvec3>>& remainingUnorderedLineSegments);
 	std::vector<glm::dvec3> getFlattenedPolygon(std::vector<std::vector<glm::dvec3>> singlePolygon);
 
-	double layerHeight;
+	double layerHeight = 0.2;
 
 	Clipper2Lib::PathsD contours;
 };

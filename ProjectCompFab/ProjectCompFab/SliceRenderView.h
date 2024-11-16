@@ -6,6 +6,7 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLShaderProgram>
 #include <QMouseEvent>
+#include "clipper2/clipper.h"
 
 class SliceRenderView : public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
@@ -14,6 +15,7 @@ public:
     SliceRenderView(QWidget* parent = nullptr);
     ~SliceRenderView();
 	void setSliceData(const std::vector< std::vector<std::vector<glm::dvec3>>> polygons);
+    void setSliceDataClipper(Clipper2Lib::PathsD polygons);
 
 protected:
     void initializeGL() override;

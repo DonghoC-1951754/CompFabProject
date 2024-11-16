@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     slicerHeightInputBox = new QDoubleSpinBox(sidePanel);
     slicerHeightInputBox->setRange(-100.0, 100.0);
-	slicerHeightInputBox->setSingleStep(0.1);
+	slicerHeightInputBox->setSingleStep(widget->getSlicer()->getLayerHeight());
 	slicerHeightInputBox->setValue(0.0);
 
     sliceButton = new QPushButton("Slice Model", sidePanel);
@@ -82,9 +82,9 @@ void MainWindow::changeSlicerHeight(double height) {
 	double layerHeight = slicer->getLayerHeight();
     
     //widget->setSliderSlicerHeight(height + layerHeight);
-    double slicerHeight = widget->getSlicerHeight();
 	widget->setSlicerHeight(height);
-
+    std::vector<Clipper2Lib::PathsD> allCompiledSlices = widget->getAllSlices();
+	sliceWindow->setSLiceDataClipper(allCompiledSlices[(height/layerHeight)]);
 }
 
 MainWindow::~MainWindow() {
@@ -93,19 +93,31 @@ MainWindow::~MainWindow() {
 
 void MainWindow::changeLayerHeight(double layerHeight)
 {
-	widget->getSlicer()->setLayerHeight(layerHeight);
-	slicerHeightInputBox->setSingleStep(layerHeight);
+	//widget->getSlicer()->setLayerHeight(layerHeight);
+	//slicerHeightInputBox->setSingleStep(layerHeight);
 }
 
 void MainWindow::openSliceWindow() {
+    widget->getSlicer()->setLayerHeight(slicingParameterInputBoxes[0]->value());
+    slicerHeightInputBox->setSingleStep(slicingParameterInputBoxes[0]->value());
+    std::vector<Clipper2Lib::PathsD> allCompiledSlices = widget->getAllSlices();
+	slicerHeightInputBox->setValue(0.0);
+	sliceWindow->setSLiceDataClipper(allCompiledSlices[0]);
+    
+	//auto orderedLineSegments = widget->sliceMesh();
+	//sliceWindow->setSliceData(orderedLineSegments);
 
-	auto orderedLineSegments = widget->sliceMesh();
-    GcodeCreator GCreator;
-    GCreator.generateGCode(orderedLineSegments, "Test");
-	sliceWindow->setSliceData(orderedLineSegments);
-    SlicerPlane* slicer = widget->getSlicer();
-	slicer->setContours(orderedLineSegments);
-	Clipper2Lib::PathsD polygons = slicer->compilePolygons();
+ //   SlicerPlane* slicer = widget->getSlicer();
+	//slicer->setContours(orderedLineSegments);
+	//Clipper2Lib::PathsD polygons = slicer->compilePolygons();
+
+	//auto orderedLineSegments = widget->sliceMesh();
+ //   GcodeCreator GCreator;
+ //   GCreator.generateGCode(orderedLineSegments, "Test");
+	//sliceWindow->setSliceData(orderedLineSegments);
+ //   SlicerPlane* slicer = widget->getSlicer();
+	//slicer->setContours(orderedLineSegments);
+	//Clipper2Lib::PathsD polygons = slicer->compilePolygons();
 }
 
 void MainWindow::openLoadModelDialog() {

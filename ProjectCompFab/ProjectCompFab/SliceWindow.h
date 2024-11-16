@@ -1,6 +1,7 @@
 #pragma once
 #include <QWidget>
 #include <glm/glm.hpp>
+#include "clipper2/clipper.h"
 
 class SliceRenderView;
 class SliceWindow : public QWidget {
@@ -10,6 +11,7 @@ public:
     SliceWindow(QWidget* parent = nullptr);
     ~SliceWindow();
 	void setSliceData(const std::vector< std::vector<std::vector<glm::dvec3>>> lineSegments);
+	void setSLiceDataClipper(Clipper2Lib::PathsD polygons);
 
 private:
     SliceRenderView* sliceRenderWidget;

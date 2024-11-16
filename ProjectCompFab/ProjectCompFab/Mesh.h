@@ -13,4 +13,7 @@ public:
         this->vertices = vertices;
         this->indices = indices;
     }
+
+    float getLowestPoint();
+	float getHighestPoint();
 };

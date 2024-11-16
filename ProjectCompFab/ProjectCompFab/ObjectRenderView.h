@@ -74,6 +74,25 @@ public slots:
         slicerHeight += 0.00000001;
 		return slicer->slice(mesh, slicerHeight);
 	}
+
+    std::vector<Clipper2Lib::PathsD> getAllSlices() {
+        double meshLowestPoint = mesh->getLowestPoint();
+		double meshHighestPoint = mesh->getHighestPoint();
+		double currentHeight = meshLowestPoint + 0.00000001;
+        double layerHeight = slicer->getLayerHeight();
+
+		std::vector<Clipper2Lib::PathsD> allCompiledSlices;
+
+        while (currentHeight < meshHighestPoint) {
+			auto rawSlice = slicer->slice(mesh, currentHeight);
+			slicer->setContours(rawSlice);
+			Clipper2Lib::PathsD compiledSlice = slicer->compilePolygons();
+			allCompiledSlices.push_back(compiledSlice);
+            currentHeight += layerHeight;
+        }
+		return allCompiledSlices;
+    }
+
 	void changeLayerHeight(double value) {
 		slicer->setLayerHeight(value);
         

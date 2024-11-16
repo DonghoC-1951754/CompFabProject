@@ -38,6 +38,7 @@ void SliceRenderView::paintGL() {
 		for (const auto& vertex : polygon) {
 			glVertex2f(vertex.x, vertex.y);
 		}
+		glVertex2f(polygon[0].x, polygon[0].y);
 		glEnd();
 	}
 
@@ -61,6 +62,19 @@ void SliceRenderView::setSliceData(const std::vector< std::vector<std::vector<gl
 		}
 		polygons2D.push_back(tempflattenedVertices);
 	}
+}
+
+void SliceRenderView::setSliceDataClipper(Clipper2Lib::PathsD polygons)
+{
+	polygons2D.clear();
+	for (const auto& polygon : polygons) {
+		std::vector<glm::vec2> tempflattenedVertices;
+		for (const auto& point : polygon) {
+			tempflattenedVertices.push_back(glm::vec2(point.x, point.y));
+		}
+		polygons2D.push_back(tempflattenedVertices);
+	}
+	update();
 }
 
 void SliceRenderView::mousePressEvent(QMouseEvent* event) {
