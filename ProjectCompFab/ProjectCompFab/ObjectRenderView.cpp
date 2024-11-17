@@ -81,6 +81,7 @@ void ObjectRenderView::paintGL() {
 void ObjectRenderView::renderMesh() {
     // Set the cube color
     QMatrix4x4 model;
+	model.scale(1.0f, 1.0f, -1.0f);
     //model.rotate(-90, 1.0f, 0.0f, 0.0f);
     shaderProgram.setUniformValue("cubeColor", QVector4D(1.0f, 0.5f, 0.0f, 1.0f));
     shaderProgram.setUniformValue("model", model);
@@ -241,7 +242,7 @@ void ObjectRenderView::drawAxes() {
     QVector3D origin(0, 0, 0);
     QVector3D xAxis(100, 0, 0);
     QVector3D yAxis(0, 100, 0);
-    QVector3D zAxis(0, 0, 100);
+    QVector3D zAxis(0, 0, -100);
 
     // Draw X axis in red
     shaderProgram.setUniformValue("cubeColor", QVector4D(1.0f, 0.0f, 0.0f, 1.0f));  // Red color

@@ -100,11 +100,12 @@ void MainWindow::changeLayerHeight(double layerHeight)
 }
 
 void MainWindow::openSliceWindow() {
-    widget->getSlicer()->setLayerHeight(slicingParameterInputBoxes[0]->value());
-    slicerHeightInputBox->setSingleStep(slicingParameterInputBoxes[0]->value());
-    std::vector<Clipper2Lib::PathsD> allCompiledSlices = widget->getAllSlices();
-	slicerHeightInputBox->setValue(0.0);
-	sliceWindow->setSLiceDataClipper(allCompiledSlices[0]);
+ //   widget->getSlicer()->setLayerHeight(slicingParameterInputBoxes[0]->value());
+ //   slicerHeightInputBox->setSingleStep(slicingParameterInputBoxes[0]->value());
+ //   std::vector<Clipper2Lib::PathsD> allCompiledSlices = widget->getAllSlices();
+
+	//slicerHeightInputBox->setValue(0.0);
+	//sliceWindow->setSLiceDataClipper(allCompiledSlices[0]);
     
 	//auto orderedLineSegments = widget->sliceMesh();
 	//sliceWindow->setSliceData(orderedLineSegments);
@@ -113,13 +114,13 @@ void MainWindow::openSliceWindow() {
 	//slicer->setContours(orderedLineSegments);
 	//Clipper2Lib::PathsD polygons = slicer->compilePolygons();
 
-	//auto orderedLineSegments = widget->sliceMesh();
- //   GcodeCreator GCreator;
- //   GCreator.generateGCode(orderedLineSegments, "Test");
-	//sliceWindow->setSliceData(orderedLineSegments);
- //   SlicerPlane* slicer = widget->getSlicer();
-	//slicer->setContours(orderedLineSegments);
-	//Clipper2Lib::PathsD polygons = slicer->compilePolygons();
+	auto orderedLineSegments = widget->sliceMesh();
+    GcodeCreator GCreator;
+    GCreator.generateGCode(orderedLineSegments, "Test");
+	sliceWindow->setSliceData(orderedLineSegments);
+    SlicerPlane* slicer = widget->getSlicer();
+	slicer->setContours(orderedLineSegments);
+	Clipper2Lib::PathsD polygons = slicer->compilePolygons();
 }
 
 void MainWindow::openLoadModelDialog() {
@@ -155,7 +156,7 @@ void MainWindow::createSlicingParameterWidgets()
         gridLayout->addWidget(slicingParameterInputBoxes[row], row, 1);
     }
 
-    //connect(slicingParameterInputBoxes[0], &QDoubleSpinBox::valueChanged, widget, &ObjectRenderView::changeLayerHeight);
+	slicingParameterInputBoxes[0]->setValue(widget->getSlicer()->getLayerHeight());
     connect(slicingParameterInputBoxes[0], &QDoubleSpinBox::valueChanged, this, &MainWindow::changeLayerHeight);
     
     gridWidget->setLayout(gridLayout);
