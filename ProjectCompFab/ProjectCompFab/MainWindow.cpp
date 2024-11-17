@@ -84,7 +84,9 @@ void MainWindow::changeSlicerHeight(double height) {
     //widget->setSliderSlicerHeight(height + layerHeight);
 	widget->setSlicerHeight(height);
     std::vector<Clipper2Lib::PathsD> allCompiledSlices = widget->getAllSlices();
-	sliceWindow->setSLiceDataClipper(allCompiledSlices[(height/layerHeight)]);
+    if (allCompiledSlices.size() > height / layerHeight) {
+        sliceWindow->setSLiceDataClipper(allCompiledSlices[(height / layerHeight)]);
+	}
 }
 
 MainWindow::~MainWindow() {

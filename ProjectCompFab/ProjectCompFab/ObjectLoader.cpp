@@ -23,34 +23,15 @@ Mesh* ObjectLoader::loadSTL(const std::string& filename) {
     aiMesh* mesh = scene->mMeshes[0];
     // First loop through the vertices to populate the vertices vector
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+        // Swap Y and Z coordinates while loading
+        auto aiVertices = mesh->mVertices[i];
         Vertex vertex;
-        glm::vec3 temp_vector3;
+		vertex.setPosition(glm::vec3(aiVertices.x, aiVertices.z, aiVertices.y));
+        //vertex.x = aiVertices.x;
+        //vertex.y = aiVertices.z; // Swap Y and Z
+        //vertex.z = aiVertices.y; // Swap Y and Z
 
-        // Convert aiVector3D to glm::vec4 for matrix multiplication
-        glm::vec4 vertexMatrix(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z, 1.0f);
-
-        // Apply the rotation matrix
-
-        vertexMatrix = rotationMatrix * vertexMatrix;
-
-        // Update vertex position in the mesh
-        mesh->mVertices[i].x = vertexMatrix.x;
-        mesh->mVertices[i].y = vertexMatrix.y;
-        mesh->mVertices[i].z = vertexMatrix.z;
-
-        // Set vertex position
-        temp_vector3.x = mesh->mVertices[i].x;
-        temp_vector3.y = mesh->mVertices[i].y;
-        temp_vector3.z = mesh->mVertices[i].z;
-        vertex.setPosition(temp_vector3);
-
-        // Set vertex normal
-        temp_vector3.x = mesh->mNormals[i].x;
-        temp_vector3.y = mesh->mNormals[i].y;
-        temp_vector3.z = mesh->mNormals[i].z;
-        vertex.setNormal(temp_vector3);
-
-        vertices.push_back(vertex); // Add the vertex to the list
+        vertices.push_back(vertex);
     }
 
     // Now loop through the faces to populate the indices vector
