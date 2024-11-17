@@ -4,7 +4,7 @@
 #include <QDoubleSpinBox>
 #include <QPushButton>
 #include <QVBoxLayout>
-
+#include <clipper2/clipper.h>
 /*
 * Window that shows all widgets and controls in 1 place
 * Contains RenderView and controls
@@ -33,6 +33,7 @@ private:
 	QVBoxLayout* panelLayout;
 	QWidget* gridWidget;
 	std::vector<QDoubleSpinBox*> slicingParameterInputBoxes;
+	std::vector<Clipper2Lib::PathsD> allCompiledSlices;
 	
 
 	std::string modelFilePath;

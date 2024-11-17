@@ -82,7 +82,6 @@ void ObjectRenderView::renderMesh() {
     // Set the cube color
     QMatrix4x4 model;
 	model.scale(1.0f, 1.0f, -1.0f);
-    //model.rotate(-90, 1.0f, 0.0f, 0.0f);
     shaderProgram.setUniformValue("cubeColor", QVector4D(1.0f, 0.5f, 0.0f, 1.0f));
     shaderProgram.setUniformValue("model", model);
 
