@@ -112,6 +112,13 @@ void MainWindow::openSliceWindow() {
 
 	slicerHeightInputBox->setValue(widget->getSlicer()->getLayerHeight());
 	sliceWindow->setSLiceDataClipper(allCompiledSlices[0]);
+
+    // Slices for GCode
+	GcodeCreator GCreator;
+	auto erodedSlices = GCreator.erodeSlicesForGCode(allCompiledSlices);
+    int i = 0;
+
+    
     
 	//auto orderedLineSegments = widget->sliceMesh();
 	//sliceWindow->setSliceData(orderedLineSegments);
