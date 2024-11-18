@@ -14,5 +14,7 @@ class ObjectLoader
 public:
 	ObjectLoader();
 	Mesh* loadSTL(const std::string& filename);
+private:
+	void setMeshToCorrectPos(Mesh* mesh);
 };
 

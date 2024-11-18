@@ -105,7 +105,7 @@ void MainWindow::openSliceWindow() {
     allCompiledSlices = widget->getAllSlices();
 	slicerHeightInputBox->setEnabled(true);
 
-	slicerHeightInputBox->setValue(0.0);
+	slicerHeightInputBox->setValue(widget->getSlicer()->getLayerHeight());
 	sliceWindow->setSLiceDataClipper(allCompiledSlices[0]);
     
 	//auto orderedLineSegments = widget->sliceMesh();

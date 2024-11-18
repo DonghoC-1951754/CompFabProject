@@ -81,7 +81,7 @@ public slots:
         // Edge case: lift slicer plane height by 0.00000001
 		double currentHeight = meshLowestPoint + 0.00000001;
         double layerHeight = slicer->getLayerHeight();
-
+		currentHeight += layerHeight;
 		std::vector<Clipper2Lib::PathsD> allCompiledSlices;
 
         while (currentHeight < meshHighestPoint) {
