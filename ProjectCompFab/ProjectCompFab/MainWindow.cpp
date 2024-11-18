@@ -169,47 +169,67 @@ void MainWindow::createSlicingParameterWidgets()
 }
 
 void MainWindow::createBedDimensions() {
-    // Create a vertical layout for the main bed dimensions section
-    QVBoxLayout* bedDimensionsMainLayout = new QVBoxLayout();
+    bedDimensionsMainLayout = new QVBoxLayout();
 
-    // Add the label for the bed dimensions
-    QLabel* bedLabel = new QLabel("Bed Dimensions (Width x Depth):", sidePanel);
+    bedLabel = new QLabel("Bed Dimensions (Width x Depth):", sidePanel);
     bedDimensionsMainLayout->addWidget(bedLabel);
 
-    // Create a horizontal layout for the width and depth inputs
-    QHBoxLayout* bedDimensionsLayout = new QHBoxLayout();
+    bedDimensionsLayout = new QHBoxLayout();
 
-    // Create the Width input
-    QLineEdit* bedWidthInput = new QLineEdit(sidePanel);
+    bedWidthInput = new QLineEdit(sidePanel);
     bedWidthInput->setPlaceholderText("Width");
     bedWidthInput->setText("180.0");
-    bedWidthInput->setValidator(new QDoubleValidator(0.0, 1000.0, 2, sidePanel));  // Restrict input to valid double
-    bedWidthInput->setMinimumWidth(80);  // Make the input wider
+    bedWidthInput->setValidator(new QDoubleValidator(0.0, 1000.0, 2, sidePanel));
+    bedWidthInput->setMinimumWidth(80);
     bedDimensionsLayout->addWidget(bedWidthInput);
 
-    // Add the "mm" label for Width
-    QLabel* widthUnitLabel = new QLabel("mm", sidePanel);
+    widthUnitLabel = new QLabel("mm", sidePanel);
     bedDimensionsLayout->addWidget(widthUnitLabel);
 
-    // Add the "x" label between Width and Depth
-    QLabel* xLabel = new QLabel("x", sidePanel);
+    xLabel = new QLabel("x", sidePanel);
     bedDimensionsLayout->addWidget(xLabel);
 
-    // Create the Depth input
-    QLineEdit* bedDepthInput = new QLineEdit(sidePanel);
+    bedDepthInput = new QLineEdit(sidePanel);
     bedDepthInput->setPlaceholderText("Depth");
     bedDepthInput->setText("180.0");
-    bedDepthInput->setValidator(new QDoubleValidator(0.0, 1000.0, 2, sidePanel));  // Restrict input to valid double
-    bedDepthInput->setMinimumWidth(80);  // Make the input wider
+    bedDepthInput->setValidator(new QDoubleValidator(0.0, 1000.0, 2, sidePanel));
+    bedDepthInput->setMinimumWidth(80);
     bedDimensionsLayout->addWidget(bedDepthInput);
 
-    // Add the "mm" label for Depth
-    QLabel* depthUnitLabel = new QLabel("mm", sidePanel);
+
+
+    setDimLayout = new QHBoxLayout();
+    setDimButton = new QPushButton("Dimensions are: " + bedWidthInput->text() + " x " + bedDepthInput->text(), sidePanel);
+	setDimButton->setDisabled(true);
+	setDimLayout->addWidget(setDimButton);
+    connect(setDimButton, &QPushButton::clicked, this, &MainWindow::setBedDimensions);
+    connect(setDimButton, &QPushButton::clicked, this, &MainWindow::updateBedText);
+	connect(bedWidthInput, &QLineEdit::textChanged, this, &MainWindow::updateBedText);
+	connect(bedDepthInput, &QLineEdit::textChanged, this, &MainWindow::updateBedText);
+
+    depthUnitLabel = new QLabel("mm", sidePanel);
     bedDimensionsLayout->addWidget(depthUnitLabel);
 
-    // Add the layout containing the width and depth to the main layout
     bedDimensionsMainLayout->addLayout(bedDimensionsLayout);
+	bedDimensionsMainLayout->addLayout(setDimLayout);
 
-    // Add the final layout to the panelLayout (assumed to be a member of MainWindow)
     panelLayout->addLayout(bedDimensionsMainLayout);
+}
+
+void MainWindow::setBedDimensions() {
+	double width = bedWidthInput->text().toDouble();
+	double depth = bedDepthInput->text().toDouble();
+	widget->setPlateWidth(width);
+	widget->setPlateDepth(depth);
+}
+
+void MainWindow::updateBedText() {
+    double width = bedWidthInput->text().toDouble();
+    double depth = bedDepthInput->text().toDouble();
+    setDimButton->setDisabled(true);
+    setDimButton->setText("Dimensions are: " + QString::number(width) + " x " + QString::number(depth));
+    if (!(widget->getPlateWidth() == width && widget->getPlateDepth() == depth)) {
+        setDimButton->setEnabled(true);
+        setDimButton->setText("Set dimensions");
+	}
 }

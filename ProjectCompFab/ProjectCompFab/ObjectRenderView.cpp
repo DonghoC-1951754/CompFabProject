@@ -74,6 +74,8 @@ void ObjectRenderView::paintGL() {
     drawAxes();
     renderMesh();
     renderSlicer();
+    drawPlate();
+
 
     shaderProgram.release();
 }
@@ -151,15 +153,28 @@ void ObjectRenderView::mouseMoveEvent(QMouseEvent* event) {
     lastMousePos = event->pos();
 
     if (rotating) {
-        float angleX = delta.y() * 0.5f; // Rotate up/down
-        float angleY = delta.x() * 0.5f; // Rotate left/right
+        float sensitivity = 0.3f;
+        float damping = 0.9f;
 
-        QMatrix4x4 rotation;
-        rotation.rotate(angleX, 1, 0, 0);
-        rotation.rotate(angleY, 0, 1, 0);
+        float angleX = delta.y() * sensitivity * damping;
+        float angleY = -delta.x() * sensitivity * damping;
+        static const float pitchLimit = 85.0f;
 
-        QVector3D direction = cameraPos - targetPos; // Direction vector
-        cameraPos = rotation.map(direction) + targetPos; // Apply rotation and translate
+        QVector3D forward = (cameraPos - targetPos).normalized();
+        QVector3D right = QVector3D::crossProduct(forward, QVector3D(0, 1, 0)).normalized();
+        QVector3D up = QVector3D::crossProduct(right, forward).normalized();
+
+        float currentPitch = qRadiansToDegrees(qAsin(forward.y()));
+        float newPitch = qBound(-pitchLimit, currentPitch + angleX, pitchLimit);
+
+        QQuaternion pitchRotation = QQuaternion::fromAxisAndAngle(right, newPitch - currentPitch);
+        QQuaternion yawRotation = QQuaternion::fromAxisAndAngle(QVector3D(0, 1, 0), angleY);
+
+        QQuaternion totalRotation = yawRotation * pitchRotation;
+        QVector3D direction = (cameraPos - targetPos).normalized();
+
+        float distance = (cameraPos - targetPos).length();
+        cameraPos = totalRotation.rotatedVector(direction * distance) + targetPos;
     }
     else if (panning) {
         float panSpeed = 0.1f;
@@ -170,7 +185,9 @@ void ObjectRenderView::mouseMoveEvent(QMouseEvent* event) {
         cameraPos += -delta.x() * panSpeed * right + delta.y() * panSpeed * up;
     }
 
-    update(); // Repaint with new camera settings
+    update();  // Repaint with updated camera settings
+
+    update();  // Repaint with updated camera settings
 }
 
 // Wheel Event for Zooming
@@ -286,4 +303,76 @@ void ObjectRenderView::setupSlicer() {
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
     glBindVertexArray(0); // Unbind VAO
+}
+
+void ObjectRenderView::drawPlate() {
+    // Define the vertices of the plate (a square)
+    GLfloat plateVertices[] = {
+        // Positions        // Color (Black)
+        0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f,  // Bottom-left corner (0, 0)
+        plateWidth, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f,  // Bottom-right corner
+        plateWidth, 0.0f, -plateDepth,  0.0f, 0.0f, 0.0f,  // Top-right corner
+        0.0f, 0.0f, -plateDepth,  0.0f, 0.0f, 0.0f   // Top-left corner
+    };
+
+    // Define the indices for the square (two triangles)
+    GLuint plateIndices[] = {
+        0, 1, 2,   // First triangle (Bottom-left, Bottom-right, Top-right)
+        0, 2, 3    // Second triangle (Bottom-left, Top-right, Top-left)
+    };
+
+    // Create and bind VAO for the plate
+    GLuint plateVAO, plateVBO, plateEBO;
+    glGenVertexArrays(1, &plateVAO);
+    glGenBuffers(1, &plateVBO);
+    glGenBuffers(1, &plateEBO);
+
+    glBindVertexArray(plateVAO);
+
+    // Set up the VBO and EBO for the plate
+    glBindBuffer(GL_ARRAY_BUFFER, plateVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(plateVertices), plateVertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, plateEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(plateIndices), plateIndices, GL_STATIC_DRAW);
+
+    // Set the vertex attribute pointers (position and color)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);  // Positions
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));  // Color
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
+    glBindVertexArray(0); // Unbind VAO
+
+    // Now, when rendering this plate, we'll set its color to black
+    QMatrix4x4 modelBed;
+    modelBed.setToIdentity();
+    shaderProgram.setUniformValue("cubeColor", QVector4D(0.0f, 0.0f, 0.0f, 1.0f)); // Set color to black
+    shaderProgram.setUniformValue("model", modelBed);
+
+
+    // Draw the plate
+    glBindVertexArray(plateVAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // 6 indices for 2 triangles
+    glBindVertexArray(0); // Unbind VAO
+}
+
+void ObjectRenderView::setPlateWidth(double width) {
+	plateWidth = width;
+	update();
+}
+
+void ObjectRenderView::setPlateDepth(double depth) {
+	plateDepth = depth;
+	update();
+}
+
+double ObjectRenderView::getPlateWidth() {
+	return plateWidth;
+}
+
+double ObjectRenderView::getPlateDepth() {
+	return plateDepth;
 }

@@ -24,6 +24,11 @@ public:
 
 	double getSlicerHeight() { return slicerHeight; };
     void setSlicerHeight(double height) { slicerHeight = height; update(); };
+    void setPlateWidth(double width);
+    void setPlateDepth(double depth);
+
+    double getPlateWidth();
+    double getPlateDepth();
 
 protected:
 
@@ -65,6 +70,10 @@ private:
     /*void setSlicerHeight(double height) { slicerHeight = height; };*/
 	//double getSlicerHeight() { return slicerHeight; };
 
+	double plateWidth = 180.0;
+	double plateDepth = 180.0;
+    void drawPlate();
+
 public slots:
     void setSliderSlicerHeight(double value) {
         slicerHeight = value;
@@ -96,6 +105,5 @@ public slots:
 
 	void changeLayerHeight(double value) {
 		slicer->setLayerHeight(value);
-        
 	}
 };

@@ -5,6 +5,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <clipper2/clipper.h>
+#include <QLabel>
 /*
 * Window that shows all widgets and controls in 1 place
 * Contains RenderView and controls
@@ -24,6 +25,8 @@ public slots:
 private slots:
 	void openSliceWindow();
 	void openLoadModelDialog();
+	void setBedDimensions();
+	void updateBedText();
 private:
 	ObjectRenderView* widget;
 	QDoubleSpinBox* slicerHeightInputBox;
@@ -40,6 +43,18 @@ private:
 	std::string modelFilePath;
 	void createSlicingParameterWidgets();
 	void createBedDimensions();
+
+    // Create a vertical layout for the main bed dimensions section
+	QVBoxLayout* bedDimensionsMainLayout;
+	QLabel* bedLabel;
+	QHBoxLayout* bedDimensionsLayout;
+	QLineEdit* bedWidthInput;
+	QLabel* widthUnitLabel;
+	QLabel* xLabel;
+	QLineEdit* bedDepthInput;
+	QLabel* depthUnitLabel;
+	QHBoxLayout* setDimLayout;
+	QPushButton* setDimButton;
 
 };
 
