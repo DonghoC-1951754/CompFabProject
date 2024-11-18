@@ -105,13 +105,37 @@ void MainWindow::changeLayerHeight(double layerHeight)
 }
 
 void MainWindow::openSliceWindow() {
+ //   widget->getSlicer()->setLayerHeight(slicingParameterInputBoxes[0]->value());
+ //   slicerHeightInputBox->setSingleStep(slicingParameterInputBoxes[0]->value());
+ //   allCompiledSlices = widget->getAllSlices();
+	//slicerHeightInputBox->setEnabled(true);
+
+	//slicerHeightInputBox->setValue(widget->getSlicer()->getLayerHeight());
+	//sliceWindow->setSLiceDataClipper(allCompiledSlices[0]);
+
+ //   // Slices for GCode
+	//GcodeCreator GCreator;
+	//auto erodedSlices = GCreator.erodeSlicesForGCode(allCompiledSlices);
+	//auto erodedSlicesWithShells = GCreator.addShells(erodedSlices, 2);
+
     widget->getSlicer()->setLayerHeight(slicingParameterInputBoxes[0]->value());
     slicerHeightInputBox->setSingleStep(slicingParameterInputBoxes[0]->value());
     allCompiledSlices = widget->getAllSlices();
-	slicerHeightInputBox->setEnabled(true);
+    
 
-	slicerHeightInputBox->setValue(widget->getSlicer()->getLayerHeight());
-	sliceWindow->setSLiceDataClipper(allCompiledSlices[0]);
+    // Slices for GCode
+    GcodeCreator GCreator;
+    auto erodedSlices = GCreator.erodeSlicesForGCode(allCompiledSlices);
+    auto erodedSlicesWithShells = GCreator.addShells(erodedSlices, 2);
+    allCompiledSlices = erodedSlicesWithShells;
+
+    slicerHeightInputBox->setEnabled(true);
+
+    slicerHeightInputBox->setValue(widget->getSlicer()->getLayerHeight());
+    sliceWindow->setSLiceDataClipper(allCompiledSlices[0]);
+
+
+    
     
 	//auto orderedLineSegments = widget->sliceMesh();
 	//sliceWindow->setSliceData(orderedLineSegments);

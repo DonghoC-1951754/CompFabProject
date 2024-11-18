@@ -41,8 +41,6 @@ constexpr auto qt_meta_stringdata_CLASSObjectRenderViewENDCLASS = QtMocHelpers::
     "value",
     "sliceMesh",
     "std::vector<std::vector<std::vector<glm::dvec3>>>",
-    "getAllSlices",
-    "std::vector<Clipper2Lib::PathsD>",
     "changeLayerHeight"
 );
 #else  // !QT_MOC_HAS_STRINGDATA
@@ -56,7 +54,7 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSObjectRenderViewENDCLASS[] = {
       12,       // revision
        0,       // classname
        0,    0, // classinfo
-       4,   14, // methods
+       3,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -64,15 +62,13 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSObjectRenderViewENDCLASS[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    1,   38,    2, 0x0a,    1 /* Public */,
-       4,    0,   41,    2, 0x0a,    3 /* Public */,
-       6,    0,   42,    2, 0x0a,    4 /* Public */,
-       8,    1,   43,    2, 0x0a,    5 /* Public */,
+       1,    1,   32,    2, 0x0a,    1 /* Public */,
+       4,    0,   35,    2, 0x0a,    3 /* Public */,
+       6,    1,   36,    2, 0x0a,    4 /* Public */,
 
  // slots: parameters
     QMetaType::Void, QMetaType::Double,    3,
     0x80000000 | 5,
-    0x80000000 | 7,
     QMetaType::Void, QMetaType::Double,    3,
 
        0        // eod
@@ -92,8 +88,6 @@ Q_CONSTINIT const QMetaObject ObjectRenderView::staticMetaObject = { {
         QtPrivate::TypeAndForceComplete<double, std::false_type>,
         // method 'sliceMesh'
         QtPrivate::TypeAndForceComplete<std::vector<std::vector<std::vector<glm::dvec3>> >, std::false_type>,
-        // method 'getAllSlices'
-        QtPrivate::TypeAndForceComplete<std::vector<Clipper2Lib::PathsD>, std::false_type>,
         // method 'changeLayerHeight'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<double, std::false_type>
@@ -110,9 +104,7 @@ void ObjectRenderView::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
         case 0: _t->setSliderSlicerHeight((*reinterpret_cast< std::add_pointer_t<double>>(_a[1]))); break;
         case 1: { std::vector<std::vector<std::vector<glm::dvec3>>> _r = _t->sliceMesh();
             if (_a[0]) *reinterpret_cast< std::vector<std::vector<std::vector<glm::dvec3>>>*>(_a[0]) = std::move(_r); }  break;
-        case 2: { std::vector<Clipper2Lib::PathsD> _r = _t->getAllSlices();
-            if (_a[0]) *reinterpret_cast< std::vector<Clipper2Lib::PathsD>*>(_a[0]) = std::move(_r); }  break;
-        case 3: _t->changeLayerHeight((*reinterpret_cast< std::add_pointer_t<double>>(_a[1]))); break;
+        case 2: _t->changeLayerHeight((*reinterpret_cast< std::add_pointer_t<double>>(_a[1]))); break;
         default: ;
         }
     }
@@ -139,13 +131,13 @@ int ObjectRenderView::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 4)
+        if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 4;
+        _id -= 3;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 4)
+        if (_id < 3)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 4;
+        _id -= 3;
     }
     return _id;
 }

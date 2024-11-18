@@ -305,6 +305,26 @@ void ObjectRenderView::setupSlicer() {
     glBindVertexArray(0); // Unbind VAO
 }
 
+
+std::vector<Clipper2Lib::PathsD> ObjectRenderView::getAllSlices() {
+    double meshLowestPoint = mesh->getLowestPoint();
+    double meshHighestPoint = mesh->getHighestPoint();
+    // Edge case: lift slicer plane height by 0.00000001
+    double currentHeight = meshLowestPoint + 0.00000001;
+    double layerHeight = slicer->getLayerHeight();
+    currentHeight += layerHeight;
+    std::vector<Clipper2Lib::PathsD> allCompiledSlices;
+
+    while (currentHeight < meshHighestPoint) {
+        auto rawSlice = slicer->slice(mesh, currentHeight);
+        slicer->setContours(rawSlice);
+        Clipper2Lib::PathsD compiledSlice = slicer->compilePolygons();
+        allCompiledSlices.push_back(compiledSlice);
+        currentHeight += layerHeight;
+    }
+    return allCompiledSlices;
+}
+
 void ObjectRenderView::drawPlate() {
     // Define the vertices of the plate (a square)
     GLfloat plateVertices[] = {
