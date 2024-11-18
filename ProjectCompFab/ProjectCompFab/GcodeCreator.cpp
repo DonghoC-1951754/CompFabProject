@@ -83,3 +83,21 @@ std::vector<Clipper2Lib::PathsD> GcodeCreator::erodeSlicesForGCode(const std::ve
 
     return erodedSlices;
 }
+
+std::vector<Clipper2Lib::PathsD> GcodeCreator::addShells(const std::vector<Clipper2Lib::PathsD> slices, int shellAmount)
+{
+	std::vector<Clipper2Lib::PathsD> shelledSlices;
+	double stepSize = -nozzleDiameter / 2;
+    for (auto slice : slices) {
+        Clipper2Lib::PathsD shell = slice;
+        for (int i = 0; i < shellAmount; i++) {
+            shell = Clipper2Lib::InflatePaths(shell, stepSize, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
+			for (auto path : shell) {
+				slice.push_back(path);
+			}
+        }
+		shelledSlices.push_back(slice);
+    }
+	
+    return shelledSlices;
+}
