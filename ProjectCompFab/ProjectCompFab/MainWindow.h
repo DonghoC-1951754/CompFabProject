@@ -32,12 +32,14 @@ private:
 	QPushButton* loadButton;
 	QVBoxLayout* panelLayout;
 	QWidget* gridWidget;
+	QWidget* sidePanel;
 	std::vector<QDoubleSpinBox*> slicingParameterInputBoxes;
 	std::vector<Clipper2Lib::PathsD> allCompiledSlices;
 	
 
 	std::string modelFilePath;
 	void createSlicingParameterWidgets();
+	void createBedDimensions();
 
 };
 

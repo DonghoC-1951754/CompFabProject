@@ -25,7 +25,12 @@ Mesh* ObjectLoader::loadSTL(const std::string& filename) {
         auto aiVertices = mesh->mVertices[i];
         Vertex vertex;
 		vertex.setPosition(glm::vec3(aiVertices.x, aiVertices.z, aiVertices.y));
+		vertex.setPosition(glm::vec3(aiVertices.x, aiVertices.z, aiVertices.y));// x = x, y = z: hoogte, z = y: diepte
+        //vertex.x = aiVertices.x;
+        //vertex.y = aiVertices.z; // Swap Y and Z
+        //vertex.z = aiVertices.y; // Swap Y and Z
         vertices.push_back(vertex);
+        //vertices = [(breedte, hoogte, diepte),...]
     }
     // Now loop through the faces to populate the indices vector
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {

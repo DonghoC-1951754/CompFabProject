@@ -5,6 +5,7 @@
 #include <QPushButton>
 #include <QSlider>
 #include <QVBoxLayout>
+#include <QLineEdit>
 #include "SliceWindow.h"
 #include <QFileDialog>
 #include "GcodeCreator.h"
@@ -24,7 +25,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 	  // Load the STL model
 
     // Side panel widget
-    QWidget* sidePanel = new QWidget();
+    sidePanel = new QWidget();
     panelLayout = new QVBoxLayout(sidePanel);
 
     // Example widgets for the side panel
@@ -33,6 +34,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     //QSlider* rotationSlider = new QSlider(Qt::Horizontal, sidePanel);
     //rotationSlider->setRange(0, 360);
+    
+	createBedDimensions();
+
+
+    // Add the layout to the panelLayout
 
     slicerHeightInputBox = new QDoubleSpinBox(sidePanel);
     slicerHeightInputBox->setRange(-100.0, 100.0);
@@ -43,7 +49,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     sliceButton = new QPushButton("Slice Model", sidePanel);
 
     sliceWindow = new SliceWindow();
-
 	createSlicingParameterWidgets();
 
     //connect(slicerHeightInputBox, &QDoubleSpinBox::valueChanged, widget, &ObjectRenderView::setSliderSlicerHeight);
@@ -115,12 +120,12 @@ void MainWindow::openSliceWindow() {
 	//slicer->setContours(orderedLineSegments);
 	//Clipper2Lib::PathsD polygons = slicer->compilePolygons();
 
-	//auto orderedLineSegments = widget->sliceMesh();
- //   GcodeCreator GCreator;
- //   GCreator.generateGCode(orderedLineSegments, "Test");
-	//sliceWindow->setSliceData(orderedLineSegments);
- //   SlicerPlane* slicer = widget->getSlicer();
-	//slicer->setContours(orderedLineSegments);
+	/*auto orderedLineSegments = widget->sliceMesh();
+    GcodeCreator GCreator;
+    GCreator.generateGCode(orderedLineSegments, "Test");
+	sliceWindow->setSliceData(orderedLineSegments);
+    SlicerPlane* slicer = widget->getSlicer();
+	slicer->setContours(orderedLineSegments);*/
 	//Clipper2Lib::PathsD polygons = slicer->compilePolygons();
 }
 
@@ -161,4 +166,50 @@ void MainWindow::createSlicingParameterWidgets()
     connect(slicingParameterInputBoxes[0], &QDoubleSpinBox::valueChanged, this, &MainWindow::changeLayerHeight);
     
     gridWidget->setLayout(gridLayout);
+}
+
+void MainWindow::createBedDimensions() {
+    // Create a vertical layout for the main bed dimensions section
+    QVBoxLayout* bedDimensionsMainLayout = new QVBoxLayout();
+
+    // Add the label for the bed dimensions
+    QLabel* bedLabel = new QLabel("Bed Dimensions (Width x Depth):", sidePanel);
+    bedDimensionsMainLayout->addWidget(bedLabel);
+
+    // Create a horizontal layout for the width and depth inputs
+    QHBoxLayout* bedDimensionsLayout = new QHBoxLayout();
+
+    // Create the Width input
+    QLineEdit* bedWidthInput = new QLineEdit(sidePanel);
+    bedWidthInput->setPlaceholderText("Width");
+    bedWidthInput->setText("180.0");
+    bedWidthInput->setValidator(new QDoubleValidator(0.0, 1000.0, 2, sidePanel));  // Restrict input to valid double
+    bedWidthInput->setMinimumWidth(80);  // Make the input wider
+    bedDimensionsLayout->addWidget(bedWidthInput);
+
+    // Add the "mm" label for Width
+    QLabel* widthUnitLabel = new QLabel("mm", sidePanel);
+    bedDimensionsLayout->addWidget(widthUnitLabel);
+
+    // Add the "x" label between Width and Depth
+    QLabel* xLabel = new QLabel("x", sidePanel);
+    bedDimensionsLayout->addWidget(xLabel);
+
+    // Create the Depth input
+    QLineEdit* bedDepthInput = new QLineEdit(sidePanel);
+    bedDepthInput->setPlaceholderText("Depth");
+    bedDepthInput->setText("180.0");
+    bedDepthInput->setValidator(new QDoubleValidator(0.0, 1000.0, 2, sidePanel));  // Restrict input to valid double
+    bedDepthInput->setMinimumWidth(80);  // Make the input wider
+    bedDimensionsLayout->addWidget(bedDepthInput);
+
+    // Add the "mm" label for Depth
+    QLabel* depthUnitLabel = new QLabel("mm", sidePanel);
+    bedDimensionsLayout->addWidget(depthUnitLabel);
+
+    // Add the layout containing the width and depth to the main layout
+    bedDimensionsMainLayout->addLayout(bedDimensionsLayout);
+
+    // Add the final layout to the panelLayout (assumed to be a member of MainWindow)
+    panelLayout->addLayout(bedDimensionsMainLayout);
 }

@@ -65,7 +65,7 @@ void ObjectRenderView::paintGL() {
 
     // position, where looking, leave be
     view.lookAt(cameraPos, targetPos, QVector3D(0, 1, 0));
-    projection.perspective(45.0f, float(width()) / float(height()), 0.1f, 1000.0f);
+    projection.perspective(45.0f, float(width()) / float(height()), 0.1f, 10000.0f);
 
     shaderProgram.setUniformValue("model", model);
     shaderProgram.setUniformValue("view", view);
