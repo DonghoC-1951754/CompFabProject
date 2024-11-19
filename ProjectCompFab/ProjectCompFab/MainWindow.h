@@ -15,6 +15,7 @@
 class ObjectRenderView;
 class SliceWindow;
 class GcodeCreator;
+class SliceOperations;
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -46,6 +47,7 @@ private:
 	std::vector<Clipper2Lib::PathsD> infill;
 	std::vector<Clipper2Lib::PathsD> mostInnerShells;
 	GcodeCreator* gcodeCreator;
+	SliceOperations* sliceOperations;
 	
 
 	std::string modelFilePath;

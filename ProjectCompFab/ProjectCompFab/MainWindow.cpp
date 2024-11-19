@@ -8,7 +8,8 @@
 #include <QLineEdit>
 #include "SliceWindow.h"
 #include <QFileDialog>
-//#include "clipper2/clipper.h"
+#include "clipper2/clipper.h"
+#include "SliceOperations.h"
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Create a central widget and set it as the main window's central widget
@@ -82,7 +83,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Set the splitter as the main layout in the central widget
     QHBoxLayout* mainLayout = new QHBoxLayout(centralWidget);
     mainLayout->addWidget(splitter);
-
+    gcodeCreator = new GcodeCreator();
+	sliceOperations = new SliceOperations();
     // Connect the slider to control rotation of the 3D model in the OpenGL widget
     //connect(rotationSlider, &QSlider::valueChanged, widget, &ModelViewer::setRotation);
 }
@@ -91,10 +93,10 @@ void MainWindow::changeSlicerHeight(double height) {
 	SlicerPlane* slicer = widget->getSlicer();
 	double layerHeight = slicer->getLayerHeight();
     
-    //widget->setSliderSlicerHeight(height + layerHeight);
-	widget->setSlicerHeight(height);
-    if (erodedSlices.size() > height / layerHeight) {
-		drawCompleteSlice(height / layerHeight);
+    widget->setSlicerHeight(height);
+	int stepAmount = height / layerHeight;
+    if (erodedSlices.size() > stepAmount) {
+		drawCompleteSlice(stepAmount);
 	}
 }
 
@@ -111,16 +113,17 @@ void MainWindow::changeLayerHeight(double layerHeight)
 void MainWindow::openSliceWindow() {
     widget->getSlicer()->setLayerHeight(slicingParameterInputBoxes[0]->value());
     slicerHeightInputBox->setSingleStep(slicingParameterInputBoxes[0]->value());
+    progressBar->setValue(0);
     auto allCompiledSlices = widget->getAllSlices();
     
     // Slices for GCode
-    gcodeCreator = new GcodeCreator();
-    erodedSlices = gcodeCreator->erodeSlicesForGCode(allCompiledSlices, slicingParameterInputBoxes[2]->value());
-    progressBar->setValue(progressBar->value() + 40);
-    erodedSlicesWithShells = gcodeCreator->addShells(erodedSlices, slicingParameterInputBoxes[1]->value(), slicingParameterInputBoxes[2]->value());
+
+    erodedSlices = sliceOperations->erodeSlicesForGCode(allCompiledSlices, slicingParameterInputBoxes[2]->value());
+    progressBar->setValue(progressBar->value() + 60);
+    erodedSlicesWithShells = sliceOperations->addShells(erodedSlices, slicingParameterInputBoxes[1]->value(), slicingParameterInputBoxes[2]->value());
     progressBar->setValue(progressBar->value() + 30);
-	mostInnerShells = gcodeCreator->getMostInnerShells();
-    infill = gcodeCreator->generateInfill(mostInnerShells, erodedSlices);
+	mostInnerShells = sliceOperations->getMostInnerShells();
+    infill = sliceOperations->generateInfill(mostInnerShells, erodedSlices);
 	
     // GUI Controls
     double maxSlicerHeight = allCompiledSlices.size() * widget->getSlicer()->getLayerHeight();
@@ -130,7 +133,7 @@ void MainWindow::openSliceWindow() {
         slicerHeightInputBox->setValue(widget->getSlicer()->getLayerHeight());
         slicerHeightInputBox->setRange(minSlicerHeight, maxSlicerHeight);
 		drawCompleteSlice(0);
-        progressBar->setValue(progressBar->value() + 30);
+        progressBar->setValue(progressBar->value() + 10);
     }
 	//auto orderedLineSegments = widget->sliceMesh();
 	//sliceWindow->setSliceData(orderedLineSegments);
