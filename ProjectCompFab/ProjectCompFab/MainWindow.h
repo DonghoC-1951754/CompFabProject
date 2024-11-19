@@ -15,6 +15,7 @@
 class ObjectRenderView;
 class SliceWindow;
 class GcodeCreator;
+class SliceOperations;
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -23,7 +24,6 @@ public:
 	~MainWindow();
 public slots:
 	void changeSlicerHeight(double height);
-	void changeLayerHeight(double layerHeight);
 private slots:
 	void openSliceWindow();
 	void openLoadModelDialog();
@@ -46,11 +46,15 @@ private:
 	std::vector<Clipper2Lib::PathsD> infill;
 	std::vector<Clipper2Lib::PathsD> mostInnerShells;
 	GcodeCreator* gcodeCreator;
+	SliceOperations* sliceOperations;
 	
 
 	std::string modelFilePath;
 	void createSlicingParameterWidgets();
 	void createBedDimensions();
+	void createSlicerHeightInput();
+	void createObjectRenderView();
+	void createProgressBar();
 
     // Create a vertical layout for the main bed dimensions section
 	QVBoxLayout* bedDimensionsMainLayout;
