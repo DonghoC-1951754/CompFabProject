@@ -15,14 +15,19 @@ public:
 	Clipper2Lib::PathsD compilePolygons();
 	void setLayerHeight(double layerHeight) { this->layerHeight = layerHeight; };
 	double getLayerHeight() { return layerHeight; };
+	void setWidth(float width) { this->width = width; };
+	void setDepth(float depth) { this->width = depth; };
+	void setStandardHeight(float standardHeight) { this->standardHeight = standardHeight; };
 
 private:
-	float width = 40.0f;
+	float width = 180.0f;
+	float depth = 180.0f;
+	float standardHeight = 0.2f;
     std::vector<float> vertices{
-        -width, 0.0f, -width,
-		 width, 0.0f, -width,
-		 width, 0.0f,  width,
-        -width, 0.0f,  width,
+		0.0f, standardHeight, 0.0f,       // Bottom-left corner (0, 0)
+		width + 10.0f, standardHeight, 0.0f,  // Bottom-right corner (18, 0)
+		width + 10.0f, standardHeight, -(depth + 10.0f),  // Top-right corner (18, -18)
+		0.0f, standardHeight, -(depth + 10.0f)   // Top-left corner (0, -18)
     };
 	std::vector<int> indices{
 		0, 1, 2,

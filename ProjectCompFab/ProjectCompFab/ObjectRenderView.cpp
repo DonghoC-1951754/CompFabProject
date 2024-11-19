@@ -20,7 +20,6 @@ ObjectRenderView::~ObjectRenderView()
 	mesh = nullptr;
     delete slicer;
 	slicer = nullptr;
-
 }
 
 void ObjectRenderView::loadModel(const std::string& filename) {
@@ -43,6 +42,7 @@ void ObjectRenderView::initializeGL() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+
     setupMesh();
 	setupSlicer();
 
@@ -50,13 +50,17 @@ void ObjectRenderView::initializeGL() {
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/vertex_shader.glsl");
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/fragment_shader.glsl");
     shaderProgram.link();
+
+	plateShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/printBedVert.glsl");
+    plateShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/printBedFrag.glsl");
+	plateShader.link();
+
     
 }
 
 void ObjectRenderView::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    shaderProgram.bind();
 
     // Setup model, view and projection matrices
     QMatrix4x4 model, view, projection;
@@ -67,17 +71,27 @@ void ObjectRenderView::paintGL() {
     view.lookAt(cameraPos, targetPos, QVector3D(0, 1, 0));
     projection.perspective(45.0f, float(width()) / float(height()), 0.1f, 10000.0f);
 
+    plateShader.bind();
+
+    plateShader.setUniformValue("model", model);
+    plateShader.setUniformValue("view", view);
+    plateShader.setUniformValue("projection", projection);
+
+    plateShader.release();
+
+    drawPlate();
+
+    shaderProgram.bind();
     shaderProgram.setUniformValue("model", model);
     shaderProgram.setUniformValue("view", view);
     shaderProgram.setUniformValue("projection", projection);
-
-    drawAxes();
-    renderMesh();
     renderSlicer();
-    drawPlate();
-
+    drawAxes();
+    
+    renderMesh();
 
     shaderProgram.release();
+
 }
 
 void ObjectRenderView::renderMesh() {
@@ -94,14 +108,14 @@ void ObjectRenderView::renderMesh() {
 }
 
 void ObjectRenderView::renderSlicer() {
+    slicer->setWidth(plateWidth);
+    slicer->setDepth(plateDepth);
+    //TODO update standardHeight in slicer.h
+
     QMatrix4x4 modelSlicer;
     modelSlicer.setToIdentity();
-    //modelSlicer.rotate(60, 1.0f, 0.0f, 0.0f);
-    glm::vec3 renderModelMidpoint = findMidpoint();
-    modelSlicer.translate(renderModelMidpoint.x, slicerHeight, renderModelMidpoint.z);
-    // Set the slicer color
-    shaderProgram.setUniformValue("cubeColor", QVector4D(0.5f, 0.5f, 0.5f, 0.3f));
-    // Translate the slicer (model matrix)
+    modelSlicer.translate(-5.0f, 0.0f, 5.0f); // Move 5 units along the Z-axis
+    shaderProgram.setUniformValue("cubeColor", QVector4D(0.071f, 0.42f, 1.0f, 0.4f));
     shaderProgram.setUniformValue("model", modelSlicer);
 
     glBindVertexArray(VAO1);
@@ -110,17 +124,6 @@ void ObjectRenderView::renderSlicer() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
 }
 
-glm::vec3 ObjectRenderView::findMidpoint() {
-    std::vector<glm::vec3> vertices;;
-    for (auto& vertex : mesh->vertices) {
-        vertices.push_back(vertex.getPosition());
-    }
-    glm::vec3 sum(0.0f);
-    for (const auto& vertex : vertices) {
-        sum += vertex;
-    }
-    return sum / static_cast<float>(vertices.size());
-}
 
 void ObjectRenderView::resizeGL(int w, int h) {
     glViewport(0, 0, w, h);
@@ -283,6 +286,9 @@ void ObjectRenderView::drawAxes() {
 }
 
 void ObjectRenderView::setupSlicer() {
+	slicer->setWidth(plateWidth);
+	slicer->setDepth(plateDepth);
+    //TODO update standardHeight in slicer.h
     glGenVertexArrays(1, &VAO1);
     glGenBuffers(1, &VBO1);
     glGenBuffers(1, &EBO1);
@@ -326,13 +332,15 @@ std::vector<Clipper2Lib::PathsD> ObjectRenderView::getAllSlices() {
 }
 
 void ObjectRenderView::drawPlate() {
-    // Define the vertices of the plate (a square)
+    plateShader.bind();
+
+    // Define the vertices of the plate (18cm x 18cm), positioned flat at height 0
     GLfloat plateVertices[] = {
-        // Positions        // Color (Black)
-        0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f,  // Bottom-left corner (0, 0)
-        plateWidth, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f,  // Bottom-right corner
-        plateWidth, 0.0f, -plateDepth,  0.0f, 0.0f, 0.0f,  // Top-right corner
-        0.0f, 0.0f, -plateDepth,  0.0f, 0.0f, 0.0f   // Top-left corner
+        // Positions          // No need for colors as they are generated in the shader
+        0.0f, 0.0f, 0.0f,       // Bottom-left corner (0, 0)
+        plateWidth, 0.0f, 0.0f,  // Bottom-right corner (18, 0)
+        plateWidth, 0.0f, -plateDepth,  // Top-right corner (18, -18)
+        0.0f, 0.0f, -plateDepth   // Top-left corner (0, -18)
     };
 
     // Define the indices for the square (two triangles)
@@ -341,7 +349,7 @@ void ObjectRenderView::drawPlate() {
         0, 2, 3    // Second triangle (Bottom-left, Top-right, Top-left)
     };
 
-    // Create and bind VAO for the plate
+    // Create and bind VAO, VBO, and EBO for the plate
     GLuint plateVAO, plateVBO, plateEBO;
     glGenVertexArrays(1, &plateVAO);
     glGenBuffers(1, &plateVBO);
@@ -349,35 +357,40 @@ void ObjectRenderView::drawPlate() {
 
     glBindVertexArray(plateVAO);
 
-    // Set up the VBO and EBO for the plate
     glBindBuffer(GL_ARRAY_BUFFER, plateVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(plateVertices), plateVertices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, plateEBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(plateIndices), plateIndices, GL_STATIC_DRAW);
 
-    // Set the vertex attribute pointers (position and color)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);  // Positions
+    // Set the vertex attribute pointer for positions (no colors needed)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));  // Color
-    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
     glBindVertexArray(0); // Unbind VAO
 
-    // Now, when rendering this plate, we'll set its color to black
+    // Create transformation matrices
     QMatrix4x4 modelBed;
     modelBed.setToIdentity();
-    shaderProgram.setUniformValue("cubeColor", QVector4D(0.0f, 0.0f, 0.0f, 1.0f)); // Set color to black
-    shaderProgram.setUniformValue("model", modelBed);
+    plateShader.setUniformValue("model", modelBed);
+	plateShader.setUniformValue("plateWidth", static_cast<float>(plateWidth));
+    plateShader.setUniformValue("plateDepth", static_cast<float>(plateDepth));
 
 
     // Draw the plate
     glBindVertexArray(plateVAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // 6 indices for 2 triangles
     glBindVertexArray(0); // Unbind VAO
+
+    // Clean up
+    glDeleteVertexArrays(1, &plateVAO);
+    glDeleteBuffers(1, &plateVBO);
+    glDeleteBuffers(1, &plateEBO);
+
+    plateShader.release();
 }
+
 
 void ObjectRenderView::setPlateWidth(double width) {
 	plateWidth = width;
@@ -395,4 +408,13 @@ double ObjectRenderView::getPlateWidth() {
 
 double ObjectRenderView::getPlateDepth() {
 	return plateDepth;
+}
+
+void ObjectRenderView::setLayerHeight(double depth) {
+    layerHeight = depth;
+    update();
+}
+
+double ObjectRenderView::getLayerHeight() {
+    return layerHeight;
 }

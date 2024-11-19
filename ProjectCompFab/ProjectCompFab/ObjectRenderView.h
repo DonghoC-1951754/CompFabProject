@@ -26,9 +26,11 @@ public:
     void setSlicerHeight(double height) { slicerHeight = height; update(); };
     void setPlateWidth(double width);
     void setPlateDepth(double depth);
+    void setLayerHeight(double height);
 
     double getPlateWidth();
     double getPlateDepth();
+	double getLayerHeight();
 
 	std::vector<Clipper2Lib::PathsD> getAllSlices();
 
@@ -53,7 +55,6 @@ private:
     void setupSlicer();
     void renderMesh();
     void renderSlicer();
-    glm::vec3 findMidpoint();
     QOpenGLShaderProgram shaderProgram;
     Ui::ProjectCompFabClass ui;
 
@@ -74,7 +75,9 @@ private:
 
 	double plateWidth = 180.0;
 	double plateDepth = 180.0;
+	double layerHeight = 0.2;
     void drawPlate();
+	QOpenGLShaderProgram plateShader;
 
 public slots:
     void setSliderSlicerHeight(double value) {
