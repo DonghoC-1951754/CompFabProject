@@ -47,6 +47,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 	widget->setSlicerHeight(0.2);
 
     sliceButton = new QPushButton("Slice Model", sidePanel);
+	progressBar = new QProgressBar(sidePanel);
+	progressBar->setRange(0, 100);
+	progressBar->setValue(0);
 
     sliceWindow = new SliceWindow();
 	createSlicingParameterWidgets();
@@ -62,6 +65,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     panelLayout->addWidget(loadButton);
     panelLayout->addWidget(slicerHeightInputBox);
 	panelLayout->addWidget(sliceButton);
+	panelLayout->addWidget(progressBar);
     panelLayout->addWidget(gridWidget);
     panelLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	panelLayout->addWidget(sliceWindow, Qt::AlignBottom);
@@ -112,7 +116,9 @@ void MainWindow::openSliceWindow() {
     // Slices for GCode
     gcodeCreator = new GcodeCreator();
     erodedSlices = gcodeCreator->erodeSlicesForGCode(allCompiledSlices, slicingParameterInputBoxes[2]->value());
+    progressBar->setValue(progressBar->value() + 40);
     erodedSlicesWithShells = gcodeCreator->addShells(erodedSlices, slicingParameterInputBoxes[1]->value(), slicingParameterInputBoxes[2]->value());
+    progressBar->setValue(progressBar->value() + 30);
 	mostInnerShells = gcodeCreator->getMostInnerShells();
     infill = gcodeCreator->generateInfill(mostInnerShells, erodedSlices);
 	
@@ -124,6 +130,7 @@ void MainWindow::openSliceWindow() {
         slicerHeightInputBox->setValue(widget->getSlicer()->getLayerHeight());
         slicerHeightInputBox->setRange(minSlicerHeight, maxSlicerHeight);
 		drawCompleteSlice(0);
+        progressBar->setValue(progressBar->value() + 30);
     }
 	//auto orderedLineSegments = widget->sliceMesh();
 	//sliceWindow->setSliceData(orderedLineSegments);
@@ -155,6 +162,7 @@ void MainWindow::openLoadModelDialog() {
 		widget->setSlicerHeight(0.2);
 
         slicerHeightInputBox->setDisabled(true);
+		progressBar->setValue(0);
     }
     else {
         qDebug() << "Empty filepath!";
