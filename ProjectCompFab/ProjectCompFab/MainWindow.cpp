@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 	createSlicingParameterWidgets();
 
     connect(slicerHeightInputBox, &QDoubleSpinBox::valueChanged, this, &MainWindow::changeSlicerHeight);
-	connect(sliceButton, &QPushButton::clicked, this, &MainWindow::openSliceWindow);
+	connect(sliceButton, &QPushButton::clicked, this, &MainWindow::sliceModel);
 	connect(loadButton, &QPushButton::clicked, this, &MainWindow::openLoadModelDialog);
 
     // Add widgets to the panel layout
@@ -73,45 +73,15 @@ MainWindow::~MainWindow() {
 	delete widget;
 }
 
-void MainWindow::openSliceWindow() {
-    widget->getSlicer()->setLayerHeight(slicingParameterInputBoxes[0]->value());
+void MainWindow::sliceModel() {
+	SlicerPlane* slicer = widget->getSlicer();
+
+	// slicingParameterInputBoxes[0] == layer height
+    slicer->setLayerHeight(slicingParameterInputBoxes[0]->value());
     slicerHeightInputBox->setSingleStep(slicingParameterInputBoxes[0]->value());
-    progressBar->setValue(0);
-    auto allCompiledSlices = widget->getAllSlices();
     
-    // Slices for GCode
-
-    erodedSlices = sliceOperations->erodeSlicesForGCode(allCompiledSlices, slicingParameterInputBoxes[2]->value());
-    progressBar->setValue(progressBar->value() + 60);
-    erodedSlicesWithShells = sliceOperations->addShells(erodedSlices, slicingParameterInputBoxes[1]->value(), slicingParameterInputBoxes[2]->value());
-    progressBar->setValue(progressBar->value() + 30);
-	mostInnerShells = sliceOperations->getMostInnerShells();
-    infill = sliceOperations->generateInfill(mostInnerShells, erodedSlices);
-	
-    // GUI Controls
-    double maxSlicerHeight = allCompiledSlices.size() * widget->getSlicer()->getLayerHeight();
-	double minSlicerHeight = widget->getSlicer()->getLayerHeight();
-    if (minSlicerHeight <= maxSlicerHeight) {
-        slicerHeightInputBox->setEnabled(true);
-        slicerHeightInputBox->setValue(widget->getSlicer()->getLayerHeight());
-        slicerHeightInputBox->setRange(minSlicerHeight, maxSlicerHeight);
-		drawCompleteSlice(0);
-        progressBar->setValue(progressBar->value() + 10);
-    }
-	//auto orderedLineSegments = widget->sliceMesh();
-	//sliceWindow->setSliceData(orderedLineSegments);
-
- //   SlicerPlane* slicer = widget->getSlicer();
-	//slicer->setContours(orderedLineSegments);
-	//Clipper2Lib::PathsD polygons = slicer->compilePolygons();
-
-	/*auto orderedLineSegments = widget->sliceMesh();
-    GcodeCreator GCreator;
-    GCreator.generateGCode(orderedLineSegments, "Test");
-	sliceWindow->setSliceData(orderedLineSegments);
-    SlicerPlane* slicer = widget->getSlicer();
-	slicer->setContours(orderedLineSegments);*/
-	//Clipper2Lib::PathsD polygons = slicer->compilePolygons();
+    progressBar->setValue(0);
+    calculateSlices();
 }
 
 void MainWindow::openLoadModelDialog() {
@@ -168,6 +138,12 @@ void MainWindow::createSlicingParameterWidgets()
 	slicingParameterInputBoxes[2]->setDecimals(2);
 	slicingParameterInputBoxes[2]->setRange(0.2, 1.0);
 	slicingParameterInputBoxes[2]->setSingleStep(0.2);
+
+	// Infill density controls
+	slicingParameterInputBoxes[5]->setDecimals(2);
+	slicingParameterInputBoxes[5]->setValue(2.0);
+	slicingParameterInputBoxes[5]->setRange(0.6, 100.0);
+	slicingParameterInputBoxes[5]->setSingleStep(0.2);
     
     gridWidget->setLayout(gridLayout);
 }
@@ -248,6 +224,31 @@ void MainWindow::drawCompleteSlice(int index)
     sliceWindow->setSLiceDataClipper(erodedSlices[index]);
     sliceWindow->setSliceShells(erodedSlicesWithShells[index]);
     sliceWindow->setSliceInfill(infill[index]);
+}
+
+void MainWindow::calculateSlices()
+{
+    auto allCompiledSlices = widget->getAllSlices();
+    // Contour
+    erodedSlices = sliceOperations->erodeSlicesForGCode(allCompiledSlices, slicingParameterInputBoxes[2]->value());
+    progressBar->setValue(progressBar->value() + 60);
+    // Shell
+    erodedSlicesWithShells = sliceOperations->addShells(erodedSlices, slicingParameterInputBoxes[1]->value(), slicingParameterInputBoxes[2]->value());
+    progressBar->setValue(progressBar->value() + 30);
+	// Infill
+    mostInnerShells = sliceOperations->getMostInnerShells();
+    infill = sliceOperations->generateInfill(mostInnerShells, erodedSlices, slicingParameterInputBoxes[5]->value());
+
+    // Draw the first complete slice (contour + shells + infill)
+    double maxSlicerHeight = allCompiledSlices.size() * widget->getSlicer()->getLayerHeight();
+    double minSlicerHeight = widget->getSlicer()->getLayerHeight();
+    if (minSlicerHeight <= maxSlicerHeight) {
+        slicerHeightInputBox->setEnabled(true);
+        slicerHeightInputBox->setValue(widget->getSlicer()->getLayerHeight());
+        slicerHeightInputBox->setRange(minSlicerHeight, maxSlicerHeight);
+        drawCompleteSlice(0);
+        progressBar->setValue(progressBar->value() + 10);
+    }
 }
 
 void MainWindow::setBedDimensions() {

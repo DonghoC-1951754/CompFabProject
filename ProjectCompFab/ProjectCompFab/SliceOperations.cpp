@@ -35,10 +35,10 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::addShells(const std::vector<Cl
     return shelledSlices;
 }
 
-std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vector<Clipper2Lib::PathsD> innerShells, const std::vector<Clipper2Lib::PathsD> erodedSlices)
+std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vector<Clipper2Lib::PathsD> innerShells, const std::vector<Clipper2Lib::PathsD> erodedSlices, double infillDensity)
 {
     std::vector<Clipper2Lib::PathsD> infilledSlices;
-    Clipper2Lib::PathsD infillGrid = generateInfillGrid(200, 200, 1);
+    Clipper2Lib::PathsD infillGrid = generateInfillGrid(200, 200, infillDensity);
     std::vector<Clipper2Lib::PathsD> slices;
 
     if (innerShells.size() == 0) slices = erodedSlices;

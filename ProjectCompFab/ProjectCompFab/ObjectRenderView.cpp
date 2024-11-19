@@ -25,8 +25,6 @@ ObjectRenderView::~ObjectRenderView()
 void ObjectRenderView::loadModel(const std::string& filename) {
     ObjectLoader loader;
     mesh = loader.loadSTL(filename);  // Load the model
-
-
 }
 
 void ObjectRenderView::resetRendering() {
@@ -113,7 +111,7 @@ void ObjectRenderView::renderSlicer() {
     //TODO update standardHeight in slicer.h
 
     QMatrix4x4 modelSlicer;
-    modelSlicer.setToIdentity(); // Start from the identity matrix
+    modelSlicer.setToIdentity();
     modelSlicer.translate(-5.0f, 0.0f, 5.0f); // Move 5 units along the Z-axis
     shaderProgram.setUniformValue("cubeColor", QVector4D(0.071f, 0.42f, 1.0f, 0.4f));
     shaderProgram.setUniformValue("model", modelSlicer);

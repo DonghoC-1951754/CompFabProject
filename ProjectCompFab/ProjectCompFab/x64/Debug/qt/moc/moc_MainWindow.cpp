@@ -40,7 +40,7 @@ constexpr auto qt_meta_stringdata_CLASSMainWindowENDCLASS = QtMocHelpers::string
     "changeSlicerHeight",
     "",
     "height",
-    "openSliceWindow",
+    "sliceModel",
     "openLoadModelDialog",
     "setBedDimensions",
     "updateBedText"
@@ -92,7 +92,7 @@ Q_CONSTINIT const QMetaObject MainWindow::staticMetaObject = { {
         // method 'changeSlicerHeight'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<double, std::false_type>,
-        // method 'openSliceWindow'
+        // method 'sliceModel'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'openLoadModelDialog'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
@@ -111,7 +111,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         (void)_t;
         switch (_id) {
         case 0: _t->changeSlicerHeight((*reinterpret_cast< std::add_pointer_t<double>>(_a[1]))); break;
-        case 1: _t->openSliceWindow(); break;
+        case 1: _t->sliceModel(); break;
         case 2: _t->openLoadModelDialog(); break;
         case 3: _t->setBedDimensions(); break;
         case 4: _t->updateBedText(); break;

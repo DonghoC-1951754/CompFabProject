@@ -25,7 +25,7 @@ public:
 public slots:
 	void changeSlicerHeight(double height);
 private slots:
-	void openSliceWindow();
+	void sliceModel();
 	void openLoadModelDialog();
 	void setBedDimensions();
 	void updateBedText();
@@ -69,5 +69,6 @@ private:
 	QPushButton* setDimButton;
 
 	void drawCompleteSlice(int index);
+	void calculateSlices();
 };
 
