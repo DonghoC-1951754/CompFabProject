@@ -24,7 +24,6 @@ public:
 	~MainWindow();
 public slots:
 	void changeSlicerHeight(double height);
-	void changeLayerHeight(double layerHeight);
 private slots:
 	void openSliceWindow();
 	void openLoadModelDialog();
@@ -53,6 +52,9 @@ private:
 	std::string modelFilePath;
 	void createSlicingParameterWidgets();
 	void createBedDimensions();
+	void createSlicerHeightInput();
+	void createObjectRenderView();
+	void createProgressBar();
 
     // Create a vertical layout for the main bed dimensions section
 	QVBoxLayout* bedDimensionsMainLayout;
