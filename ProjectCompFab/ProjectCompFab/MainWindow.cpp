@@ -111,8 +111,8 @@ void MainWindow::openSliceWindow() {
     
     // Slices for GCode
     gcodeCreator = new GcodeCreator();
-    auto erodedSlices = gcodeCreator->erodeSlicesForGCode(allCompiledSlices);
-    auto erodedSlicesWithShells = gcodeCreator->addShells(erodedSlices, slicingParameterInputBoxes[1]->value());
+    auto erodedSlices = gcodeCreator->erodeSlicesForGCode(allCompiledSlices, slicingParameterInputBoxes[2]->value());
+    auto erodedSlicesWithShells = gcodeCreator->addShells(erodedSlices, slicingParameterInputBoxes[1]->value(), slicingParameterInputBoxes[2]->value());
     allCompiledSlices = erodedSlicesWithShells;
 	
     // GUI Controls
@@ -188,6 +188,11 @@ void MainWindow::createSlicingParameterWidgets()
     // Shell amount controls
 	slicingParameterInputBoxes[1]->setDecimals(0);
 	slicingParameterInputBoxes[1]->setSingleStep(1);
+
+	// Nozzle diameter controls
+	slicingParameterInputBoxes[2]->setDecimals(2);
+	slicingParameterInputBoxes[2]->setRange(0.2, 1.0);
+	slicingParameterInputBoxes[2]->setSingleStep(0.2);
 
     connect(slicingParameterInputBoxes[0], &QDoubleSpinBox::valueChanged, this, &MainWindow::changeLayerHeight);
     

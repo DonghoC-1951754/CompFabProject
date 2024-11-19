@@ -72,7 +72,7 @@ void GcodeCreator::generateGCode(const std::vector<Polygon> slicePolygons, const
     std::cout << "G-code written to " << filename << "\n";
 }
 
-std::vector<Clipper2Lib::PathsD> GcodeCreator::erodeSlicesForGCode(const std::vector<Clipper2Lib::PathsD> slices)
+std::vector<Clipper2Lib::PathsD> GcodeCreator::erodeSlicesForGCode(const std::vector<Clipper2Lib::PathsD> slices, double nozzleDiameter)
 {
 	std::vector<Clipper2Lib::PathsD> erodedSlices;
     double offsetValue = -nozzleDiameter / 2;
@@ -84,7 +84,7 @@ std::vector<Clipper2Lib::PathsD> GcodeCreator::erodeSlicesForGCode(const std::ve
     return erodedSlices;
 }
 
-std::vector<Clipper2Lib::PathsD> GcodeCreator::addShells(const std::vector<Clipper2Lib::PathsD> slices, int shellAmount)
+std::vector<Clipper2Lib::PathsD> GcodeCreator::addShells(const std::vector<Clipper2Lib::PathsD> slices, int shellAmount, double nozzleDiameter)
 {
 	std::vector<Clipper2Lib::PathsD> shelledSlices;
 	double stepSize = -nozzleDiameter / 2;
