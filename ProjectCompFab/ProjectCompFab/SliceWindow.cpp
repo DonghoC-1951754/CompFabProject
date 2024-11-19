@@ -32,7 +32,11 @@ void SliceWindow::setSliceData(const std::vector< std::vector<std::vector<glm::d
 void SliceWindow::setSLiceDataClipper(Clipper2Lib::PathsD polygons)
 {
 	sliceRenderWidget->setSliceDataClipper(polygons);
-	sliceRenderWidget->update();
+}
+
+void SliceWindow::setSliceInfill(Clipper2Lib::PathsD infill)
+{
+	sliceRenderWidget->setSliceInfill(infill);
 }
 
 SliceWindow::~SliceWindow() {}

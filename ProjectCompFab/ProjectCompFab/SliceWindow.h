@@ -12,6 +12,7 @@ public:
     ~SliceWindow();
 	void setSliceData(const std::vector< std::vector<std::vector<glm::dvec3>>> lineSegments);
 	void setSLiceDataClipper(Clipper2Lib::PathsD polygons);
+	void setSliceInfill(Clipper2Lib::PathsD infill);
 
 private:
     SliceRenderView* sliceRenderWidget;

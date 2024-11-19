@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     panelLayout = new QVBoxLayout(sidePanel);
 
     // Example widgets for the side panel
-    QLabel* label = new QLabel("Model Controls", sidePanel);
+    QLabel* label = new QLabel("Slicer Controls", sidePanel);
     loadButton = new QPushButton("Load Model", sidePanel);
 
     //QSlider* rotationSlider = new QSlider(Qt::Horizontal, sidePanel);
@@ -114,6 +114,7 @@ void MainWindow::openSliceWindow() {
     auto erodedSlices = gcodeCreator->erodeSlicesForGCode(allCompiledSlices, slicingParameterInputBoxes[2]->value());
     auto erodedSlicesWithShells = gcodeCreator->addShells(erodedSlices, slicingParameterInputBoxes[1]->value(), slicingParameterInputBoxes[2]->value());
     allCompiledSlices = erodedSlicesWithShells;
+    auto infill = gcodeCreator->generateInfill(allCompiledSlices);
 	
     // GUI Controls
     double maxSlicerHeight = allCompiledSlices.size() * widget->getSlicer()->getLayerHeight();
@@ -123,6 +124,7 @@ void MainWindow::openSliceWindow() {
         slicerHeightInputBox->setValue(widget->getSlicer()->getLayerHeight());
         slicerHeightInputBox->setRange(minSlicerHeight, maxSlicerHeight);
         sliceWindow->setSLiceDataClipper(allCompiledSlices[0]);
+		sliceWindow->setSliceInfill(infill[0]);
     }
 	//auto orderedLineSegments = widget->sliceMesh();
 	//sliceWindow->setSliceData(orderedLineSegments);

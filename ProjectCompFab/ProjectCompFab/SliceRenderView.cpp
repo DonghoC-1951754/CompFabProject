@@ -41,6 +41,14 @@ void SliceRenderView::paintGL() {
 		glVertex2f(polygon[0].x, polygon[0].y);
 		glEnd();
 	}
+	for (const auto& line : infill2D) {
+		glBegin(GL_LINE_STRIP);
+		for (const auto& vertex : line) {
+			glVertex2f(vertex.x, vertex.y);
+		}
+		glVertex2f(line[0].x, line[0].y);
+		glEnd();
+	}
 
 	glPopMatrix();
 }
@@ -73,6 +81,19 @@ void SliceRenderView::setSliceDataClipper(Clipper2Lib::PathsD polygons)
 			tempflattenedVertices.push_back(glm::vec2(point.x, point.y));
 		}
 		polygons2D.push_back(tempflattenedVertices);
+	}
+	update();
+}
+
+void SliceRenderView::setSliceInfill(Clipper2Lib::PathsD infill)
+{
+	infill2D.clear();
+	for (const auto& line : infill) {
+		std::vector<glm::vec2> tempLine;
+		for (const auto& point : line) {
+			tempLine.push_back(glm::vec2(point.x, point.y));
+		}
+		infill2D.push_back(tempLine);
 	}
 	update();
 }

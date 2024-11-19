@@ -37,6 +37,7 @@ Clipper2Lib::PathsD SlicerPlane::compilePolygons()
 	clipper.AddSubject(contours);
 	Clipper2Lib::PathsD unionResult;
 	clipper.Execute(Clipper2Lib::ClipType::Union, Clipper2Lib::FillRule::EvenOdd, unionResult);
+	clipper.Clear();
 	return unionResult;
 }
 

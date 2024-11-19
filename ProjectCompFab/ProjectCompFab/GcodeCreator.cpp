@@ -4,6 +4,25 @@
 #include <cmath>
 #include <iomanip>
 #include <qmath.h>
+
+Clipper2Lib::PathsD GcodeCreator::generateInfillGrid(double buildPlateWidth, double buildPlateDepth, double infillDensity)
+{
+    Clipper2Lib::PathsD grid;
+    for (double x = 0; x <= buildPlateWidth; x += infillDensity) {
+        Clipper2Lib::PathD verticalLine;
+        verticalLine.push_back(Clipper2Lib::PointD(x, 0.0));
+        verticalLine.push_back(Clipper2Lib::PointD(x, buildPlateDepth));
+        grid.push_back(verticalLine);
+    }
+    for (double y = 0; y <= buildPlateDepth; y += infillDensity) {
+        Clipper2Lib::PathD horizontalLine;
+        horizontalLine.push_back(Clipper2Lib::PointD(0.0, y));
+        horizontalLine.push_back(Clipper2Lib::PointD(buildPlateWidth, y));
+        grid.push_back(horizontalLine);
+    }
+    return grid;
+}
+
 void GcodeCreator::generateGCode(const std::vector<Polygon> slicePolygons, const std::string& filename, double layerHeight, double bedTemp, double nozzleTemp,
     double nozzleDiameter, bool prime) {
     std::ofstream gcodeFile(filename + "\.gcode");
@@ -100,4 +119,20 @@ std::vector<Clipper2Lib::PathsD> GcodeCreator::addShells(const std::vector<Clipp
     }
 	
     return shelledSlices;
+}
+
+std::vector<Clipper2Lib::PathsD> GcodeCreator::generateInfill(const std::vector<Clipper2Lib::PathsD> slices)
+{
+	std::vector<Clipper2Lib::PathsD> infilledSlices;
+    Clipper2Lib::PathsD infillGrid = generateInfillGrid(200, 200, 1);
+    for (auto slice : slices) {
+        Clipper2Lib::ClipperD clipper;
+        clipper.AddClip(slice);
+        clipper.AddOpenSubject(infillGrid);
+        Clipper2Lib::PathsD infill;
+        Clipper2Lib::PathsD openInfill;
+        clipper.Execute(Clipper2Lib::ClipType::Intersection, Clipper2Lib::FillRule::EvenOdd, infill, openInfill);
+        infilledSlices.push_back(openInfill);
+    }
+    return infilledSlices;
 }
