@@ -39,4 +39,9 @@ void SliceWindow::setSliceInfill(Clipper2Lib::PathsD infill)
 	sliceRenderWidget->setSliceInfill(infill);
 }
 
+void SliceWindow::setSliceShells(Clipper2Lib::PathsD shells)
+{
+	sliceRenderWidget->setSliceShells(shells);
+}
+
 SliceWindow::~SliceWindow() {}

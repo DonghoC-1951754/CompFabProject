@@ -35,14 +35,25 @@ void SliceRenderView::paintGL() {
 
 	for (const auto& polygon : polygons2D) {
 		glBegin(GL_LINE_STRIP);
+		glColor3f(1.0f, 0.0f, 0.5f);
 		for (const auto& vertex : polygon) {
 			glVertex2f(vertex.x, vertex.y);
 		}
 		glVertex2f(polygon[0].x, polygon[0].y);
 		glEnd();
 	}
+	for (const auto& line : shells2D) {
+		glBegin(GL_LINE_STRIP);
+		glColor3f(0.4f, 1.0f, 0.0f);
+		for (const auto& vertex : line) {
+			glVertex2f(vertex.x, vertex.y);
+		}
+		glVertex2f(line[0].x, line[0].y);
+		glEnd();
+	}
 	for (const auto& line : infill2D) {
 		glBegin(GL_LINE_STRIP);
+		glColor3f(0.0f, 0.2f, 1.0f);
 		for (const auto& vertex : line) {
 			glVertex2f(vertex.x, vertex.y);
 		}
@@ -94,6 +105,19 @@ void SliceRenderView::setSliceInfill(Clipper2Lib::PathsD infill)
 			tempLine.push_back(glm::vec2(point.x, point.y));
 		}
 		infill2D.push_back(tempLine);
+	}
+	update();
+}
+
+void SliceRenderView::setSliceShells(Clipper2Lib::PathsD shells)
+{
+	shells2D.clear();
+	for (const auto& line : shells) {
+		std::vector<glm::vec2> tempLine;
+		for (const auto& point : line) {
+			tempLine.push_back(glm::vec2(point.x, point.y));
+		}
+		shells2D.push_back(tempLine);
 	}
 	update();
 }

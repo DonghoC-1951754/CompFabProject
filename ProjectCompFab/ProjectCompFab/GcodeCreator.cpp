@@ -105,26 +105,39 @@ std::vector<Clipper2Lib::PathsD> GcodeCreator::erodeSlicesForGCode(const std::ve
 
 std::vector<Clipper2Lib::PathsD> GcodeCreator::addShells(const std::vector<Clipper2Lib::PathsD> slices, int shellAmount, double nozzleDiameter)
 {
+	mostInnerShells.clear();
 	std::vector<Clipper2Lib::PathsD> shelledSlices;
 	double stepSize = -nozzleDiameter / 2;
     for (auto slice : slices) {
+        Clipper2Lib::PathsD shells;
         Clipper2Lib::PathsD shell = slice;
         for (int i = 0; i < shellAmount; i++) {
             shell = Clipper2Lib::InflatePaths(shell, stepSize, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
 			for (auto path : shell) {
-				slice.push_back(path);
+                shells.push_back(path);
 			}
+            if (i == shellAmount - 1) {
+                mostInnerShells.push_back(shell);
+            }
         }
-		shelledSlices.push_back(slice);
+		shelledSlices.push_back(shells);
     }
 	
     return shelledSlices;
 }
 
-std::vector<Clipper2Lib::PathsD> GcodeCreator::generateInfill(const std::vector<Clipper2Lib::PathsD> slices)
+std::vector<Clipper2Lib::PathsD> GcodeCreator::generateInfill(const std::vector<Clipper2Lib::PathsD> innerShells, const std::vector<Clipper2Lib::PathsD> erodedSlices)
 {
 	std::vector<Clipper2Lib::PathsD> infilledSlices;
     Clipper2Lib::PathsD infillGrid = generateInfillGrid(200, 200, 1);
+    std::vector<Clipper2Lib::PathsD> slices;
+    if (innerShells.size() == 0) {
+		slices = erodedSlices;
+    }
+    else {
+		slices = innerShells;
+    }
+
     for (auto slice : slices) {
         Clipper2Lib::ClipperD clipper;
         clipper.AddClip(slice);

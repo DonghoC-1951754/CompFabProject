@@ -17,6 +17,7 @@ public:
 	void setSliceData(const std::vector< std::vector<std::vector<glm::dvec3>>> polygons);
     void setSliceDataClipper(Clipper2Lib::PathsD polygons);
 	void setSliceInfill(Clipper2Lib::PathsD infill);
+	void setSliceShells(Clipper2Lib::PathsD shells);
 
 protected:
     void initializeGL() override;
@@ -31,6 +32,7 @@ protected:
 private:
     std::vector<std::vector<glm::vec2>> polygons2D;
 	std::vector<std::vector<glm::vec2>> infill2D;
+	std::vector<std::vector<glm::vec2>> shells2D;
 
     bool panning = false;
     QPoint lastMousePos;

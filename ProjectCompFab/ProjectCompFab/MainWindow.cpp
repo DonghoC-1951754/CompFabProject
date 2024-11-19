@@ -89,8 +89,8 @@ void MainWindow::changeSlicerHeight(double height) {
     
     //widget->setSliderSlicerHeight(height + layerHeight);
 	widget->setSlicerHeight(height);
-    if (allCompiledSlices.size() > height / layerHeight) {
-        sliceWindow->setSLiceDataClipper(allCompiledSlices[(height / layerHeight)]);
+    if (erodedSlices.size() > height / layerHeight) {
+		drawCompleteSlice(height / layerHeight);
 	}
 }
 
@@ -107,14 +107,14 @@ void MainWindow::changeLayerHeight(double layerHeight)
 void MainWindow::openSliceWindow() {
     widget->getSlicer()->setLayerHeight(slicingParameterInputBoxes[0]->value());
     slicerHeightInputBox->setSingleStep(slicingParameterInputBoxes[0]->value());
-    allCompiledSlices = widget->getAllSlices();
+    auto allCompiledSlices = widget->getAllSlices();
     
     // Slices for GCode
     gcodeCreator = new GcodeCreator();
-    auto erodedSlices = gcodeCreator->erodeSlicesForGCode(allCompiledSlices, slicingParameterInputBoxes[2]->value());
-    auto erodedSlicesWithShells = gcodeCreator->addShells(erodedSlices, slicingParameterInputBoxes[1]->value(), slicingParameterInputBoxes[2]->value());
-    allCompiledSlices = erodedSlicesWithShells;
-    auto infill = gcodeCreator->generateInfill(allCompiledSlices);
+    erodedSlices = gcodeCreator->erodeSlicesForGCode(allCompiledSlices, slicingParameterInputBoxes[2]->value());
+    erodedSlicesWithShells = gcodeCreator->addShells(erodedSlices, slicingParameterInputBoxes[1]->value(), slicingParameterInputBoxes[2]->value());
+	mostInnerShells = gcodeCreator->getMostInnerShells();
+    infill = gcodeCreator->generateInfill(mostInnerShells, erodedSlices);
 	
     // GUI Controls
     double maxSlicerHeight = allCompiledSlices.size() * widget->getSlicer()->getLayerHeight();
@@ -123,8 +123,7 @@ void MainWindow::openSliceWindow() {
         slicerHeightInputBox->setEnabled(true);
         slicerHeightInputBox->setValue(widget->getSlicer()->getLayerHeight());
         slicerHeightInputBox->setRange(minSlicerHeight, maxSlicerHeight);
-        sliceWindow->setSLiceDataClipper(allCompiledSlices[0]);
-		sliceWindow->setSliceInfill(infill[0]);
+		drawCompleteSlice(0);
     }
 	//auto orderedLineSegments = widget->sliceMesh();
 	//sliceWindow->setSliceData(orderedLineSegments);
@@ -247,6 +246,13 @@ void MainWindow::createBedDimensions() {
 	bedDimensionsMainLayout->addLayout(setDimLayout);
 
     panelLayout->addLayout(bedDimensionsMainLayout);
+}
+
+void MainWindow::drawCompleteSlice(int index)
+{
+    sliceWindow->setSLiceDataClipper(erodedSlices[index]);
+    sliceWindow->setSliceShells(erodedSlicesWithShells[index]);
+    sliceWindow->setSliceInfill(infill[index]);
 }
 
 void MainWindow::setBedDimensions() {
