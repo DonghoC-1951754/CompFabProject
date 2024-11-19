@@ -43,8 +43,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     slicerHeightInputBox = new QDoubleSpinBox(sidePanel);
     slicerHeightInputBox->setRange(-100.0, 100.0);
 	slicerHeightInputBox->setSingleStep(widget->getSlicer()->getLayerHeight());
-	slicerHeightInputBox->setValue(0.0);
+	slicerHeightInputBox->setValue(0.2);
 	slicerHeightInputBox->setDisabled(true);
+	widget->setSlicerHeight(0.2);
 
     sliceButton = new QPushButton("Slice Model", sidePanel);
 
@@ -105,38 +106,25 @@ void MainWindow::changeLayerHeight(double layerHeight)
 }
 
 void MainWindow::openSliceWindow() {
- //   widget->getSlicer()->setLayerHeight(slicingParameterInputBoxes[0]->value());
- //   slicerHeightInputBox->setSingleStep(slicingParameterInputBoxes[0]->value());
- //   allCompiledSlices = widget->getAllSlices();
-	//slicerHeightInputBox->setEnabled(true);
-
-	//slicerHeightInputBox->setValue(widget->getSlicer()->getLayerHeight());
-	//sliceWindow->setSLiceDataClipper(allCompiledSlices[0]);
-
- //   // Slices for GCode
-	//GcodeCreator GCreator;
-	//auto erodedSlices = GCreator.erodeSlicesForGCode(allCompiledSlices);
-	//auto erodedSlicesWithShells = GCreator.addShells(erodedSlices, 2);
-
     widget->getSlicer()->setLayerHeight(slicingParameterInputBoxes[0]->value());
     slicerHeightInputBox->setSingleStep(slicingParameterInputBoxes[0]->value());
     allCompiledSlices = widget->getAllSlices();
     
-
     // Slices for GCode
     GcodeCreator GCreator;
     auto erodedSlices = GCreator.erodeSlicesForGCode(allCompiledSlices);
     auto erodedSlicesWithShells = GCreator.addShells(erodedSlices, 2);
     allCompiledSlices = erodedSlicesWithShells;
-
-    slicerHeightInputBox->setEnabled(true);
-
-    slicerHeightInputBox->setValue(widget->getSlicer()->getLayerHeight());
-    sliceWindow->setSLiceDataClipper(allCompiledSlices[0]);
-
-
-    
-    
+	
+    // GUI Controls
+    double maxSlicerHeight = allCompiledSlices.size() * widget->getSlicer()->getLayerHeight();
+	double minSlicerHeight = widget->getSlicer()->getLayerHeight();
+    if (minSlicerHeight <= maxSlicerHeight) {
+        slicerHeightInputBox->setEnabled(true);
+        slicerHeightInputBox->setValue(widget->getSlicer()->getLayerHeight());
+        slicerHeightInputBox->setRange(minSlicerHeight, maxSlicerHeight);
+        sliceWindow->setSLiceDataClipper(allCompiledSlices[0]);
+    }
 	//auto orderedLineSegments = widget->sliceMesh();
 	//sliceWindow->setSliceData(orderedLineSegments);
 
@@ -161,9 +149,16 @@ void MainWindow::openLoadModelDialog() {
 		modelFilePath = filePath.toStdString();
         widget->loadModel(modelFilePath);
         widget->resetRendering();
-    }
-    qDebug() << "Empty filepath!";  // Print file path to console
+        widget->getSlicer()->setLayerHeight(0.2);
+        slicingParameterInputBoxes[0]->setValue(0.2);
+        slicerHeightInputBox->setValue(0.2);
+		widget->setSlicerHeight(0.2);
 
+        slicerHeightInputBox->setDisabled(true);
+    }
+    else {
+        qDebug() << "Empty filepath!";
+    }
 }
 
 void MainWindow::createSlicingParameterWidgets()
@@ -186,7 +181,10 @@ void MainWindow::createSlicingParameterWidgets()
         gridLayout->addWidget(slicingParameterInputBoxes[row], row, 1);
     }
 
+    // Layer height controls
 	slicingParameterInputBoxes[0]->setValue(widget->getSlicer()->getLayerHeight());
+	slicingParameterInputBoxes[0]->setRange(0.10, 1.0);
+	slicingParameterInputBoxes[0]->setSingleStep(0.02);
     connect(slicingParameterInputBoxes[0], &QDoubleSpinBox::valueChanged, this, &MainWindow::changeLayerHeight);
     
     gridWidget->setLayout(gridLayout);
