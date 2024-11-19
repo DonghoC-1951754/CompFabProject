@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include <clipper2/clipper.h>
 #include <QLabel>
+#include "GcodeCreator.h"
 /*
 * Window that shows all widgets and controls in 1 place
 * Contains RenderView and controls
@@ -38,6 +39,7 @@ private:
 	QWidget* sidePanel;
 	std::vector<QDoubleSpinBox*> slicingParameterInputBoxes;
 	std::vector<Clipper2Lib::PathsD> allCompiledSlices;
+	GcodeCreator* gcodeCreator;
 	
 
 	std::string modelFilePath;

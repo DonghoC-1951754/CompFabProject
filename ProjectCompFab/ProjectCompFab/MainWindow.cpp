@@ -8,7 +8,6 @@
 #include <QLineEdit>
 #include "SliceWindow.h"
 #include <QFileDialog>
-#include "GcodeCreator.h"
 //#include "clipper2/clipper.h"
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
@@ -111,9 +110,9 @@ void MainWindow::openSliceWindow() {
     allCompiledSlices = widget->getAllSlices();
     
     // Slices for GCode
-    GcodeCreator GCreator;
-    auto erodedSlices = GCreator.erodeSlicesForGCode(allCompiledSlices);
-    auto erodedSlicesWithShells = GCreator.addShells(erodedSlices, 2);
+    gcodeCreator = new GcodeCreator();
+    auto erodedSlices = gcodeCreator->erodeSlicesForGCode(allCompiledSlices);
+    auto erodedSlicesWithShells = gcodeCreator->addShells(erodedSlices, slicingParameterInputBoxes[1]->value());
     allCompiledSlices = erodedSlicesWithShells;
 	
     // GUI Controls
@@ -185,6 +184,11 @@ void MainWindow::createSlicingParameterWidgets()
 	slicingParameterInputBoxes[0]->setValue(widget->getSlicer()->getLayerHeight());
 	slicingParameterInputBoxes[0]->setRange(0.10, 1.0);
 	slicingParameterInputBoxes[0]->setSingleStep(0.02);
+
+    // Shell amount controls
+	slicingParameterInputBoxes[1]->setDecimals(0);
+	slicingParameterInputBoxes[1]->setSingleStep(1);
+
     connect(slicingParameterInputBoxes[0], &QDoubleSpinBox::valueChanged, this, &MainWindow::changeLayerHeight);
     
     gridWidget->setLayout(gridLayout);
