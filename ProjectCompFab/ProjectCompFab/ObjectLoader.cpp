@@ -24,7 +24,9 @@ Mesh* ObjectLoader::loadSTL(const std::string& filename) {
 
 	//Lowest Z and Y get swapped because of the coordinate system
     float lowestX = std::numeric_limits<float>::max();
+	float highestX = std::numeric_limits<float>::min();
     float lowestY = std::numeric_limits<float>::max();
+	float highestY = std::numeric_limits<float>::min();
     float lowestZ = std::numeric_limits<float>::max();
     float highestZ = std::numeric_limits<float>::min();
 
@@ -35,8 +37,14 @@ Mesh* ObjectLoader::loadSTL(const std::string& filename) {
 		if (aiVertices.x < lowestX) {
 			lowestX = aiVertices.x;
 		}
+		if (aiVertices.x > highestX) {
+			highestX = aiVertices.x;
+		}
 		if (aiVertices.z < lowestY) {
 			lowestY = aiVertices.z;
+		}
+		if (aiVertices.z > highestY) {
+			highestY = aiVertices.z;
 		}
 		if (aiVertices.y < lowestZ) {
 			lowestZ = aiVertices.y;
@@ -56,7 +64,7 @@ Mesh* ObjectLoader::loadSTL(const std::string& filename) {
             indices.push_back(face.mIndices[j]); // Add each index to the list
         }
     }
-	Mesh* outputMesh = new Mesh(vertices, indices, lowestX, lowestY, lowestZ, highestZ);
+	Mesh* outputMesh = new Mesh(vertices, indices, lowestX, highestX, lowestY, lowestY, lowestZ, highestZ);
     setMeshToCorrectPos(outputMesh);
     return outputMesh;
 }
@@ -68,12 +76,17 @@ void ObjectLoader::setMeshToCorrectPos(Mesh* mesh)
     float offsetY = mesh->getLowestY() < 0.0f ? -mesh->getLowestY() : 0.0f;
     float offsetZ = -mesh->getLowestZ();
 
+	float centerX = (static_cast<float>(plateWidth) / 2.0f) -((mesh->getHighestX() - mesh->getLowestX())/2.0f);
+	float centerZ = (static_cast<float>(plateDepth) / 2.0f) - ((mesh->getHighestZ() - mesh->getLowestZ()) / 2.0f);
+
     // Apply offsets directly in the loop
     for (auto& vertex : mesh->vertices) {
         glm::vec3 newPosition = vertex.getPosition();
-        newPosition.x += offsetX;
+        newPosition.x += (offsetX + centerX);
+        //height
         newPosition.y += offsetY;
-        newPosition.z += offsetZ;
+        //depth
+        newPosition.z += (offsetZ + centerZ);
         vertex.setPosition(newPosition);
     }
 }
