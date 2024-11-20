@@ -52,6 +52,14 @@ void ObjectRenderView::initializeGL() {
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/fragment_shader.glsl");
     shaderProgram.link();
 
+
+    // Slicing plane shader
+	slicerProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/slicingPlaneVert.glsl");
+	slicerProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/slicingPlaneFrag.glsl");
+	slicerProgram.link();
+
+
+	// Build plate shader
 	plateShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/printBedVert.glsl");
     plateShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/printBedFrag.glsl");
 	plateShader.link();
@@ -82,13 +90,18 @@ void ObjectRenderView::paintGL() {
 
     drawPlate();
 
+    slicerProgram.bind();
+    model.setToIdentity();
+    slicerProgram.setUniformValue("model", model);
+    slicerProgram.setUniformValue("view", view);
+    slicerProgram.setUniformValue("projection", projection);
+    drawAxes();
+    renderSlicer();
+
     shaderProgram.bind();
     shaderProgram.setUniformValue("model", model);
     shaderProgram.setUniformValue("view", view);
     shaderProgram.setUniformValue("projection", projection);
-    renderSlicer();
-    drawAxes();
-    
     renderMesh();
 
     shaderProgram.release();
@@ -97,11 +110,25 @@ void ObjectRenderView::paintGL() {
 
 void ObjectRenderView::renderMesh() {
     // Set the cube color
+    QMatrix4x4 view;
+    // position, where looking, leave be
+    view.lookAt(cameraPos, targetPos, QVector3D(0, 1, 0));
     QMatrix4x4 model;
     model.setToIdentity();
 	model.scale(1.0f, 1.0f, -1.0f);
     shaderProgram.setUniformValue("cubeColor", QVector4D(1.0f, 0.5f, 0.0f, 1.0f));
     shaderProgram.setUniformValue("model", model);
+
+
+    // Pass light properties
+    QVector3D cameraPosition = QVector3D(view.column(3));
+    shaderProgram.setUniformValue("lightPos", QVector3D(0.0f, 10.0f, 0.0f));
+    shaderProgram.setUniformValue("viewPos", cameraPosition); // Assuming it's a QVector3D
+    shaderProgram.setUniformValue("lightColor", QVector3D(1.0f, 1.0f, 1.0f)); // White light
+
+    // Pass material properties
+    shaderProgram.setUniformValue("cubeColor", QVector4D(1.0f, 0.5f, 0.31f, 1.0f)); // Cube color
+    shaderProgram.setUniformValue("shininess", 32.0f); // Shininess factor
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, 0);
@@ -110,20 +137,41 @@ void ObjectRenderView::renderMesh() {
 }
 
 void ObjectRenderView::renderSlicer() {
+	
     slicer->setWidth(plateWidth);
     slicer->setDepth(plateDepth);
     //TODO update standardHeight in slicer.h
+    slicer->setStandardHeight(slicerHeight);
 
-    QMatrix4x4 modelSlicer;
-    modelSlicer.setToIdentity();
-    modelSlicer.translate(-5.0f, 0.0f, 5.0f); // Move 5 units along the Z-axis
-    shaderProgram.setUniformValue("cubeColor", QVector4D(0.071f, 0.42f, 1.0f, 0.4f));
-    shaderProgram.setUniformValue("model", modelSlicer);
+    QMatrix4x4 model;
+    model.setToIdentity();
+    model.translate(-5.0f, 0.0f, 5.0f);
 
-    glBindVertexArray(VAO1);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);  // Adjust count based on your vertex data
-    glBindVertexArray(0); // Unbind VAO
-	glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
+    slicerProgram.setUniformValue("model", model);
+    slicerProgram.setUniformValue("planeColor", QVector4D(0.1f, 0.0f, 0.3f, 0.5f));  // Red color
+
+	auto vertices = slicer->getVertices();
+    glBegin(GL_QUADS);
+        glVertex3f(vertices[0], vertices[1], vertices[2]);  // Move further along the Z-axis
+        glVertex3f(vertices[3], vertices[4], vertices[5]);
+        glVertex3f(vertices[6], vertices[7], vertices[8]);
+        glVertex3f(vertices[9], vertices[10], vertices[11]);
+    glEnd();
+
+    //slicerProgram.bind();
+    //QMatrix4x4 modelSlicer;
+    //modelSlicer.setToIdentity();
+
+    ////modelSlicer.translate(-5.0f, 0.0f, 5.0f); // Move 5 units along the Z-axis
+    //slicerProgram.setUniformValue("model", modelSlicer);
+    //slicerProgram.setUniformValue("planeColor", QVector4D(1.0f, 0.0f, 0.0f, 1.0f));
+
+
+    //glBindVertexArray(VAO1);
+    //glDrawElements(GL_TRIANGLES, slicer->getIndices().size(), GL_UNSIGNED_INT, 0);  // Adjust count based on your vertex data
+    //glBindVertexArray(0); // Unbind VAO
+    //glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
+    slicerProgram.release();
 }
 
 
@@ -257,7 +305,7 @@ void ObjectRenderView::drawAxes() {
     QMatrix4x4 model;
     model.setToIdentity();
 
-    shaderProgram.setUniformValue("model", model);
+    slicerProgram.setUniformValue("model", model);
 
     // Define axis vertices
     QVector3D origin(0, 0, 0);
@@ -266,21 +314,21 @@ void ObjectRenderView::drawAxes() {
     QVector3D zAxis(0, 0, -100);
 
     // Draw X axis in red
-    shaderProgram.setUniformValue("cubeColor", QVector4D(1.0f, 0.0f, 0.0f, 1.0f));  // Red color
+    slicerProgram.setUniformValue("planeColor", QVector4D(1.0f, 0.0f, 0.0f, 1.0f));  // Red color
     glBegin(GL_LINES);
     glVertex3f(origin.x(), origin.y(), origin.z());
     glVertex3f(xAxis.x(), xAxis.y(), xAxis.z());
     glEnd();
 
     // Draw Y axis in green
-    shaderProgram.setUniformValue("cubeColor", QVector4D(0.0f, 1.0f, 0.0f, 1.0f));  // Green color
+    slicerProgram.setUniformValue("planeColor", QVector4D(0.0f, 1.0f, 0.0f, 1.0f));  // Green color
     glBegin(GL_LINES);
     glVertex3f(origin.x(), origin.y(), origin.z());
     glVertex3f(yAxis.x(), yAxis.y(), yAxis.z());
     glEnd();
 
     // Draw Z axis in blue
-    shaderProgram.setUniformValue("cubeColor", QVector4D(0.0f, 0.0f, 1.0f, 1.0f));  // Blue color
+    slicerProgram.setUniformValue("planeColor", QVector4D(0.0f, 0.0f, 1.0f, 1.0f));  // Blue color
     glBegin(GL_LINES);
     glVertex3f(origin.x(), origin.y(), origin.z());
     glVertex3f(zAxis.x(), zAxis.y(), zAxis.z());
@@ -297,13 +345,15 @@ void ObjectRenderView::setupSlicer() {
 
     glBindVertexArray(VAO1);
     
+	auto vertices = slicer->getVertices();
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO1);
-    glBufferData(GL_ARRAY_BUFFER, slicer->getVertices().size() * sizeof(float), slicer->getVertices().data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
     // Generate and bind the EBO
    
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO1);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, slicer->getIndices().size() * sizeof(int), slicer->getIndices().data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertices.size() * sizeof(int), vertices.data(), GL_STATIC_DRAW);
 
     // Define the vertex attribute pointers
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (GLvoid*)0); // Position
@@ -311,6 +361,7 @@ void ObjectRenderView::setupSlicer() {
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
     glBindVertexArray(0); // Unbind VAO
+
 }
 
 
@@ -377,3 +428,4 @@ void ObjectRenderView::updatePlateVertices() {
     plateVertices[8] = -plateDepth;
     plateVertices[11] = -plateDepth;
 }
+

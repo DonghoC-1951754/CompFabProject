@@ -33,6 +33,7 @@ Mesh* ObjectLoader::loadSTL(const std::string& filename) {
     // First loop through the vertices to populate the vertices vector
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
         auto aiVertices = mesh->mVertices[i];
+        auto aiNormals = mesh->mNormals[i];
         Vertex vertex;
 		if (aiVertices.x < lowestX) {
 			lowestX = aiVertices.x;
