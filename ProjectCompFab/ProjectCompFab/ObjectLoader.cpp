@@ -65,16 +65,23 @@ Mesh* ObjectLoader::loadSTL(const std::string& filename) {
             indices.push_back(face.mIndices[j]); // Add each index to the list
         }
     }
-	Mesh* outputMesh = new Mesh(vertices, indices, lowestX, highestX, lowestY, lowestY, lowestZ, highestZ);
+	Mesh* outputMesh = new Mesh(vertices, indices, lowestX, highestX, lowestY, highestY, lowestZ, highestZ);
     setMeshToCorrectPos(outputMesh);
     return outputMesh;
 }
 
 void ObjectLoader::setMeshToCorrectPos(Mesh* mesh)
 {
+    float lowestX = mesh->getLowestX();
+    float highestX = mesh->getHighestX();
+    float lowestY = mesh->getLowestY();
+    float highestY = mesh->getHighestY();
+    float lowestZ = mesh->getLowestZ();
+    float highestZ = mesh->getHighestZ();
+
     float offsetX = -mesh->getLowestX();
     //height offset
-    float offsetY = mesh->getLowestY() < 0.0f ? -mesh->getLowestY() : 0.0f;
+    float offsetY = -mesh->getLowestY();
     float offsetZ = -mesh->getLowestZ();
 
 	float centerX = (static_cast<float>(plateWidth) / 2.0f) -((mesh->getHighestX() - mesh->getLowestX())/2.0f);
@@ -99,5 +106,12 @@ void ObjectLoader::setMeshToCorrectPos(Mesh* mesh)
 	mesh->setLowestZ(mesh->getLowestZ() + offsetZ + centerZ);
 	mesh->setHighestZ(mesh->getHighestZ() + offsetZ + centerZ);
 
+    float newLowestX = mesh->getLowestX();
+	float newHighestX = mesh->getHighestX();
+	float newLowestY = mesh->getLowestY();
+	float newHighestY = mesh->getHighestY();
+	float newLowestZ = mesh->getLowestZ();
+	float newHighestZ = mesh->getHighestZ();
+    return;
 }
 
