@@ -98,6 +98,7 @@ void ObjectRenderView::paintGL() {
 void ObjectRenderView::renderMesh() {
     // Set the cube color
     QMatrix4x4 model;
+    model.setToIdentity();
 	model.scale(1.0f, 1.0f, -1.0f);
     shaderProgram.setUniformValue("cubeColor", QVector4D(1.0f, 0.5f, 0.0f, 1.0f));
     shaderProgram.setUniformValue("model", model);
@@ -314,8 +315,8 @@ void ObjectRenderView::setupSlicer() {
 
 
 std::vector<Clipper2Lib::PathsD> ObjectRenderView::getAllSlices() {
-    double meshLowestPoint = mesh->getLowestPoint();
-    double meshHighestPoint = mesh->getHighestPoint();
+    double meshLowestPoint = mesh->getLowestZ();
+    double meshHighestPoint = mesh->getHighestZ();
     // Edge case: lift slicer plane height by 0.00000001
     double currentHeight = meshLowestPoint + 0.00000001;
     double layerHeight = slicer->getLayerHeight();
@@ -331,9 +332,6 @@ std::vector<Clipper2Lib::PathsD> ObjectRenderView::getAllSlices() {
     }
     return allCompiledSlices;
 }
-
-
-
 
 void ObjectRenderView::setupPlate() {
     updatePlateVertices();

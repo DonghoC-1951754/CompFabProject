@@ -1,5 +1,6 @@
 #include "ObjectLoader.h"
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -20,17 +21,33 @@ Mesh* ObjectLoader::loadSTL(const std::string& filename) {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     aiMesh* mesh = scene->mMeshes[0];
+
+	//Lowest Z and Y get swapped because of the coordinate system
+    float lowestX = std::numeric_limits<float>::max();
+    float lowestY = std::numeric_limits<float>::max();
+    float lowestZ = std::numeric_limits<float>::max();
+    float highestZ = std::numeric_limits<float>::min();
+
     // First loop through the vertices to populate the vertices vector
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
         auto aiVertices = mesh->mVertices[i];
         Vertex vertex;
-		vertex.setPosition(glm::vec3(aiVertices.x, aiVertices.z, aiVertices.y));
+		if (aiVertices.x < lowestX) {
+			lowestX = aiVertices.x;
+		}
+		if (aiVertices.z < lowestY) {
+			lowestY = aiVertices.z;
+		}
+		if (aiVertices.y < lowestZ) {
+			lowestZ = aiVertices.y;
+		}
+		if (aiVertices.y > highestZ) {
+			highestZ = aiVertices.y;
+		}
+
+		//vertex.setPosition(glm::vec3(aiVertices.x, aiVertices.z, aiVertices.y));
 		vertex.setPosition(glm::vec3(aiVertices.x, aiVertices.z, aiVertices.y));// x = x, y = z: hoogte, z = y: diepte
-        //vertex.x = aiVertices.x;
-        //vertex.y = aiVertices.z; // Swap Y and Z
-        //vertex.z = aiVertices.y; // Swap Y and Z
         vertices.push_back(vertex);
-        //vertices = [(breedte, hoogte, diepte),...]
     }
     // Now loop through the faces to populate the indices vector
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
@@ -39,26 +56,25 @@ Mesh* ObjectLoader::loadSTL(const std::string& filename) {
             indices.push_back(face.mIndices[j]); // Add each index to the list
         }
     }
-	Mesh* outputMesh = new Mesh(vertices, indices);
+	Mesh* outputMesh = new Mesh(vertices, indices, lowestX, lowestY, lowestZ, highestZ);
     setMeshToCorrectPos(outputMesh);
     return outputMesh;
 }
 
 void ObjectLoader::setMeshToCorrectPos(Mesh* mesh)
 {
-    std::vector<Vertex> vertices;
-	float meshLowestPoint = mesh->getLowestPoint();
-    if (meshLowestPoint < 0.0f) {
-		float yOffset = -meshLowestPoint;
-        for (auto vertex : mesh->vertices) {
-			float currentY = vertex.getPosition().y;
-            float newY = currentY + yOffset;
-			glm::vec3 currentPosition = vertex.getPosition();
-            currentPosition.y = newY;
-            vertex.setPosition(currentPosition);
-            vertices.push_back(vertex);
-        }
-        mesh->vertices = vertices;
+    // Precompute adjustment offsets
+    float offsetX = -mesh->getLowestX();
+    float offsetY = mesh->getLowestY() < 0.0f ? -mesh->getLowestY() : 0.0f;
+    float offsetZ = -mesh->getLowestZ();
+
+    // Apply offsets directly in the loop
+    for (auto& vertex : mesh->vertices) {
+        glm::vec3 newPosition = vertex.getPosition();
+        newPosition.x += offsetX;
+        newPosition.y += offsetY;
+        newPosition.z += offsetZ;
+        vertex.setPosition(newPosition);
     }
 }
 

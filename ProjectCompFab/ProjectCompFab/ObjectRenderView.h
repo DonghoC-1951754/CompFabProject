@@ -82,7 +82,7 @@ private:
         0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, -0.0f
+        0.0f, 0.0f, 0.0f
     };
     std::vector<GLuint > plateIndices = {
         0, 1, 2,
