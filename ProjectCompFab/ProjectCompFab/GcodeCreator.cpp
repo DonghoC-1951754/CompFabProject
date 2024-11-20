@@ -73,4 +73,3 @@ void GcodeCreator::generateGCode(const std::vector<Polygon> slicePolygons, const
     gcodeFile.close();
     std::cout << "G-code written to " << filename << "\n";
 }
-

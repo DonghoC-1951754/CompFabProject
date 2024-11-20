@@ -35,6 +35,7 @@ private:
 	QPushButton* sliceButton;
 	SliceWindow* sliceWindow;
 	QPushButton* loadButton;
+	QPushButton* gcodeButton;
 	QVBoxLayout* panelLayout;
 	QWidget* gridWidget;
 	QWidget* sidePanel;
@@ -42,7 +43,7 @@ private:
 	std::vector<QDoubleSpinBox*> slicingParameterInputBoxes;
 	//std::vector<Clipper2Lib::PathsD> allCompiledSlices;
 	std::vector<Clipper2Lib::PathsD> erodedSlices;
-	std::vector<Clipper2Lib::PathsD> erodedSlicesWithShells;
+	std::vector<Clipper2Lib::PathsD> shells;
 	std::vector<Clipper2Lib::PathsD> infill;
 	std::vector<Clipper2Lib::PathsD> mostInnerShells;
 	GcodeCreator* gcodeCreator;

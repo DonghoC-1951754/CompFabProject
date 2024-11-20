@@ -31,9 +31,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     sliceWindow = new SliceWindow();
 	createSlicingParameterWidgets();
 
+    gcodeButton = new QPushButton("Create GCode", sidePanel);
+
     connect(slicerHeightInputBox, &QDoubleSpinBox::valueChanged, this, &MainWindow::changeSlicerHeight);
 	connect(sliceButton, &QPushButton::clicked, this, &MainWindow::sliceModel);
 	connect(loadButton, &QPushButton::clicked, this, &MainWindow::openLoadModelDialog);
+	connect(gcodeButton, &QPushButton::clicked, gcodeCreator, &GcodeCreator::createGCode);
 
     // Add widgets to the panel layout
     panelLayout->addWidget(label);
@@ -41,6 +44,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     panelLayout->addWidget(slicerHeightInputBox);
 	panelLayout->addWidget(sliceButton);
 	panelLayout->addWidget(progressBar);
+	panelLayout->addWidget(gcodeButton);
     panelLayout->addWidget(gridWidget);
     panelLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	panelLayout->addWidget(sliceWindow, Qt::AlignBottom);
@@ -82,6 +86,8 @@ void MainWindow::sliceModel() {
     
     progressBar->setValue(0);
     calculateSlices();
+
+
 }
 
 void MainWindow::openLoadModelDialog() {
@@ -222,18 +228,19 @@ void MainWindow::createProgressBar()
 void MainWindow::drawCompleteSlice(int index)
 {
     sliceWindow->setSLiceDataClipper(erodedSlices[index]);
-    sliceWindow->setSliceShells(erodedSlicesWithShells[index]);
+    sliceWindow->setSliceShells(shells[index]);
     sliceWindow->setSliceInfill(infill[index]);
 }
 
 void MainWindow::calculateSlices()
 {
     auto allCompiledSlices = widget->getAllSlices();
+	sliceAmount = allCompiledSlices.size();
     // Contour
     erodedSlices = sliceOperations->erodeSlicesForGCode(allCompiledSlices, slicingParameterInputBoxes[2]->value());
     progressBar->setValue(progressBar->value() + 60);
     // Shell
-    erodedSlicesWithShells = sliceOperations->addShells(erodedSlices, slicingParameterInputBoxes[1]->value(), slicingParameterInputBoxes[2]->value());
+    shells = sliceOperations->addShells(erodedSlices, slicingParameterInputBoxes[1]->value(), slicingParameterInputBoxes[2]->value());
     progressBar->setValue(progressBar->value() + 30);
 	// Infill
     mostInnerShells = sliceOperations->getMostInnerShells();
@@ -267,4 +274,11 @@ void MainWindow::updateBedText() {
         setDimButton->setEnabled(true);
         setDimButton->setText("Set dimensions");
 	}
+}
+
+void MainWindow::generateGcode()
+{
+	// erodedSlices == slices, Shells == shells, Infill == infill
+
+	int sliceAmount = erodedSlices.size();
 }
