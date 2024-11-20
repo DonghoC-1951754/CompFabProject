@@ -67,9 +67,9 @@ void MainWindow::changeSlicerHeight(double height) {
 	double layerHeight = slicer->getLayerHeight();
     
     widget->setSlicerHeight(height);
-	int stepAmount = height / layerHeight;
-    if (erodedSlices.size() > stepAmount) {
-		drawCompleteSlice(stepAmount);
+	int stepNumber = height / layerHeight;
+    if (erodedSlices.size() > stepNumber) {
+		drawCompleteSlice(stepNumber);
 	}
 }
 

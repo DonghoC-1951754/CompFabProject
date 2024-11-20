@@ -60,16 +60,34 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vect
 Clipper2Lib::PathsD SliceOperations::generateInfillGrid(double buildPlateWidth, double buildPlateDepth, double infillDensity)
 {
     Clipper2Lib::PathsD grid;
+	bool traversed = false;
     for (double x = 0; x <= buildPlateWidth; x += infillDensity) {
         Clipper2Lib::PathD verticalLine;
-        verticalLine.push_back(Clipper2Lib::PointD(x, 0.0));
-        verticalLine.push_back(Clipper2Lib::PointD(x, buildPlateDepth));
+        if (traversed) {
+            verticalLine.push_back(Clipper2Lib::PointD(x, 0.0));
+            verticalLine.push_back(Clipper2Lib::PointD(x, buildPlateDepth));
+            traversed = false;
+        }
+        else {
+			verticalLine.push_back(Clipper2Lib::PointD(x, buildPlateDepth));
+			verticalLine.push_back(Clipper2Lib::PointD(x, 0.0));
+			traversed = true;
+        }
         grid.push_back(verticalLine);
     }
     for (double y = 0; y <= buildPlateDepth; y += infillDensity) {
         Clipper2Lib::PathD horizontalLine;
-        horizontalLine.push_back(Clipper2Lib::PointD(0.0, y));
-        horizontalLine.push_back(Clipper2Lib::PointD(buildPlateWidth, y));
+        if (traversed) {
+            horizontalLine.push_back(Clipper2Lib::PointD(0.0, y));
+            horizontalLine.push_back(Clipper2Lib::PointD(buildPlateWidth, y));
+			traversed = false;
+        }
+        else {
+			horizontalLine.push_back(Clipper2Lib::PointD(buildPlateWidth, y));
+			horizontalLine.push_back(Clipper2Lib::PointD(0.0, y));
+			traversed = true;
+        }
+        
         grid.push_back(horizontalLine);
     }
     return grid;

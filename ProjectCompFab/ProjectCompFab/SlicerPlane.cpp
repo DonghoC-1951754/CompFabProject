@@ -41,6 +41,15 @@ Clipper2Lib::PathsD SlicerPlane::compilePolygons()
 	return unionResult;
 }
 
+void SlicerPlane::setStandardHeight(float standardHeight)
+{
+	this->standardHeight = standardHeight;
+	vertices[1] = standardHeight;
+	vertices[4] = standardHeight;
+	vertices[7] = standardHeight;
+	vertices[10] = standardHeight;
+}
+
 void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, double slicerHeight) {
 	std::vector<int> isAboveIndex;
 	std::vector<int> isUnderIndex;

@@ -32,6 +32,8 @@ public:
 	double getPlateDepth() { return plateDepth; };
 	double getLayerHeight() { return layerHeight; };
 
+    void drawPlate();
+
 	std::vector<Clipper2Lib::PathsD> getAllSlices();
 
 protected:
@@ -56,6 +58,7 @@ private:
     void renderMesh();
     void renderSlicer();
     QOpenGLShaderProgram shaderProgram;
+	QOpenGLShaderProgram slicerProgram;
     Ui::ProjectCompFabClass ui;
 
     void drawAxes();
@@ -69,7 +72,7 @@ private:
     bool rotating = false; // True when right mouse button is held for rotation
     bool panning = false;  // True when middle mouse button is held for panning
 
-	double slicerHeight = 0.0;
+	double slicerHeight = 0.2;
     /*void setSlicerHeight(double height) { slicerHeight = height; };*/
 	//double getSlicerHeight() { return slicerHeight; };
 
@@ -89,7 +92,7 @@ private:
         0, 1, 2,
         0, 2, 3
     };
-    void drawPlate();
+
     void setupPlate();
 	void updatePlateVertices();
 
