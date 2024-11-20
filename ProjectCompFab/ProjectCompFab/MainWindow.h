@@ -22,6 +22,7 @@ class MainWindow : public QMainWindow
 public:
 	MainWindow(QWidget* parent = nullptr);
 	~MainWindow();
+	int getSliceAmount() { return sliceAmount; }
 public slots:
 	void changeSlicerHeight(double height);
 private slots:
@@ -29,6 +30,7 @@ private slots:
 	void openLoadModelDialog();
 	void setBedDimensions();
 	void updateBedText();
+	void generateGcode();
 private:
 	ObjectRenderView* widget;
 	QDoubleSpinBox* slicerHeightInputBox;
@@ -71,5 +73,7 @@ private:
 
 	void drawCompleteSlice(int index);
 	void calculateSlices();
+
+	int sliceAmount = 0;
 };
 

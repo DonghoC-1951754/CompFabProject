@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(slicerHeightInputBox, &QDoubleSpinBox::valueChanged, this, &MainWindow::changeSlicerHeight);
 	connect(sliceButton, &QPushButton::clicked, this, &MainWindow::sliceModel);
 	connect(loadButton, &QPushButton::clicked, this, &MainWindow::openLoadModelDialog);
-	connect(gcodeButton, &QPushButton::clicked, gcodeCreator, &GcodeCreator::createGCode);
+	connect(gcodeButton, &QPushButton::clicked, this, &MainWindow::generateGcode);
 
     // Add widgets to the panel layout
     panelLayout->addWidget(label);
