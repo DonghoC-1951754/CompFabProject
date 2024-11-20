@@ -55,22 +55,6 @@ void GcodeCreator::generateGCode(const int sliceAmount, const std::vector<Clippe
     * TODO: Start with omtrek for print test
     */ 
     double E = 0.0;
-	double currentLayer = 0;
-    
-    for (const auto& vertex : polygon) {
-        const glm::vec3 startEdge = vertex[0];
-        const glm::vec3 endEdge = vertex[1];
-
-        double distance = glm::distance(startEdge, endEdge);
-        //extrustionLength = (Layer height x Nozzle diameter x L)/Filament area 
-
-        double extrusionLength = (distance * layerHeight * nozzleDiameter) / M_PI * pow(nozzleDiameter / 2, 2);
-
-        E += distance * 0.55; // Adjust extrusion multiplier as needed
-
-        gcodeFile << std::fixed << std::setprecision(4);
-        gcodeFile << "G1 X" << endEdge.x << " Y" << endEdge.z << " E" << E << "\n";
-    }
 
     for (int i = 0; i < sliceAmount; i++) {
         // Write the G-code for the current slice
@@ -91,20 +75,21 @@ void GcodeCreator::generateGCode(const int sliceAmount, const std::vector<Clippe
                 firstPoint = false;
             }
 			E += calculateExtrusionLength(prevX, prevY, polygon[0].x, polygon[0].y, filamentDiameter, layerHeight, nozzleDiameter);
-			gcodeFile << "G1 X" << polygon[0].x << " Y" << polygon[0].y << "\n"; // Close the loop
+			gcodeFile << "G1 X" << polygon[0].x << " Y" << polygon[0].y << " E" << E << "\n"; // Close the loop
         }
     }
 
     // Finish G-code
     gcodeFile << "G1 E-2 F2400\n"; // Retract filament
     gcodeFile << "G1 Z10 F3000\n"; // Move nozzle up
+    gcodeFile << "G1 X0 Y220.0 Z10 E-2 F3000\n";
+	gcodeFile << "M106 S0\n";          // Turn off fan
     gcodeFile << "M104 S0\n";      // Turn off hotend
     gcodeFile << "M140 S0\n";      // Turn off bed
     gcodeFile << "M84\n";          // Disable motors
     gcodeFile << "; End of G-code\n";
 
     gcodeFile.close();
-    std::cout << "G-code written to " << filename << "\n";
 }
 
 double GcodeCreator::calculateExtrusionLength(double prevX, double prevY, double currentX, double currentY, double filamentDiameter, double layerHeight, double nozzleDiameter) {
