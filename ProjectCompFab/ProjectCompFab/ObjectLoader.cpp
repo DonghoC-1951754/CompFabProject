@@ -79,6 +79,7 @@ void ObjectLoader::setMeshToCorrectPos(Mesh* mesh)
 
 	float centerX = (static_cast<float>(plateWidth) / 2.0f) -((mesh->getHighestX() - mesh->getLowestX())/2.0f);
 	float centerZ = (static_cast<float>(plateDepth) / 2.0f) - ((mesh->getHighestZ() - mesh->getLowestZ()) / 2.0f);
+	float height = mesh->getHighestY() - mesh->getLowestY();
 
     // Apply offsets directly in the loop
     for (auto& vertex : mesh->vertices) {
@@ -90,5 +91,11 @@ void ObjectLoader::setMeshToCorrectPos(Mesh* mesh)
         newPosition.z += (offsetZ + centerZ);
         vertex.setPosition(newPosition);
     }
+	mesh->setLowestX(mesh->getLowestX() + offsetX);
+	mesh->setHighestX(mesh->getHighestX() + offsetX);
+	mesh->setLowestY(mesh->getLowestY() + offsetY);
+	mesh->setHighestY(mesh->getHighestY() + offsetY);
+	mesh->setLowestZ(0);
+	mesh->setHighestZ(height);
 }
 
