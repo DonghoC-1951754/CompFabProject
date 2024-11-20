@@ -3,7 +3,7 @@
 
 
 ObjectRenderView::ObjectRenderView(QWidget* parent)
-    : QOpenGLWidget(parent), cameraPos(0.0f, 0.0f, 100.0f), targetPos(0.0f, 0.0f, 0.0f), zoomFactor(1.0f)
+    : QOpenGLWidget(parent), cameraPos(0.0f, 10.0f, 100.0f), targetPos(90.0f, 10.0f, -90.0f), zoomFactor(1.0f)
 {
 	slicer = new SlicerPlane();
 }
@@ -72,7 +72,7 @@ void ObjectRenderView::paintGL() {
 
 
     // Setup model, view and projection matrices
-    QMatrix4x4 model, view, projection;
+	QMatrix4x4 model, view, projection;
     model.setToIdentity();
     
 
@@ -109,26 +109,19 @@ void ObjectRenderView::paintGL() {
 }
 
 void ObjectRenderView::renderMesh() {
-    // Set the cube color
-    QMatrix4x4 view;
-    // position, where looking, leave be
-    view.lookAt(cameraPos, targetPos, QVector3D(0, 1, 0));
-    QMatrix4x4 model;
+    QMatrix4x4 model, projection, view;
     model.setToIdentity();
 	model.scale(1.0f, 1.0f, -1.0f);
-    shaderProgram.setUniformValue("cubeColor", QVector4D(1.0f, 0.5f, 0.0f, 1.0f));
+    view.lookAt(cameraPos, targetPos, QVector3D(0, 1, 0));
+    projection.perspective(45.0f, float(width()) / float(height()), 0.1f, 10000.0f);
+
     shaderProgram.setUniformValue("model", model);
-
-
-    // Pass light properties
-    //QVector3D cameraPosition = QVector3D(view.column(3));
-    shaderProgram.setUniformValue("lightPos", QVector3D(plateWidth/2, 60.0f, plateDepth/2));
-    shaderProgram.setUniformValue("viewPos", cameraPos); // Assuming it's a QVector3D
-    shaderProgram.setUniformValue("lightColor", QVector3D(1.0f, 1.0f, 1.0f)); // White light
-
-    // Pass material properties
-    shaderProgram.setUniformValue("cubeColor", QVector4D(1.0f, 0.5f, 0.31f, 1.0f)); // Cube color
-    shaderProgram.setUniformValue("shininess", 32.0f); // Shininess factor
+    shaderProgram.setUniformValue("view", view);
+    shaderProgram.setUniformValue("projection", projection);
+    QVector3D objectColor(1.0f, 0.0f, 0.0f);  // Red color
+    shaderProgram.setUniformValue("objectColor", objectColor);
+    shaderProgram.setUniformValue("lightColor", QVector3D(1.0f, 1.0f, 1.0f));
+	shaderProgram.setUniformValue("lightPos", QVector3D(360.0f, 15.0f, -40.0f));
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, 0);

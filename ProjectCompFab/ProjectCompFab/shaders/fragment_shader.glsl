@@ -1,36 +1,24 @@
 #version 330 core
 
-in vec3 fragNormal;      // Normal from vertex shader
-in vec3 fragPosition;    // Position from vertex shader
-out vec4 color;          // Final color output
+out vec4 FragColor;
 
-uniform vec3 lightPos;   // Light position in world space
-uniform vec3 viewPos;    // Camera position in world space
-uniform vec3 lightColor; // Light color
-uniform vec4 cubeColor;  // Base color of the cube (material color)
+in vec3 fragPos;  // World-space position of the fragment
+in vec3 normal;   // Normal vector at the fragment
 
-uniform float shininess; // Shininess factor for specular highlight
+uniform vec3 lightPos;      // Light position in world space
+uniform vec3 lightColor;    // Light color
+uniform vec3 objectColor;   // Object color
 
-void main() {
-    vec3 normal = normalize(fragNormal); // Normalize the input normal
+void main()
+{
+    // Normalize the normal and light direction
+    vec3 norm = normalize(normal);
+    vec3 lightDir = normalize(lightPos - fragPos);  // Direction from fragment to light
 
-    // Ambient lighting
-    vec3 ambient = 0.1 * lightColor;
+    // Diffuse lighting (Lambertian reflection)
+    float diff = max(dot(norm, lightDir), 0.0);  // Lambert's cosine law
+    vec3 diffuse = diff * lightColor * objectColor;
 
-    // Diffuse lighting
-    vec3 lightDir = normalize(lightPos - fragPosition);
-    float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = diff * lightColor;
-
-    // Specular lighting
-    vec3 viewDir = normalize(viewPos - fragPosition);
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-    vec3 specular = spec * lightColor;
-
-    // Combine lighting effects
-    vec3 lighting = ambient + diffuse + specular;
-    vec3 finalColor = lighting * vec3(cubeColor);
-
-    color = vec4(finalColor, cubeColor.a);
+    // Final color
+    FragColor = vec4(diffuse, 1.0);
 }
