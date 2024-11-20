@@ -31,6 +31,7 @@ private slots:
 	void setBedDimensions();
 	void updateBedText();
 	void generateGcode();
+	void limitInfillDensity();
 private:
 	ObjectRenderView* widget;
 	QDoubleSpinBox* slicerHeightInputBox;

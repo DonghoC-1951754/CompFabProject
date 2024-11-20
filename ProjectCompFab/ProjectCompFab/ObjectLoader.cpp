@@ -92,12 +92,17 @@ void ObjectLoader::setMeshToCorrectPos(Mesh* mesh)
     // Apply offsets directly in the loop
     for (auto& vertex : mesh->vertices) {
         glm::vec3 newPosition = vertex.getPosition();
+		glm::vec3 newNormal = vertex.getNormal();
         newPosition.x += (offsetX + centerX);
+        newNormal.x += (offsetX + centerX);
         //height
         newPosition.y += offsetY;
+		newNormal.y += offsetY;
         //depth
         newPosition.z += (offsetZ + centerZ);
+		newNormal.z += (offsetZ + centerZ);
         vertex.setPosition(newPosition);
+		vertex.setNormal(newNormal);
     }
 	//update all the values for lowest and highest x,y,z in mesh
 	mesh->setLowestX(mesh->getLowestX() + offsetX + centerX);

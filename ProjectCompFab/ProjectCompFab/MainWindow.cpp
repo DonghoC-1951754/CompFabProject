@@ -37,6 +37,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 	connect(sliceButton, &QPushButton::clicked, this, &MainWindow::sliceModel);
 	connect(loadButton, &QPushButton::clicked, this, &MainWindow::openLoadModelDialog);
 	connect(gcodeButton, &QPushButton::clicked, this, &MainWindow::generateGcode);
+	connect(slicingParameterInputBoxes[2], &QDoubleSpinBox::valueChanged, this, &MainWindow::limitInfillDensity);
 
     // Add widgets to the panel layout
     panelLayout->addWidget(label);
@@ -148,7 +149,7 @@ void MainWindow::createSlicingParameterWidgets()
 	// Infill density controls
 	slicingParameterInputBoxes[5]->setDecimals(2);
 	slicingParameterInputBoxes[5]->setValue(2.0);
-	slicingParameterInputBoxes[5]->setRange(0.6, 100.0);
+	slicingParameterInputBoxes[5]->setRange(0.2, 100.0);
 	slicingParameterInputBoxes[5]->setSingleStep(0.2);
     
     gridWidget->setLayout(gridLayout);
@@ -281,4 +282,9 @@ void MainWindow::generateGcode()
 	// erodedSlices == slices, Shells == shells, Infill == infill
 
 	int sliceAmount = erodedSlices.size();
+}
+
+void MainWindow::limitInfillDensity()
+{
+	slicingParameterInputBoxes[5]->setRange(slicingParameterInputBoxes[2]->value(), 100.0);
 }

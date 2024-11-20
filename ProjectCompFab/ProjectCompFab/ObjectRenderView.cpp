@@ -121,9 +121,9 @@ void ObjectRenderView::renderMesh() {
 
 
     // Pass light properties
-    QVector3D cameraPosition = QVector3D(view.column(3));
-    shaderProgram.setUniformValue("lightPos", QVector3D(0.0f, 10.0f, 0.0f));
-    shaderProgram.setUniformValue("viewPos", cameraPosition); // Assuming it's a QVector3D
+    //QVector3D cameraPosition = QVector3D(view.column(3));
+    shaderProgram.setUniformValue("lightPos", QVector3D(plateWidth/2, 60.0f, plateDepth/2));
+    shaderProgram.setUniformValue("viewPos", cameraPos); // Assuming it's a QVector3D
     shaderProgram.setUniformValue("lightColor", QVector3D(1.0f, 1.0f, 1.0f)); // White light
 
     // Pass material properties
@@ -157,20 +157,6 @@ void ObjectRenderView::renderSlicer() {
         glVertex3f(vertices[6], vertices[7], vertices[8]);
         glVertex3f(vertices[9], vertices[10], vertices[11]);
     glEnd();
-
-    //slicerProgram.bind();
-    //QMatrix4x4 modelSlicer;
-    //modelSlicer.setToIdentity();
-
-    ////modelSlicer.translate(-5.0f, 0.0f, 5.0f); // Move 5 units along the Z-axis
-    //slicerProgram.setUniformValue("model", modelSlicer);
-    //slicerProgram.setUniformValue("planeColor", QVector4D(1.0f, 0.0f, 0.0f, 1.0f));
-
-
-    //glBindVertexArray(VAO1);
-    //glDrawElements(GL_TRIANGLES, slicer->getIndices().size(), GL_UNSIGNED_INT, 0);  // Adjust count based on your vertex data
-    //glBindVertexArray(0); // Unbind VAO
-    //glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
     slicerProgram.release();
 }
 
