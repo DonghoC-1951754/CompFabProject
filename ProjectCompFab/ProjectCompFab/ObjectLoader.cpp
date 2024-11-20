@@ -73,13 +73,6 @@ Mesh* ObjectLoader::loadSTL(const std::string& filename) {
 
 void ObjectLoader::setMeshToCorrectPos(Mesh* mesh)
 {
-    float lowestX = mesh->getLowestX();
-    float highestX = mesh->getHighestX();
-    float lowestY = mesh->getLowestY();
-    float highestY = mesh->getHighestY();
-    float lowestZ = mesh->getLowestZ();
-    float highestZ = mesh->getHighestZ();
-
     float offsetX = -mesh->getLowestX();
     //height offset
     float offsetY = -mesh->getLowestY();
@@ -118,6 +111,4 @@ void ObjectLoader::setMeshToCorrectPos(Mesh* mesh)
 	float newHighestY = mesh->getHighestY();
 	float newLowestZ = mesh->getLowestZ();
 	float newHighestZ = mesh->getHighestZ();
-    return;
 }
-

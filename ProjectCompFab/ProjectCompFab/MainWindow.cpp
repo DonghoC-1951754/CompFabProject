@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     QLabel* label = new QLabel("Slicer Controls", sidePanel);
     loadButton = new QPushButton("Load Model", sidePanel);
 
+	gcodeCreator = new GcodeCreator();
+
 	createObjectRenderView();
 	createBedDimensions();
 	createSlicerHeightInput();
@@ -76,6 +78,7 @@ void MainWindow::changeSlicerHeight(double height) {
 
 MainWindow::~MainWindow() {
 	delete widget;
+	delete gcodeCreator;
 }
 
 void MainWindow::sliceModel() {
@@ -279,9 +282,10 @@ void MainWindow::updateBedText() {
 
 void MainWindow::generateGcode()
 {
-	// erodedSlices == slices, Shells == shells, Infill == infill
-
-	int sliceAmount = erodedSlices.size();
+	// erodedSlices == omtrek, Shells == shells, Infill == infill
+    int sliceAmount = erodedSlices.size();
+    gcodeCreator->generateGCode(sliceAmount, erodedSlices, shells, infill, "test", widget->getSlicer()->getLayerHeight(), 60.0, 200.0, 0.4, true);
+	
 }
 
 void MainWindow::limitInfillDensity()
