@@ -72,8 +72,8 @@ Mesh* ObjectLoader::loadSTL(const std::string& filename) {
 
 void ObjectLoader::setMeshToCorrectPos(Mesh* mesh)
 {
-    // Precompute adjustment offsets
     float offsetX = -mesh->getLowestX();
+    //height offset
     float offsetY = mesh->getLowestY() < 0.0f ? -mesh->getLowestY() : 0.0f;
     float offsetZ = -mesh->getLowestZ();
 
@@ -91,11 +91,13 @@ void ObjectLoader::setMeshToCorrectPos(Mesh* mesh)
         newPosition.z += (offsetZ + centerZ);
         vertex.setPosition(newPosition);
     }
-	mesh->setLowestX(mesh->getLowestX() + offsetX);
-	mesh->setHighestX(mesh->getHighestX() + offsetX);
+	//update all the values for lowest and highest x,y,z in mesh
+	mesh->setLowestX(mesh->getLowestX() + offsetX + centerX);
+	mesh->setHighestX(mesh->getHighestX() + offsetX + centerX);
 	mesh->setLowestY(mesh->getLowestY() + offsetY);
 	mesh->setHighestY(mesh->getHighestY() + offsetY);
-	mesh->setLowestZ(0);
-	mesh->setHighestZ(height);
+	mesh->setLowestZ(mesh->getLowestZ() + offsetZ + centerZ);
+	mesh->setHighestZ(mesh->getHighestZ() + offsetZ + centerZ);
+
 }
 
