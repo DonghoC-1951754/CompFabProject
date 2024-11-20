@@ -17,7 +17,7 @@ void GcodeCreator::generateGCode(const int sliceAmount, const std::vector<Clippe
     }
 
     // Write initialization G-code
-    gcodeFile << "%";
+    gcodeFile << "%\n";
     gcodeFile << "M140 S" + std::to_string(bedTemp) + "\n"; // Set bed temp
     gcodeFile << "M104 S" + std::to_string(nozzleTemp) + "\n"; // Set nozzle temp
     gcodeFile << "M190 S" + std::to_string(bedTemp) + "\n"; // Wait for bed temp
@@ -35,7 +35,7 @@ void GcodeCreator::generateGCode(const int sliceAmount, const std::vector<Clippe
         gcodeFile << "G1 X0.4 Y20 Z" + std::to_string(layerHeight) + " F1500 E30\n";
         gcodeFile << "G1 Z" + std::to_string(layerHeight) + " F3000\n";
 		gcodeFile << "G92 E0\n";
-		gcodeFile << " G1 Z2.0 F3000\n";
+		gcodeFile << "G1 Z2.0 F3000\n";
 		gcodeFile << "G1 X5 Y20 Z2 F5000.0\n";
         gcodeFile << "G92 E0\n";
         gcodeFile << "G92 E0\n";
