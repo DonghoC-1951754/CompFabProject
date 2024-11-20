@@ -64,7 +64,7 @@ void GcodeCreator::generateGCode(const int sliceAmount, const std::vector<Clippe
             double prevX = 0.0, prevY = 0.0;
             bool firstPoint = true; // To check if it's the first point in the polygon
             for (const auto& point : polygon) {
-				if (firstPoint) {
+				if (!firstPoint) {
                     E += calculateExtrusionLength(prevX, prevY, point.x, point.y, filamentDiameter, layerHeight, nozzleDiameter);
 				}
                 gcodeFile << "G1 X" << point.x << " Y" << point.y << " E" << E << "\n";
