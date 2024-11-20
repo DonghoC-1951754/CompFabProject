@@ -56,6 +56,7 @@ Mesh* ObjectLoader::loadSTL(const std::string& filename) {
 
 		//vertex.setPosition(glm::vec3(aiVertices.x, aiVertices.z, aiVertices.y));
 		vertex.setPosition(glm::vec3(aiVertices.x, aiVertices.z, aiVertices.y));// x = x, y = z: hoogte, z = y: diepte
+		vertex.setNormal(glm::vec3(aiNormals.x, aiNormals.z, aiNormals.y));
         vertices.push_back(vertex);
     }
     // Now loop through the faces to populate the indices vector

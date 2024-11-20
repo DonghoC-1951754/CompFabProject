@@ -254,8 +254,8 @@ void MainWindow::calculateSlices()
         slicerHeightInputBox->setValue(widget->getSlicer()->getLayerHeight());
         slicerHeightInputBox->setRange(minSlicerHeight, maxSlicerHeight);
         drawCompleteSlice(0);
-        progressBar->setValue(progressBar->value() + 10);
     }
+    progressBar->setValue(progressBar->value() + 10);
 }
 
 void MainWindow::setBedDimensions() {

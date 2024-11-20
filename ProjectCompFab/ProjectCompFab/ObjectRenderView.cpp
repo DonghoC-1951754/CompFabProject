@@ -366,8 +366,8 @@ void ObjectRenderView::setupSlicer() {
 
 
 std::vector<Clipper2Lib::PathsD> ObjectRenderView::getAllSlices() {
-    double meshLowestPoint = mesh->getLowestZ();
-    double meshHighestPoint = mesh->getHighestZ();
+    double meshLowestPoint = mesh->getLowestY();
+    double meshHighestPoint = mesh->getHighestY();
     // Edge case: lift slicer plane height by 0.00000001
     double currentHeight = meshLowestPoint + 0.00000001;
     double layerHeight = slicer->getLayerHeight();
