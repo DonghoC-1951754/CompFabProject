@@ -357,12 +357,16 @@ void ObjectRenderView::setupPlate() {
 
 void ObjectRenderView::drawPlate() {
     plateShader.bind();
-	updatePlateVertices();
+    if (plateSizeChanged) {
+        updatePlateVertices(); // Update vertices only if the plate is marked dirty
+        plateSizeChanged = false;   // Reset the flag
+    }
     QMatrix4x4 modelBed;
     modelBed.setToIdentity();
     plateShader.setUniformValue("model", modelBed);
     plateShader.setUniformValue("plateWidth", static_cast<float>(plateWidth));
     plateShader.setUniformValue("plateDepth", static_cast<float>(plateDepth));
+    // Re-upload the updated vertices to the GPU
 
     glBindVertexArray(plateVAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -376,4 +380,7 @@ void ObjectRenderView::updatePlateVertices() {
     plateVertices[6] = plateWidth;
     plateVertices[8] = -plateDepth;
     plateVertices[11] = -plateDepth;
+    glBindBuffer(GL_ARRAY_BUFFER, plateVBO);
+    glBufferData(GL_ARRAY_BUFFER, plateVertices.size() * sizeof(GLfloat), plateVertices.data(), GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind the buffer
 }

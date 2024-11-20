@@ -24,8 +24,8 @@ public:
 
 	double getSlicerHeight() { return slicerHeight; };
     void setSlicerHeight(double height) { slicerHeight = height; update(); };
-	void setPlateWidth(double width) { plateWidth = width; update(); };
-	void setPlateDepth(double depth) { plateDepth = depth; update(); };
+    void setPlateWidth(double width) { plateWidth = width; plateSizeChanged = true; update(); };
+	void setPlateDepth(double depth) { plateDepth = depth; plateSizeChanged = true; update(); };
 	void setLayerHeight(double height) { layerHeight = height; update(); };
 
 	double getPlateWidth() { return plateWidth; };
@@ -76,6 +76,7 @@ private:
 	double plateWidth = 180.0;
 	double plateDepth = 180.0;
 	double layerHeight = 0.2;
+	bool plateSizeChanged = true;
 	QOpenGLShaderProgram plateShader;
     GLuint plateVAO, plateVBO, plateEBO;
     std::vector<GLfloat> plateVertices= {
