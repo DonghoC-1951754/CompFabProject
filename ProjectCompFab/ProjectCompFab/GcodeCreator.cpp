@@ -40,6 +40,14 @@ void GcodeCreator::generateGCode(const std::vector<Polygon> slicePolygons, const
     // Actual printing
     gcodeFile << "G1 Z" + std::to_string(layerHeight) + " F1200\n"; // Set feed rate
     // OUR Y BECOMES THE Z IN THE G-CODE, MEANING WE USE Y FOR HEIGHT WHILE THE G-CODE USES Z. AND VICE VERSA
+
+    /**
+    * TODO: Start with omtrek for print test
+    * TODO: Start with omtrek for print test
+    * TODO: Start with omtrek for print test
+    * TODO: Start with omtrek for print test
+    * TODO: Start with omtrek for print test
+    */ 
     double E = 0.0;
 	double currentLayer = 0;
     for (const auto& polygon : slicePolygons) {

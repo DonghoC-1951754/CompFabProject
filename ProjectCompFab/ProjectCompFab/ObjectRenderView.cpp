@@ -24,6 +24,8 @@ ObjectRenderView::~ObjectRenderView()
 
 void ObjectRenderView::loadModel(const std::string& filename) {
     ObjectLoader loader;
+	loader.setPlateWidth(plateWidth);
+	loader.setPlateDepth(plateDepth);
     mesh = loader.loadSTL(filename);  // Load the model
 }
 
@@ -43,6 +45,7 @@ void ObjectRenderView::initializeGL() {
 
     setupMesh();
 	setupSlicer();
+	setupPlate();
 
 	// Compile the shader program
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/vertex_shader.glsl");
@@ -329,26 +332,12 @@ std::vector<Clipper2Lib::PathsD> ObjectRenderView::getAllSlices() {
     return allCompiledSlices;
 }
 
-void ObjectRenderView::drawPlate() {
-    plateShader.bind();
 
-    // Define the vertices of the plate (18cm x 18cm), positioned flat at height 0
-    GLfloat plateVertices[] = {
-        // Positions          // No need for colors as they are generated in the shader
-        0.0f, 0.0f, 0.0f,       // Bottom-left corner (0, 0)
-        plateWidth, 0.0f, 0.0f,  // Bottom-right corner (18, 0)
-        plateWidth, 0.0f, -plateDepth,  // Top-right corner (18, -18)
-        0.0f, 0.0f, -plateDepth   // Top-left corner (0, -18)
-    };
 
-    // Define the indices for the square (two triangles)
-    GLuint plateIndices[] = {
-        0, 1, 2,   // First triangle (Bottom-left, Bottom-right, Top-right)
-        0, 2, 3    // Second triangle (Bottom-left, Top-right, Top-left)
-    };
 
-    // Create and bind VAO, VBO, and EBO for the plate
-    GLuint plateVAO, plateVBO, plateEBO;
+void ObjectRenderView::setupPlate() {
+    updatePlateVertices();
+
     glGenVertexArrays(1, &plateVAO);
     glGenBuffers(1, &plateVBO);
     glGenBuffers(1, &plateEBO);
@@ -356,63 +345,37 @@ void ObjectRenderView::drawPlate() {
     glBindVertexArray(plateVAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, plateVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(plateVertices), plateVertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, plateVertices.size() * sizeof(GLfloat), plateVertices.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, plateEBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(plateIndices), plateIndices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, plateIndices.size() * sizeof(GLuint), plateIndices.data(), GL_STATIC_DRAW);
 
-    // Set the vertex attribute pointer for positions (no colors needed)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
-    glBindVertexArray(0); // Unbind VAO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
 
-    // Create transformation matrices
+void ObjectRenderView::drawPlate() {
+    plateShader.bind();
+	updatePlateVertices();
     QMatrix4x4 modelBed;
     modelBed.setToIdentity();
     plateShader.setUniformValue("model", modelBed);
-	plateShader.setUniformValue("plateWidth", static_cast<float>(plateWidth));
+    plateShader.setUniformValue("plateWidth", static_cast<float>(plateWidth));
     plateShader.setUniformValue("plateDepth", static_cast<float>(plateDepth));
 
-
-    // Draw the plate
     glBindVertexArray(plateVAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // 6 indices for 2 triangles
-    glBindVertexArray(0); // Unbind VAO
-
-    // Clean up
-    glDeleteVertexArrays(1, &plateVAO);
-    glDeleteBuffers(1, &plateVBO);
-    glDeleteBuffers(1, &plateEBO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 
     plateShader.release();
 }
 
-
-void ObjectRenderView::setPlateWidth(double width) {
-	plateWidth = width;
-	update();
-}
-
-void ObjectRenderView::setPlateDepth(double depth) {
-	plateDepth = depth;
-	update();
-}
-
-double ObjectRenderView::getPlateWidth() {
-	return plateWidth;
-}
-
-double ObjectRenderView::getPlateDepth() {
-	return plateDepth;
-}
-
-void ObjectRenderView::setLayerHeight(double depth) {
-    layerHeight = depth;
-    update();
-}
-
-double ObjectRenderView::getLayerHeight() {
-    return layerHeight;
+void ObjectRenderView::updatePlateVertices() {
+    plateVertices[3] = plateWidth;
+    plateVertices[6] = plateWidth;
+    plateVertices[8] = -plateDepth;
+    plateVertices[11] = -plateDepth;
 }

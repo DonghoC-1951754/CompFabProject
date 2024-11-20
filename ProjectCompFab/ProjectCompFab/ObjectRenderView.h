@@ -24,13 +24,13 @@ public:
 
 	double getSlicerHeight() { return slicerHeight; };
     void setSlicerHeight(double height) { slicerHeight = height; update(); };
-    void setPlateWidth(double width);
-    void setPlateDepth(double depth);
-    void setLayerHeight(double height);
+	void setPlateWidth(double width) { plateWidth = width; update(); };
+	void setPlateDepth(double depth) { plateDepth = depth; update(); };
+	void setLayerHeight(double height) { layerHeight = height; update(); };
 
-    double getPlateWidth();
-    double getPlateDepth();
-	double getLayerHeight();
+	double getPlateWidth() { return plateWidth; };
+	double getPlateDepth() { return plateDepth; };
+	double getLayerHeight() { return layerHeight; };
 
 	std::vector<Clipper2Lib::PathsD> getAllSlices();
 
@@ -76,8 +76,24 @@ private:
 	double plateWidth = 180.0;
 	double plateDepth = 180.0;
 	double layerHeight = 0.2;
-    void drawPlate();
 	QOpenGLShaderProgram plateShader;
+    GLuint plateVAO, plateVBO, plateEBO;
+    std::vector<GLfloat> plateVertices= {
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, -0.0f
+    };
+    std::vector<GLuint > plateIndices = {
+        0, 1, 2,
+        0, 2, 3
+    };
+    void drawPlate();
+    void setupPlate();
+	void updatePlateVertices();
+
+
+
 
 public slots:
     void setSliderSlicerHeight(double value) {
