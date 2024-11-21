@@ -44,7 +44,7 @@ void GcodeCreator::generateGCode(const int sliceAmount, const std::vector<Clippe
     
 
     // Actual printing
-    gcodeFile << "G1 Z" + std::to_string(layerHeight+0.1) + " F1200\n"; // Set feed rate
+    gcodeFile << "G1 Z" + std::to_string(layerHeight+0.1) + " F800\n"; // Set feed rate
     // OUR Y BECOMES THE Z IN THE G-CODE, MEANING WE USE Y FOR HEIGHT WHILE THE G-CODE USES Z. AND VICE VERSA
 
     /**
@@ -59,8 +59,11 @@ void GcodeCreator::generateGCode(const int sliceAmount, const std::vector<Clippe
     for (int i = 0; i < sliceAmount; i++) {
         // Write the G-code for the current slice
         gcodeFile << "; Slice " << i << "\n";
+		bool firstPolygon = true;
+        gcodeFile << "G0 Z" << (layerHeight * (i + 1)) << "\n"; // Move to the current layer
         for (const auto& polygon : erodedSlices[i]) {
-            gcodeFile << "G1 Z" << (layerHeight * i)+0.1 << "\n"; // Move to the current layer
+			gcodeFile << "G0 X" << polygon[0].x-0.01 << " Y" << polygon[0].y-0.01 << "\n";
+			gcodeFile << "G1 F800\n"; // Set feed rate
             double prevX = 0.0, prevY = 0.0;
             bool firstPoint = true; // To check if it's the first point in the polygon
             for (const auto& point : polygon) {
@@ -76,7 +79,9 @@ void GcodeCreator::generateGCode(const int sliceAmount, const std::vector<Clippe
             }
 			E += calculateExtrusionLength(prevX, prevY, polygon[0].x, polygon[0].y, filamentDiameter, layerHeight, nozzleDiameter);
 			gcodeFile << "G1 X" << polygon[0].x << " Y" << polygon[0].y << " E" << E << "\n"; // Close the loop
+			gcodeFile << "G0 F6000 X" << polygon[0].x+0.01 << " Y " << polygon[0].y + 0.01 << "\n";
         }
+		/*for (const auto& shell : shells[i]) {*/
     }
 
     // Finish G-code
