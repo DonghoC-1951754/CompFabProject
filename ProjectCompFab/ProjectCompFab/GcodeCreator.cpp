@@ -65,12 +65,12 @@ void GcodeCreator::generateGCode(const double maxXDist, const double maxYDist, c
         gcodeFile << "G0 Z" << (layerHeight * (i + 1)) << "\n"; // Move to the current layer
         for (const auto& polygon : erodedSlices[i]) {
             if (!firstPolygon) {
-                E -= retractionDistance;
+                E -= retractionDistance*2;
                 gcodeFile << "G1 E" << E << " F3000\n";
 
                 gcodeFile << "G0 X" << polygon[0].x << " Y" << polygon[0].y << "\n";
 
-                E += retractionDistance;
+                E += retractionDistance*2;
                 gcodeFile << "G1 E" << E << " F3000\n"; // Restore filament dynamically
             }
             firstPolygon = false; // After the first polygon
@@ -92,15 +92,41 @@ void GcodeCreator::generateGCode(const double maxXDist, const double maxYDist, c
 			gcodeFile << "G1 X" << polygon[0].x << " Y" << polygon[0].y << " E" << E << "\n"; // Close the loop
 			gcodeFile << "G0 F6000 X" << polygon[0].x+0.01 << " Y " << polygon[0].y + 0.01 << "\n";
         }
-        /**SHELLS
-        *
-        */
+        //for (const auto& polygon : erodedSlices[i]) {
+        //    if (!firstPolygon) {
+        //        E -= retractionDistance * 2;
+        //        gcodeFile << "G1 E" << E << " F3000\n";
+
+        //        gcodeFile << "G0 X" << polygon[0].x << " Y" << polygon[0].y << "\n";
+
+        //        E += retractionDistance * 2;
+        //        gcodeFile << "G1 E" << E << " F3000\n"; // Restore filament dynamically
+        //    }
+        //    firstPolygon = false; // After the first polygon
+        //    gcodeFile << "G1 F800\n"; // Set feed rate
+        //    double prevX = polygon[0].x, prevY = polygon[0].y;
+        //    firstPoint = true; // To check if it's the first point in the polygon
+        //    for (const auto& point : polygon) {
+        //        if (!firstPoint) {
+        //            E += calculateExtrusionLength(prevX, prevY, point.x, point.y, filamentDiameter, layerHeight, nozzleDiameter);
+        //        }
+        //        gcodeFile << "G1 X" << point.x << " Y" << point.y << " E" << E << "\n";
+
+        //        // Update the previous point
+        //        prevX = point.x;
+        //        prevY = point.y;
+        //        firstPoint = false;
+        //    }
+        //    E += calculateExtrusionLength(prevX, prevY, polygon[0].x, polygon[0].y, filamentDiameter, layerHeight, nozzleDiameter);
+        //    gcodeFile << "G1 X" << polygon[0].x << " Y" << polygon[0].y << " E" << E << "\n"; // Close the loop
+        //    gcodeFile << "G0 F6000 X" << polygon[0].x + 0.01 << " Y " << polygon[0].y + 0.01 << "\n";
+        //}
         for (const auto& line : infill[i]) {
             E -= retractionDistance;
             gcodeFile << "G1 E" << E << " F3000\n";
             gcodeFile << "G0 X" << line[0].x << " Y" << line[0].y << "\n";
             E += retractionDistance;
-            gcodeFile << "G1 E" << E << " F3000\n"; // Restore filament dynamically
+            gcodeFile << "G1 E" << E << " F800\n"; // Restore filament dynamically
             E += calculateExtrusionLength(line[0].x, line[0].y, line[1].x, line[1].y, filamentDiameter, layerHeight, nozzleDiameter);
 
             gcodeFile << "G1 X" << line[1].x << " Y" << line[1].y << " E" << E << "\n";
