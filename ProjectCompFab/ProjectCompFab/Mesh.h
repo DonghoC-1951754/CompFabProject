@@ -34,6 +34,9 @@ public:
 	void setLowestZ(float z) {lowestZ = z;}
 	void setHighestZ(float z) {highestZ = z;}
 
+	float getMaxXDistance() { return highestX - lowestX; }
+	float getMaxYDistance() { return highestY - lowestY; }
+
 private:
     float lowestX;
 	float highestX;

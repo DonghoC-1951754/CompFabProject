@@ -284,7 +284,9 @@ void MainWindow::generateGcode()
 {
 	// erodedSlices == omtrek, Shells == shells, Infill == infill
     int sliceAmount = erodedSlices.size();
-    gcodeCreator->generateGCode(sliceAmount, erodedSlices, shells, infill, "test", widget->getSlicer()->getLayerHeight(),1.75, 60.0, 200.0, 0.4, true);
+	double maxXDistance = static_cast<double>(widget->getMesh()->getMaxXDistance());
+	double maxYDistance = static_cast<double>(widget->getMesh()->getMaxYDistance());
+    gcodeCreator->generateGCode(maxXDistance, maxYDistance, sliceAmount, erodedSlices, shells, infill, "test", widget->getSlicer()->getLayerHeight(),1.75, 60.0, 200.0, 0.4, true);
 	
 }
 

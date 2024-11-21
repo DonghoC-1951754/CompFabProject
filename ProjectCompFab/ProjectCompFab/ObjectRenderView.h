@@ -32,6 +32,8 @@ public:
 	double getPlateDepth() { return plateDepth; };
 	double getLayerHeight() { return layerHeight; };
 
+	Mesh* getMesh() { return mesh; };
+
     void drawPlate();
 
 	std::vector<Clipper2Lib::PathsD> getAllSlices();
