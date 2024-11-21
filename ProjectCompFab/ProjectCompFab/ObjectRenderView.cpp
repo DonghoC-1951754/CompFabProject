@@ -164,7 +164,7 @@ void ObjectRenderView::mousePressEvent(QMouseEvent* event) {
     if (event->button() == Qt::RightButton) {
         rotating = true;
     }
-    else if (event->button() == Qt::MiddleButton) {
+    else if (event->button() == Qt::LeftButton) {
         panning = true;
     }
 }
@@ -174,7 +174,7 @@ void ObjectRenderView::mouseReleaseEvent(QMouseEvent* event) {
     if (event->button() == Qt::RightButton) {
         rotating = false;
     }
-    else if (event->button() == Qt::MiddleButton) {
+    else if (event->button() == Qt::LeftButton) {
         panning = false;
     }
 }
@@ -213,8 +213,8 @@ void ObjectRenderView::mouseMoveEvent(QMouseEvent* event) {
         QVector3D right = QVector3D::crossProduct(cameraPos - targetPos, QVector3D(0, 1, 0)).normalized();
         QVector3D up = QVector3D::crossProduct(right, cameraPos - targetPos).normalized();
 
-        targetPos += -delta.x() * panSpeed * right + delta.y() * panSpeed * up;
-        cameraPos += -delta.x() * panSpeed * right + delta.y() * panSpeed * up;
+        targetPos += -delta.x() * panSpeed * right - delta.y() * panSpeed * up;
+        cameraPos += -delta.x() * panSpeed * right - delta.y() * panSpeed * up;
     }
 
     update();  // Repaint with updated camera settings
