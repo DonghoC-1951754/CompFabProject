@@ -54,7 +54,7 @@ void GcodeCreator::generateGCode(const double maxXDist, const double maxYDist, c
     // OUR Y BECOMES THE Z IN THE G-CODE, MEANING WE USE Y FOR HEIGHT WHILE THE G-CODE USES Z. AND VICE VERSA
 
     double E = 0.0;
-	double retractionDistance = 1.2;
+    double retractionDistance = 5.0;
     bool firstPolygon = true;
     bool firstPoint = true;
 
