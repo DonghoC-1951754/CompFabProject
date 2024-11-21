@@ -126,14 +126,14 @@ void SliceRenderView::setSliceShells(std::vector<Clipper2Lib::PathsD> shells)
 
 void SliceRenderView::mousePressEvent(QMouseEvent* event) {
 	lastMousePos = event->pos();
-	if (event->button() == Qt::MiddleButton) {
+	if (event->button() == Qt::LeftButton) {
 		panning = true;
 		setCursor(Qt::ClosedHandCursor);
 	}
 }
 
 void SliceRenderView::mouseReleaseEvent(QMouseEvent* event) {
-	if (event->button() == Qt::MiddleButton) {
+	if (event->button() == Qt::LeftButton) {
 		panning = false;
 		setCursor(Qt::ArrowCursor);
 	}
@@ -144,7 +144,11 @@ void SliceRenderView::mouseMoveEvent(QMouseEvent* event) {
 		QPoint delta = event->pos() - lastMousePos;
 		lastMousePos = event->pos();
 
-		panOffset += glm::vec2(delta.x() * panSpeed, delta.y() * panSpeed);
+		// Adjust panning speed and reverse the direction
+		float adjustedPanSpeed = panSpeed / zoomLevel;
+
+		// Reverse directions: horizontal (-delta.x), vertical (+delta.y)
+		panOffset -= glm::vec2(delta.x() * adjustedPanSpeed, -delta.y() * adjustedPanSpeed);
 
 		update();
 	}
@@ -153,8 +157,9 @@ void SliceRenderView::mouseMoveEvent(QMouseEvent* event) {
 void SliceRenderView::wheelEvent(QWheelEvent* event) {
 	int delta = event->angleDelta().y();
 
-	zoomLevel += delta * zoomSpeed / 120;
-	zoomLevel = qBound(minZoom, zoomLevel, maxZoom);
+	// Logarithmic zoom for smooth zooming experience
+	float scaleFactor = 1.0f + (zoomSpeed * delta / 120.0f);
+	zoomLevel *= scaleFactor;
 
 	update();
 }

@@ -36,7 +36,7 @@ private:
 
     bool panning = false;
     QPoint lastMousePos;
-    float panSpeed = 0.1f;
+    float panSpeed = 0.5f;
     glm::vec2 panOffset = glm::vec2(-90.0f);
 
     float zoomLevel = 1.0f;                // Track the current zoom level

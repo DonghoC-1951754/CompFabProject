@@ -218,8 +218,6 @@ void ObjectRenderView::mouseMoveEvent(QMouseEvent* event) {
     }
 
     update();  // Repaint with updated camera settings
-
-    update();  // Repaint with updated camera settings
 }
 
 // Wheel Event for Zooming
