@@ -109,15 +109,17 @@ void SliceRenderView::setSliceInfill(Clipper2Lib::PathsD infill)
 	update();
 }
 
-void SliceRenderView::setSliceShells(Clipper2Lib::PathsD shells)
+void SliceRenderView::setSliceShells(std::vector<Clipper2Lib::PathsD> shells)
 {
 	shells2D.clear();
-	for (const auto& line : shells) {
-		std::vector<glm::vec2> tempLine;
-		for (const auto& point : line) {
-			tempLine.push_back(glm::vec2(point.x, point.y));
+	for (const auto& shell : shells) {
+		for (const auto& line : shell) {
+			std::vector<glm::vec2> tempLine;
+			for (const auto& point : line) {
+				tempLine.push_back(glm::vec2(point.x, point.y));
+			}
+			shells2D.push_back(tempLine);
 		}
-		shells2D.push_back(tempLine);
 	}
 	update();
 }

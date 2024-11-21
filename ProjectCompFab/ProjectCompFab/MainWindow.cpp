@@ -232,7 +232,7 @@ void MainWindow::createProgressBar()
 void MainWindow::drawCompleteSlice(int index)
 {
     sliceWindow->setSLiceDataClipper(erodedSlices[index]);
-    //sliceWindow->setSliceShells(shells[index]);
+    sliceWindow->setSliceShells(shells[index]);
     sliceWindow->setSliceInfill(infill[index]);
 }
 
