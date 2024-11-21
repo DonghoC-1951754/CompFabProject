@@ -131,8 +131,7 @@ void ObjectRenderView::renderMesh() {
 
 void ObjectRenderView::renderSlicer() {
 	
-    slicer->setWidth(plateWidth);
-    slicer->setDepth(plateDepth);
+	slicer->setPlaneSize(plateWidth, plateDepth);
     //TODO update standardHeight in slicer.h
     slicer->setStandardHeight(slicerHeight);
 

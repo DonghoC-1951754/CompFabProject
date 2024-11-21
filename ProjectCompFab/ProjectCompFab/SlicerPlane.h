@@ -16,8 +16,9 @@ public:
 	void setLayerHeight(double layerHeight) { this->layerHeight = layerHeight; };
 	double getLayerHeight() { return layerHeight; };
 	void setWidth(float width) { this->width = width; };
-	void setDepth(float depth) { this->width = depth; };
+	void setDepth(float depth) { this->depth = depth; };
 	void setStandardHeight(float standardHeight);
+	void setPlaneSize(float width, float depth);
 
 private:
 	float width = 180.0f;

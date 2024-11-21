@@ -12,6 +12,7 @@
 #include "SliceOperations.h"
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
+	modelFilePath = "./resources/hole-test(easy).stl";
     QWidget* centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
 
@@ -99,20 +100,23 @@ void MainWindow::openLoadModelDialog() {
     dialog.setDirectory("./resources");
     QString filePath = dialog.getOpenFileName(this, "Open File", "", "STL Files (*.stl)");
     if (!filePath.isEmpty()) {
-		modelFilePath = filePath.toStdString();
-        widget->loadModel(modelFilePath);
-        widget->resetRendering();
-        widget->getSlicer()->setLayerHeight(0.2);
-        slicingParameterInputBoxes[0]->setValue(0.2);
-        slicerHeightInputBox->setValue(0.2);
-		widget->setSlicerHeight(0.2);
-
-        slicerHeightInputBox->setDisabled(true);
-		progressBar->setValue(0);
+		loadModel(filePath.toStdString());
     }
     else {
         qDebug() << "Empty filepath!";
     }
+}
+
+void MainWindow::loadModel(std::string path) {
+    widget->loadModel(path);
+    widget->resetRendering();
+    widget->getSlicer()->setLayerHeight(0.2);
+    slicingParameterInputBoxes[0]->setValue(0.2);
+    slicerHeightInputBox->setValue(0.2);
+    widget->setSlicerHeight(0.2);
+
+    slicerHeightInputBox->setDisabled(true);
+    progressBar->setValue(0);
 }
 
 void MainWindow::createSlicingParameterWidgets()
@@ -218,7 +222,7 @@ void MainWindow::createSlicerHeightInput()
 void MainWindow::createObjectRenderView()
 {
     widget = new ObjectRenderView();
-    widget->loadModel("./resources/hole-test(easy).stl");
+    widget->loadModel(modelFilePath);
     widget->setSlicerHeight(0.2);
 }
 
@@ -267,6 +271,7 @@ void MainWindow::setBedDimensions() {
 	double depth = bedDepthInput->text().toDouble();
 	widget->setPlateWidth(width);
 	widget->setPlateDepth(depth);
+	loadModel(modelFilePath);
 }
 
 void MainWindow::updateBedText() {

@@ -40,8 +40,6 @@ private:
     glm::vec2 panOffset = glm::vec2(-90.0f);
 
     float zoomLevel = 1.0f;                // Track the current zoom level
-    float minZoom = 0.1f;                  // Minimum zoom level
-    float maxZoom = 10.0f;                 // Maximum zoom level
     float zoomSpeed = 0.1f;
 };
 

@@ -54,6 +54,7 @@ private:
 	
 
 	std::string modelFilePath;
+	void loadModel(std::string path);
 	void createSlicingParameterWidgets();
 	void createBedDimensions();
 	void createSlicerHeightInput();

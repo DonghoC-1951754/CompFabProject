@@ -50,6 +50,16 @@ void SlicerPlane::setStandardHeight(float standardHeight)
 	vertices[10] = standardHeight;
 }
 
+void SlicerPlane::setPlaneSize(float width, float depth)
+{
+	this->width = width;
+	this->depth = depth;
+	vertices[3] = width +10.f;
+	vertices[6] = width + 10.f;
+	vertices[8] = -(depth + 10.f);
+	vertices[11] = -(depth + 10.f);
+}
+
 void SlicerPlane::calcLineSegments(std::vector<Vertex> triangle, double slicerHeight) {
 	std::vector<int> isAboveIndex;
 	std::vector<int> isUnderIndex;
