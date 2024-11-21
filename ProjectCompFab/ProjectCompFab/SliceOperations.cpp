@@ -13,22 +13,24 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::erodeSlicesForGCode(const std:
     return erodedSlices;
 }
 
-std::vector<Clipper2Lib::PathsD> SliceOperations::addShells(const std::vector<Clipper2Lib::PathsD> slices, int shellAmount, double nozzleDiameter)
+std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::addShells(const std::vector<Clipper2Lib::PathsD> slices, int shellAmount, double nozzleDiameter)
 {
     mostInnerShells.clear();
-    std::vector<Clipper2Lib::PathsD> shelledSlices;
+    std::vector<std::vector<Clipper2Lib::PathsD>> shelledSlices;
     double stepSize = -nozzleDiameter / 2;
     for (auto slice : slices) {
-        Clipper2Lib::PathsD shells;
+        std::vector<Clipper2Lib::PathsD> shells;
         Clipper2Lib::PathsD shell = slice;
         for (int i = 0; i < shellAmount; i++) {
+            Clipper2Lib::PathsD currentShell;
             shell = Clipper2Lib::InflatePaths(shell, stepSize, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
             for (auto path : shell) {
-                shells.push_back(path);
+                currentShell.push_back(path);
             }
             if (i == shellAmount - 1) {
                 mostInnerShells.push_back(shell);
             }
+            shells.push_back(currentShell);
         }
         shelledSlices.push_back(shells);
     }

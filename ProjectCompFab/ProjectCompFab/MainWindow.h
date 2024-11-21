@@ -46,7 +46,7 @@ private:
 	std::vector<QDoubleSpinBox*> slicingParameterInputBoxes;
 	//std::vector<Clipper2Lib::PathsD> allCompiledSlices;
 	std::vector<Clipper2Lib::PathsD> erodedSlices;
-	std::vector<Clipper2Lib::PathsD> shells;
+	std::vector<std::vector<Clipper2Lib::PathsD>> shells;
 	std::vector<Clipper2Lib::PathsD> infill;
 	std::vector<Clipper2Lib::PathsD> mostInnerShells;
 	GcodeCreator* gcodeCreator;
