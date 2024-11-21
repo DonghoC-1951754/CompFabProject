@@ -286,7 +286,7 @@ void MainWindow::generateGcode()
     int sliceAmount = erodedSlices.size();
 	double maxXDistance = static_cast<double>(widget->getMesh()->getMaxXDistance());
 	double maxYDistance = static_cast<double>(widget->getMesh()->getMaxYDistance());
-    //gcodeCreator->generateGCode(maxXDistance, maxYDistance, sliceAmount, erodedSlices, shells, infill, "test", widget->getSlicer()->getLayerHeight(),1.75, 60.0, 200.0, 0.4, true);
+    gcodeCreator->generateGCode(maxXDistance, maxYDistance, sliceAmount, erodedSlices, shells, infill, "test", widget->getSlicer()->getLayerHeight(),1.75, 60.0, 200.0, 0.4, true);
 	
 }
 
