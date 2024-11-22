@@ -35,6 +35,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 	createSlicingParameterWidgets();
 
     gcodeButton = new QPushButton("Create GCode", sidePanel);
+	gcodeButton->setDisabled(true);
 
     connect(slicerHeightInputBox, &QDoubleSpinBox::valueChanged, this, &MainWindow::changeSlicerHeight);
 	connect(sliceButton, &QPushButton::clicked, this, &MainWindow::sliceModel);
@@ -92,7 +93,7 @@ void MainWindow::sliceModel() {
     progressBar->setValue(0);
     calculateSlices();
 
-
+	gcodeButton->setDisabled(false);
 }
 
 void MainWindow::openLoadModelDialog() {
