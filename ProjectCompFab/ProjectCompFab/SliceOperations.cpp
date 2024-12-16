@@ -46,6 +46,7 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vect
     if (innerShells.size() == 0) slices = erodedSlices;
     else slices = innerShells;
 
+    int i = 0;
     for (auto slice : slices) {
         Clipper2Lib::ClipperD clipper;
         clipper.AddClip(slice);
@@ -53,14 +54,19 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vect
         Clipper2Lib::PathsD infill;
         Clipper2Lib::PathsD openInfill;
         clipper.Execute(Clipper2Lib::ClipType::Intersection, Clipper2Lib::FillRule::EvenOdd, infill, openInfill);
+		clipper.Clear();
+        clipper.AddOpenSubject(openInfill);
+		clipper.AddClip(allFloorRegions[i]);
+		clipper.Execute(Clipper2Lib::ClipType::Difference, Clipper2Lib::FillRule::EvenOdd, infill, openInfill);
         infilledSlices.push_back(openInfill);
+        ++i;
     }
     return infilledSlices;
 }
 
-std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::generateFloorInfill(std::vector<Clipper2Lib::PathsD> sparseInfill, std::vector<Clipper2Lib::PathsD> perimeter, int baseFloorAmount)
+std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::generateFloorInfill(std::vector<Clipper2Lib::PathsD> perimeter, int baseFloorAmount)
 {
-    auto allFloorRegions = calcFloorRegions(baseFloorAmount, perimeter);
+    allFloorRegions = calcFloorRegions(baseFloorAmount, perimeter);
     std::vector<std::vector<Clipper2Lib::PathsD>> allRingInfills;
     for (auto floorRegions : allFloorRegions) {
         std::vector<Clipper2Lib::PathsD> ringInfillSingleSlice;

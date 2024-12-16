@@ -259,11 +259,13 @@ void MainWindow::calculateSlices()
     // Shell
     shells = sliceOperations->addShells(erodedSlices, slicingParameterInputBoxes[1]->value(), slicingParameterInputBoxes[2]->value());
     progressBar->setValue(progressBar->value() + 30);
-	// Infill
+
+    // Floor
+    floors = sliceOperations->generateFloorInfill(erodedSlices, slicingParameterInputBoxes[7]->value());
+    
+    // Infill
     mostInnerShells = sliceOperations->getMostInnerShells();
     infill = sliceOperations->generateInfill(mostInnerShells, erodedSlices, slicingParameterInputBoxes[5]->value());
-    // Floor
-    floors = sliceOperations->generateFloorInfill(infill, erodedSlices, slicingParameterInputBoxes[7]->value());
 
     // Draw the first complete slice (contour + shells + infill)
     double maxSlicerHeight = allCompiledSlices.size() * widget->getSlicer()->getLayerHeight();
