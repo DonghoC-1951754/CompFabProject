@@ -166,6 +166,11 @@ void MainWindow::createSlicingParameterWidgets()
 	slicingParameterInputBoxes[7]->setDecimals(0);
     slicingParameterInputBoxes[7]->setSingleStep(1);
     slicingParameterInputBoxes[7]->setValue(2);
+
+	// Roof controls
+	slicingParameterInputBoxes[8]->setDecimals(0);
+	slicingParameterInputBoxes[8]->setSingleStep(1);
+	slicingParameterInputBoxes[8]->setValue(2);
     
     gridWidget->setLayout(gridLayout);
 }
@@ -247,6 +252,7 @@ void MainWindow::drawCompleteSlice(int index)
     sliceWindow->setSliceShells(shells[index]);
     sliceWindow->setSliceInfill(infill[index]);
 	sliceWindow->setSliceFloorInfill(floors[index]);
+    sliceWindow->setSliceRoofInfill(roofs[index]);
 }
 
 void MainWindow::calculateSlices()
@@ -261,7 +267,9 @@ void MainWindow::calculateSlices()
     progressBar->setValue(progressBar->value() + 30);
 
     // Floor
-    floors = sliceOperations->generateFloorInfill(erodedSlices, slicingParameterInputBoxes[7]->value());
+    floors = sliceOperations->generateRoofsAndFloorsInfill(erodedSlices, slicingParameterInputBoxes[7]->value(), true);
+    // Roof
+	roofs = sliceOperations->generateRoofsAndFloorsInfill(erodedSlices, slicingParameterInputBoxes[8]->value(), false);
     
     // Infill
     mostInnerShells = sliceOperations->getMostInnerShells();

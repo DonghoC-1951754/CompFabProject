@@ -49,4 +49,9 @@ void SliceWindow::setSliceFloorInfill(std::vector<Clipper2Lib::PathsD> floors)
 	sliceRenderWidget->setSliceFloorInfill(floors);
 }
 
+void SliceWindow::setSliceRoofInfill(std::vector<Clipper2Lib::PathsD> roofs)
+{
+    sliceRenderWidget->setSliceRoofInfill(roofs);
+}
+
 SliceWindow::~SliceWindow() {}

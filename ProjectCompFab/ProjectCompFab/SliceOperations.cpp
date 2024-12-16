@@ -57,20 +57,31 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vect
 		clipper.Clear();
         clipper.AddOpenSubject(openInfill);
 		clipper.AddClip(allFloorRegions[i]);
+        clipper.AddClip(allRoofRegions[i]);
 		clipper.Execute(Clipper2Lib::ClipType::Difference, Clipper2Lib::FillRule::EvenOdd, infill, openInfill);
+        clipper.Clear();
         infilledSlices.push_back(openInfill);
         ++i;
     }
     return infilledSlices;
 }
 
-std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::generateFloorInfill(std::vector<Clipper2Lib::PathsD> perimeter, int baseFloorAmount)
+std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::generateRoofsAndFloorsInfill(std::vector<Clipper2Lib::PathsD> perimeter, int baseFloorAmount, bool isFloor)
 {
-    allFloorRegions = calcFloorRegions(baseFloorAmount, perimeter);
+    std::vector<Clipper2Lib::PathsD> allRegions;
+    if (isFloor) {
+        allFloorRegions = calcRoofsAndFloorRegions(baseFloorAmount, perimeter, true);
+		allRegions = allFloorRegions;
+    }
+    else {
+		allRoofRegions = calcRoofsAndFloorRegions(baseFloorAmount, perimeter, false);
+		std::reverse(allRoofRegions.begin(), allRoofRegions.end());
+		allRegions = allRoofRegions;
+    }
     std::vector<std::vector<Clipper2Lib::PathsD>> allRingInfills;
-    for (auto floorRegions : allFloorRegions) {
+    for (auto regions : allRegions) {
         std::vector<Clipper2Lib::PathsD> ringInfillSingleSlice;
-        auto singleRing = Clipper2Lib::InflatePaths(floorRegions, -0.2, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
+        auto singleRing = Clipper2Lib::InflatePaths(regions, -0.2, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
 		//ringInfillSingleSlice.push_back(singleRing);
         while (!singleRing.empty()) {
             ringInfillSingleSlice.push_back(singleRing);
@@ -118,25 +129,34 @@ Clipper2Lib::PathsD SliceOperations::generateInfillGrid(double buildPlateWidth, 
     return grid;
 }
 
-std::vector<Clipper2Lib::PathsD> SliceOperations::calcFloorRegions(int baseFloorAmount, std::vector<Clipper2Lib::PathsD> perimeter)
+std::vector<Clipper2Lib::PathsD> SliceOperations::calcRoofsAndFloorRegions(int baseFloorAmount, std::vector<Clipper2Lib::PathsD> perimeter, bool isFloor)
 {
     std::vector<Clipper2Lib::PathsD> mostInnerShell;
 	if (mostInnerShells.size() == 0) mostInnerShell = perimeter;
 	else mostInnerShell = mostInnerShells;
 
-	std::vector<Clipper2Lib::PathsD> floorRegions;
+    if (!isFloor) {
+		std::reverse(mostInnerShell.begin(), mostInnerShell.end());
+    }
+
+	std::vector<Clipper2Lib::PathsD> regions;
     for (int j = 0; j < baseFloorAmount; ++j) {
-		floorRegions.push_back(mostInnerShell[j]);
+        regions.push_back(mostInnerShell[j]);
     }
     for (int i = baseFloorAmount; i < mostInnerShell.size(); ++i) {
         auto currentLayer = mostInnerShell[i];
-        auto prevLayer = mostInnerShell[i - 1];
-        auto prevPrevLayer = mostInnerShell[i - 2];
+		std::vector<Clipper2Lib::PathsD> prevLayers;
+        for (int k = 1; k <= baseFloorAmount; ++k) {
+			prevLayers.push_back(mostInnerShell[i - k]);
+        }
 
-        auto intersection = Intersect(prevLayer, prevPrevLayer, Clipper2Lib::FillRule::EvenOdd);
-        auto floorRegion = Difference(currentLayer, intersection, Clipper2Lib::FillRule::EvenOdd);
-		floorRegions.push_back(floorRegion);
+        Clipper2Lib::PathsD intersection;
+        for (int l = 0; l < prevLayers.size()-1; ++l) {
+            intersection = Intersect(prevLayers[l], prevLayers[l + 1], Clipper2Lib::FillRule::EvenOdd);
+        }
+        auto clippedRegion = Difference(currentLayer, intersection, Clipper2Lib::FillRule::EvenOdd);
+        regions.push_back(clippedRegion);
     }
 
-	return floorRegions;
+	return regions;
 }
