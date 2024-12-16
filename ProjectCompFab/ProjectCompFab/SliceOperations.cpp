@@ -150,12 +150,22 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::calcRoofsAndFloorRegions(int b
 			prevLayers.push_back(mostInnerShell[i - k]);
         }
 
-        Clipper2Lib::PathsD intersection;
-        for (int l = 0; l < prevLayers.size()-1; ++l) {
-            intersection = Intersect(prevLayers[l], prevLayers[l + 1], Clipper2Lib::FillRule::EvenOdd);
+        if (baseFloorAmount == 0) {
+			regions.push_back(Clipper2Lib::PathsD());
         }
-        auto clippedRegion = Difference(currentLayer, intersection, Clipper2Lib::FillRule::EvenOdd);
-        regions.push_back(clippedRegion);
+        else if (baseFloorAmount == 1) {
+            auto diff = Difference(currentLayer, mostInnerShell[i - 1], Clipper2Lib::FillRule::EvenOdd);
+			regions.push_back(diff);
+        }
+        else {
+            Clipper2Lib::PathsD intersection;
+            for (int l = 0; l < prevLayers.size() - 1; ++l) {
+                intersection = Intersect(prevLayers[l], prevLayers[l + 1], Clipper2Lib::FillRule::EvenOdd);
+            }
+            auto clippedRegion = Difference(currentLayer, intersection, Clipper2Lib::FillRule::EvenOdd);
+            regions.push_back(clippedRegion);
+        }
+        
     }
 
 	return regions;
