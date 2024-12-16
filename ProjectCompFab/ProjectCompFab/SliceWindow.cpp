@@ -44,4 +44,9 @@ void SliceWindow::setSliceShells(std::vector<Clipper2Lib::PathsD> shells)
 	sliceRenderWidget->setSliceShells(shells);
 }
 
+void SliceWindow::setSliceFloorInfill(std::vector<Clipper2Lib::PathsD> floors)
+{
+	sliceRenderWidget->setSliceFloorInfill(floors);
+}
+
 SliceWindow::~SliceWindow() {}

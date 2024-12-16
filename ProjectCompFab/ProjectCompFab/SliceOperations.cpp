@@ -17,7 +17,7 @@ std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::addShells(const s
 {
     mostInnerShells.clear();
     std::vector<std::vector<Clipper2Lib::PathsD>> shelledSlices;
-    double stepSize = -nozzleDiameter / 2;
+    double stepSize = -nozzleDiameter;
     for (auto slice : slices) {
         std::vector<Clipper2Lib::PathsD> shells;
         Clipper2Lib::PathsD shell = slice;
@@ -58,6 +58,23 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vect
     return infilledSlices;
 }
 
+std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::generateFloorInfill(std::vector<Clipper2Lib::PathsD> sparseInfill, std::vector<Clipper2Lib::PathsD> perimeter, int baseFloorAmount)
+{
+    auto allFloorRegions = calcFloorRegions(baseFloorAmount, perimeter);
+    std::vector<std::vector<Clipper2Lib::PathsD>> allRingInfills;
+    for (auto floorRegions : allFloorRegions) {
+        std::vector<Clipper2Lib::PathsD> ringInfillSingleSlice;
+        auto singleRing = Clipper2Lib::InflatePaths(floorRegions, -0.2, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
+		//ringInfillSingleSlice.push_back(singleRing);
+        while (!singleRing.empty()) {
+            ringInfillSingleSlice.push_back(singleRing);
+            singleRing = Clipper2Lib::InflatePaths(singleRing, -0.2, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
+        }
+		allRingInfills.push_back(ringInfillSingleSlice);
+    }
+    return allRingInfills;
+}
+
 
 Clipper2Lib::PathsD SliceOperations::generateInfillGrid(double buildPlateWidth, double buildPlateDepth, double infillDensity)
 {
@@ -93,4 +110,27 @@ Clipper2Lib::PathsD SliceOperations::generateInfillGrid(double buildPlateWidth, 
         grid.push_back(horizontalLine);
     }
     return grid;
+}
+
+std::vector<Clipper2Lib::PathsD> SliceOperations::calcFloorRegions(int baseFloorAmount, std::vector<Clipper2Lib::PathsD> perimeter)
+{
+    std::vector<Clipper2Lib::PathsD> mostInnerShell;
+	if (mostInnerShells.size() == 0) mostInnerShell = perimeter;
+	else mostInnerShell = mostInnerShells;
+
+	std::vector<Clipper2Lib::PathsD> floorRegions;
+    for (int j = 0; j < baseFloorAmount; ++j) {
+		floorRegions.push_back(mostInnerShell[j]);
+    }
+    for (int i = baseFloorAmount; i < mostInnerShell.size(); ++i) {
+        auto currentLayer = mostInnerShell[i];
+        auto prevLayer = mostInnerShell[i - 1];
+        auto prevPrevLayer = mostInnerShell[i - 2];
+
+        auto intersection = Intersect(prevLayer, prevPrevLayer, Clipper2Lib::FillRule::EvenOdd);
+        auto floorRegion = Difference(currentLayer, intersection, Clipper2Lib::FillRule::EvenOdd);
+		floorRegions.push_back(floorRegion);
+    }
+
+	return floorRegions;
 }

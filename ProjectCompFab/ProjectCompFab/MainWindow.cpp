@@ -72,7 +72,7 @@ void MainWindow::changeSlicerHeight(double height) {
 	double layerHeight = slicer->getLayerHeight();
     
     widget->setSlicerHeight(height);
-	int stepNumber = height / layerHeight;
+	int stepNumber = (height / layerHeight)-1;
     if (erodedSlices.size() > stepNumber) {
 		drawCompleteSlice(stepNumber);
 	}
@@ -133,8 +133,10 @@ void MainWindow::createSlicingParameterWidgets()
     labels.push_back(new QLabel(QString("Printing speed").arg(5)));
     labels.push_back(new QLabel(QString("Infill density").arg(6)));
     labels.push_back(new QLabel(QString("Enable/disable supports").arg(7)));
+    labels.push_back(new QLabel(QString("Floor amount").arg(8)));
+    labels.push_back(new QLabel(QString("Roof amount").arg(9)));
 
-    for (int row = 0; row < 7; ++row) {
+    for (int row = 0; row < labels.size(); ++row) {
 		slicingParameterInputBoxes.push_back(new QDoubleSpinBox);
         gridLayout->addWidget(labels[row], row, 0);
         gridLayout->addWidget(slicingParameterInputBoxes[row], row, 1);
@@ -159,6 +161,11 @@ void MainWindow::createSlicingParameterWidgets()
 	slicingParameterInputBoxes[5]->setValue(2.0);
 	slicingParameterInputBoxes[5]->setRange(0.2, 100.0);
 	slicingParameterInputBoxes[5]->setSingleStep(0.2);
+
+    // Floor controls
+	slicingParameterInputBoxes[7]->setDecimals(0);
+    slicingParameterInputBoxes[7]->setSingleStep(1);
+    slicingParameterInputBoxes[7]->setValue(2);
     
     gridWidget->setLayout(gridLayout);
 }
@@ -239,6 +246,7 @@ void MainWindow::drawCompleteSlice(int index)
     sliceWindow->setSLiceDataClipper(erodedSlices[index]);
     sliceWindow->setSliceShells(shells[index]);
     sliceWindow->setSliceInfill(infill[index]);
+	sliceWindow->setSliceFloorInfill(floors[index]);
 }
 
 void MainWindow::calculateSlices()
@@ -254,6 +262,8 @@ void MainWindow::calculateSlices()
 	// Infill
     mostInnerShells = sliceOperations->getMostInnerShells();
     infill = sliceOperations->generateInfill(mostInnerShells, erodedSlices, slicingParameterInputBoxes[5]->value());
+    // Floor
+    floors = sliceOperations->generateFloorInfill(infill, erodedSlices, slicingParameterInputBoxes[7]->value());
 
     // Draw the first complete slice (contour + shells + infill)
     double maxSlicerHeight = allCompiledSlices.size() * widget->getSlicer()->getLayerHeight();

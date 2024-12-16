@@ -60,6 +60,15 @@ void SliceRenderView::paintGL() {
 		glVertex2f(line[0].x, line[0].y);
 		glEnd();
 	}
+	for (const auto& line : floorInfill2D) {
+		glBegin(GL_LINE_STRIP);
+		glColor3f(0.4f, 0.2f, 0.3f);
+		for (const auto& vertex : line) {
+			glVertex2f(vertex.x, vertex.y);
+		}
+		glVertex2f(line[0].x, line[0].y);
+		glEnd();
+	}
 
 	glPopMatrix();
 }
@@ -119,6 +128,21 @@ void SliceRenderView::setSliceShells(std::vector<Clipper2Lib::PathsD> shells)
 				tempLine.push_back(glm::vec2(point.x, point.y));
 			}
 			shells2D.push_back(tempLine);
+		}
+	}
+	update();
+}
+
+void SliceRenderView::setSliceFloorInfill(std::vector<Clipper2Lib::PathsD> floors)
+{
+	floorInfill2D.clear();
+	for (const auto& floor : floors) {
+		for (const auto& line : floor) {
+			std::vector<glm::vec2> tempLine;
+			for (const auto& point : line) {
+				tempLine.push_back(glm::vec2(point.x, point.y));
+			}
+			floorInfill2D.push_back(tempLine);
 		}
 	}
 	update();

@@ -48,6 +48,7 @@ private:
 	std::vector<Clipper2Lib::PathsD> erodedSlices;
 	std::vector<std::vector<Clipper2Lib::PathsD>> shells;
 	std::vector<Clipper2Lib::PathsD> infill;
+	std::vector<std::vector<Clipper2Lib::PathsD>> floors;
 	std::vector<Clipper2Lib::PathsD> mostInnerShells;
 	GcodeCreator* gcodeCreator;
 	SliceOperations* sliceOperations;

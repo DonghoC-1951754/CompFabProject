@@ -14,6 +14,7 @@ public:
 	void setSLiceDataClipper(Clipper2Lib::PathsD polygons);
 	void setSliceInfill(Clipper2Lib::PathsD infill);
 	void setSliceShells(std::vector<Clipper2Lib::PathsD>);
+	void setSliceFloorInfill(std::vector<Clipper2Lib::PathsD> floors);
 
 private:
     SliceRenderView* sliceRenderWidget;
