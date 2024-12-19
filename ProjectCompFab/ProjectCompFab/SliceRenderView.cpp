@@ -62,7 +62,7 @@ void SliceRenderView::paintGL() {
 	}
 	for (const auto& line : floorInfill2D) {
 		glBegin(GL_LINE_STRIP);
-		glColor3f(0.4f, 0.2f, 0.3f);
+		glColor3f(0.8f, 0.4f, 0.0f);
 		for (const auto& vertex : line) {
 			glVertex2f(vertex.x, vertex.y);
 		}
@@ -71,7 +71,7 @@ void SliceRenderView::paintGL() {
 	}
 	for (const auto& line : roofInfill2D) {
 		glBegin(GL_LINE_STRIP);
-		glColor3f(0.4f, 0.2f, 0.3f);
+		glColor3f(1.0f, 0.6f, 0.0f);
 		for (const auto& vertex : line) {
 			glVertex2f(vertex.x, vertex.y);
 		}
