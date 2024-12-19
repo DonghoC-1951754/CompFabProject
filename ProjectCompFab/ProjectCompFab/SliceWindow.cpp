@@ -54,4 +54,14 @@ void SliceWindow::setSliceRoofInfill(std::vector<Clipper2Lib::PathsD> roofs)
     sliceRenderWidget->setSliceRoofInfill(roofs);
 }
 
+void SliceWindow::setBasicSupportPerimeter(Clipper2Lib::PathsD perimeters)
+{
+    sliceRenderWidget->setBasicSupportPerimeter(perimeters);
+}
+
+void SliceWindow::setBasicSupportInfill(Clipper2Lib::PathsD infill)
+{
+    sliceRenderWidget->setBasicSupportInfill(infill);
+}
+
 SliceWindow::~SliceWindow() {}

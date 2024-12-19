@@ -78,6 +78,24 @@ void SliceRenderView::paintGL() {
 		glVertex2f(line[0].x, line[0].y);
 		glEnd();
 	}
+	for (const auto& line : basicSupportPerimeters2D) {
+		glBegin(GL_LINE_STRIP);
+		glColor3f(0.0f, 1.0f, 0.0f);
+		for (const auto& vertex : line) {
+			glVertex2f(vertex.x, vertex.y);
+		}
+		glVertex2f(line[0].x, line[0].y);
+		glEnd();
+	}
+	for (const auto& line : basicSupportInfill2D) {
+		glBegin(GL_LINE_STRIP);
+		glColor3f(0.0f, 1.0f, 0.0f);
+		for (const auto& vertex : line) {
+			glVertex2f(vertex.x, vertex.y);
+		}
+		glVertex2f(line[0].x, line[0].y);
+		glEnd();
+	}
 
 	glPopMatrix();
 }
@@ -168,6 +186,32 @@ void SliceRenderView::setSliceRoofInfill(std::vector<Clipper2Lib::PathsD> roofs)
 			}
 			floorInfill2D.push_back(tempLine);
 		}
+	}
+	update();
+}
+
+void SliceRenderView::setBasicSupportPerimeter(Clipper2Lib::PathsD perimeters)
+{
+	basicSupportPerimeters2D.clear();
+	for (const auto& perimeter : perimeters) {
+		std::vector<glm::vec2> tempflattenedVertices;
+		for (const auto& point : perimeter) {
+			tempflattenedVertices.push_back(glm::vec2(point.x, point.y));
+		}
+		basicSupportPerimeters2D.push_back(tempflattenedVertices);
+	}
+	update();
+}
+
+void SliceRenderView::setBasicSupportInfill(Clipper2Lib::PathsD infill)
+{
+	basicSupportInfill2D.clear();
+	for (const auto& line : infill) {
+		std::vector<glm::vec2> tempflattenedVertices;
+		for (const auto& point : line) {
+			tempflattenedVertices.push_back(glm::vec2(point.x, point.y));
+		}
+		basicSupportInfill2D.push_back(tempflattenedVertices);
 	}
 	update();
 }

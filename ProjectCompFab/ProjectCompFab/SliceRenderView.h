@@ -20,6 +20,8 @@ public:
 	void setSliceShells(std::vector<Clipper2Lib::PathsD> shells);
     void setSliceFloorInfill(std::vector<Clipper2Lib::PathsD> floors);
     void setSliceRoofInfill(std::vector<Clipper2Lib::PathsD> roofs);
+	void setBasicSupportPerimeter(Clipper2Lib::PathsD perimeters);
+	void setBasicSupportInfill(Clipper2Lib::PathsD infill);
 
 protected:
     void initializeGL() override;
@@ -37,6 +39,8 @@ private:
 	std::vector<std::vector<glm::vec2>> shells2D;
     std::vector<std::vector<glm::vec2>> floorInfill2D;
     std::vector<std::vector<glm::vec2>> roofInfill2D;
+    std::vector<std::vector<glm::vec2>> basicSupportPerimeters2D;
+	std::vector<std::vector<glm::vec2>> basicSupportInfill2D;
 
     bool panning = false;
     QPoint lastMousePos;

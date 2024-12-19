@@ -92,6 +92,19 @@ std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::generateRoofsAndF
     return allRingInfills;
 }
 
+std::vector<Clipper2Lib::PathsD> SliceOperations::generateErodedSupportPerimeter(const std::vector<Clipper2Lib::PathsD> slices, double nozzleDiameter, double layerHeight)
+{
+	auto supportRegions = calcSupportRegions(slices, nozzleDiameter, layerHeight);
+    // Erode ?
+    return supportRegions;
+}
+
+//std::vector<Clipper2Lib::PathsD> SliceOperations::generateSupportInfill(const std::vector<Clipper2Lib::PathsD> supportPerimeters, double infillDensity)
+//{
+//    Clipper2Lib::PathsD infillGrid = generateInfillGrid(200, 200, infillDensity);
+//    return std::vector<Clipper2Lib::PathsD>();
+//}
+
 
 Clipper2Lib::PathsD SliceOperations::generateInfillGrid(double buildPlateWidth, double buildPlateDepth, double infillDensity)
 {
@@ -169,4 +182,46 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::calcRoofsAndFloorRegions(int b
     }
 
 	return regions;
+}
+
+std::vector<Clipper2Lib::PathsD> SliceOperations::calcSupportRegions(const std::vector<Clipper2Lib::PathsD> slices, double nozzleDiameter, double layerHeight)
+{
+    // Self-supporting area
+    double a = std::min(nozzleDiameter/2, layerHeight);
+    std::vector<Clipper2Lib::PathsD> supportRegions;
+	supportRegions.push_back(Clipper2Lib::PathsD());
+
+	std::vector<Clipper2Lib::PathsD> supportWithoutSelfSupport;
+	supportWithoutSelfSupport.push_back(Clipper2Lib::PathsD());
+
+    Clipper2Lib::ClipperD clipper;
+
+    for (int i = slices.size() - 2; i >= 0; --i) {
+        clipper.AddSubject(slices[i + 1]);
+        clipper.AddClip(supportWithoutSelfSupport.back());
+        Clipper2Lib::PathsD unionPerimeterSupport;
+		clipper.Execute(Clipper2Lib::ClipType::Union, Clipper2Lib::FillRule::EvenOdd, unionPerimeterSupport);
+		supportWithoutSelfSupport.push_back(unionPerimeterSupport);
+		clipper.Clear();
+    }
+    int k = 0;
+    for (int j = slices.size() - 2; j >= 0; --j) {
+        clipper.AddSubject(slices[j + 1]);
+        clipper.AddClip(supportWithoutSelfSupport[k]);
+        Clipper2Lib::PathsD unionPerimeterSupport;
+        clipper.Execute(Clipper2Lib::ClipType::Union, Clipper2Lib::FillRule::EvenOdd, unionPerimeterSupport);
+		clipper.Clear();
+
+        auto dilatedCurrentPerimeter = Clipper2Lib::InflatePaths(slices[j], a, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon);
+
+        clipper.AddSubject(unionPerimeterSupport);
+		clipper.AddClip(dilatedCurrentPerimeter);
+		Clipper2Lib::PathsD support;
+		clipper.Execute(Clipper2Lib::ClipType::Difference, Clipper2Lib::FillRule::EvenOdd, support);
+		clipper.Clear();
+		supportRegions.push_back(support);
+        ++k;
+    }
+	std::reverse(supportRegions.begin(), supportRegions.end());
+    return supportRegions;
 }

@@ -51,6 +51,9 @@ private:
 	std::vector<std::vector<Clipper2Lib::PathsD>> floors;
 	std::vector<std::vector<Clipper2Lib::PathsD>> roofs;
 	std::vector<Clipper2Lib::PathsD> mostInnerShells;
+	// Rectangular Support
+	std::vector<Clipper2Lib::PathsD> erodedSupportPerimeter;
+	std::vector<Clipper2Lib::PathsD> supportInfill;
 	GcodeCreator* gcodeCreator;
 	SliceOperations* sliceOperations;
 	
