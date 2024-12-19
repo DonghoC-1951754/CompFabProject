@@ -66,7 +66,7 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vect
     return infilledSlices;
 }
 
-std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::generateRoofsAndFloorsInfill(std::vector<Clipper2Lib::PathsD> perimeter, int baseFloorAmount, bool isFloor)
+std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::generateRoofsAndFloorsInfill(std::vector<Clipper2Lib::PathsD> perimeter, int baseFloorAmount, bool isFloor, double nozzleDiameter)
 {
     std::vector<Clipper2Lib::PathsD> allRegions;
     if (isFloor) {
@@ -81,11 +81,11 @@ std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::generateRoofsAndF
     std::vector<std::vector<Clipper2Lib::PathsD>> allRingInfills;
     for (auto regions : allRegions) {
         std::vector<Clipper2Lib::PathsD> ringInfillSingleSlice;
-        auto singleRing = Clipper2Lib::InflatePaths(regions, -0.2, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
+        auto singleRing = Clipper2Lib::InflatePaths(regions, -nozzleDiameter, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
 		//ringInfillSingleSlice.push_back(singleRing);
         while (!singleRing.empty()) {
             ringInfillSingleSlice.push_back(singleRing);
-            singleRing = Clipper2Lib::InflatePaths(singleRing, -0.2, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
+            singleRing = Clipper2Lib::InflatePaths(singleRing, -nozzleDiameter, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
         }
 		allRingInfills.push_back(ringInfillSingleSlice);
     }

@@ -269,9 +269,9 @@ void MainWindow::calculateSlices()
     progressBar->setValue(progressBar->value() + 30);
 
     // Floor
-    floors = sliceOperations->generateRoofsAndFloorsInfill(erodedSlices, slicingParameterInputBoxes[7]->value(), true);
+    floors = sliceOperations->generateRoofsAndFloorsInfill(erodedSlices, slicingParameterInputBoxes[7]->value(), true, slicingParameterInputBoxes[2]->value());
     // Roof
-	roofs = sliceOperations->generateRoofsAndFloorsInfill(erodedSlices, slicingParameterInputBoxes[8]->value(), false);
+	roofs = sliceOperations->generateRoofsAndFloorsInfill(erodedSlices, slicingParameterInputBoxes[8]->value(), false, slicingParameterInputBoxes[2]->value());
     
     // Infill
     mostInnerShells = sliceOperations->getMostInnerShells();
