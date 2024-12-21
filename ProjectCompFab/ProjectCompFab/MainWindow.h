@@ -43,6 +43,7 @@ private:
 	QWidget* gridWidget;
 	QWidget* sidePanel;
 	QProgressBar* progressBar;
+	std::vector<QLabel*> labels;
 	std::vector<QDoubleSpinBox*> slicingParameterInputBoxes;
 	//std::vector<Clipper2Lib::PathsD> allCompiledSlices;
 	std::vector<Clipper2Lib::PathsD> erodedSlices;
@@ -82,5 +83,7 @@ private:
 	void calculateSlices();
 
 	int sliceAmount = 0;
+
+	void updateSpeedLabel();
 };
 

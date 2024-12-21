@@ -9,16 +9,17 @@
 GcodeCreator::GcodeCreator() {
 	maxXDistance = 0.0;
 	maxYDistance = 0.0;
+	printSpeed = 1200.0;
 }
 void GcodeCreator::generateGCode(const double maxXDist, const double maxYDist, const int sliceAmount, const std::vector<Clipper2Lib::PathsD> erodedSlices,
     const std::vector<std::vector<Clipper2Lib::PathsD>> shells, const std::vector<Clipper2Lib::PathsD> infill, const std::vector<std::vector<Clipper2Lib::PathsD>> floors,
     const std::vector<std::vector<Clipper2Lib::PathsD>> roofs, const std::vector<Clipper2Lib::PathsD> erodedSupportPerimeter, 
     const std::vector<Clipper2Lib::PathsD> supportInfill,
-    const std::string& filename, double layerHeight, double filamentDiameter, double bedTemp, double nozzleTemp, double nozzleDiameter, bool prime) {
+    const std::string& filename, double layerHeight, double filamentDiameter, double bedTemp, double nozzleTemp, double nozzleDiameter, float speedMultiplier, bool prime) {
 
     std::ofstream gcodeFile(filename + "\.gcode");
     gcodeFile << std::fixed << std::setprecision(8);
-
+	printSpeed = speedMultiplier*1200;
 	maxXDistance = maxXDist;
 	maxYDistance = maxYDist;
 

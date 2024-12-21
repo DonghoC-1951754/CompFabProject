@@ -13,7 +13,7 @@ public:
 		const std::vector<std::vector<Clipper2Lib::PathsD>> shells, const std::vector<Clipper2Lib::PathsD> infill, const std::vector<std::vector<Clipper2Lib::PathsD>> floors,
 		const std::vector<std::vector<Clipper2Lib::PathsD>> roofs, const std::vector<Clipper2Lib::PathsD> erodedSupportPerimeter,
 		const std::vector<Clipper2Lib::PathsD> supportInfill,
-		const std::string& filename, double layerHeight, double filamentDiameter, double bedTemp, double nozzleTemp, double nozzleDiameter, bool prime);
+		const std::string& filename, double layerHeight, double filamentDiameter, double bedTemp, double nozzleTemp, double nozzleDiameter, float speedMultiplier, bool prime);
 private:
 	double calculateExtrusionLength(double prevX, double prevY, double currentX, double currentY, double filamentDiameter, double layerHeight, double nozzleDiameter, double factor = 1.0);
 	void writeInitializationGCode(std::ofstream& gcodeFile, double bedTemp, double nozzleTemp, double layerHeight, bool prime);
@@ -26,5 +26,5 @@ private:
 	
 	double maxXDistance;
 	double maxYDistance;
-	double printSpeed = 2000.0;
+	float printSpeed;
 };

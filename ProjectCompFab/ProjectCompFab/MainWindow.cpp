@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 	connect(loadButton, &QPushButton::clicked, this, &MainWindow::openLoadModelDialog);
 	connect(gcodeButton, &QPushButton::clicked, this, &MainWindow::generateGcode);
 	connect(slicingParameterInputBoxes[2], &QDoubleSpinBox::valueChanged, this, &MainWindow::limitInfillDensity);
-
+	connect(slicingParameterInputBoxes[5], &QDoubleSpinBox::valueChanged, this, &MainWindow::updateSpeedLabel);
     // Add widgets to the panel layout
     panelLayout->addWidget(label);
     panelLayout->addWidget(loadButton);
@@ -124,17 +124,18 @@ void MainWindow::createSlicingParameterWidgets()
 {
     gridWidget = new QWidget;
     QGridLayout* gridLayout = new QGridLayout(gridWidget);
-    std::vector<QLabel*> labels;
     
     labels.push_back(new QLabel(QString("Layer height").arg(1)));
     labels.push_back(new QLabel(QString("Number of shells").arg(2)));
     labels.push_back(new QLabel(QString("Nozzle diameter").arg(3)));
-    labels.push_back(new QLabel(QString("Printing temperature").arg(4)));
-    labels.push_back(new QLabel(QString("Printing speed").arg(5)));
-    labels.push_back(new QLabel(QString("Infill density").arg(6)));
-    labels.push_back(new QLabel(QString("Enable/disable supports").arg(7)));
-    labels.push_back(new QLabel(QString("Floor amount").arg(8)));
-    labels.push_back(new QLabel(QString("Roof amount").arg(9)));
+    labels.push_back(new QLabel(QString("Printbed temperature").arg(4)));
+    labels.push_back(new QLabel(QString("Nozzle temperature").arg(5)));
+    labels.push_back(new QLabel(QString("Speed multiplier (F1200)").arg(6)));
+    labels.push_back(new QLabel(QString("Infill density").arg(7)));
+    labels.push_back(new QLabel(QString("Enable/disable supports").arg(8)));
+    labels.push_back(new QLabel(QString("Floor amount").arg(9)));
+    labels.push_back(new QLabel(QString("Roof amount").arg(10)));
+	labels.push_back(new QLabel(QString("filament diameter").arg(11)));
 
     for (int row = 0; row < labels.size(); ++row) {
 		slicingParameterInputBoxes.push_back(new QDoubleSpinBox);
@@ -155,22 +156,47 @@ void MainWindow::createSlicingParameterWidgets()
 	slicingParameterInputBoxes[2]->setDecimals(2);
 	slicingParameterInputBoxes[2]->setRange(0.2, 1.0);
 	slicingParameterInputBoxes[2]->setSingleStep(0.2);
+    slicingParameterInputBoxes[2]->setValue(0.4);
+	
+    // Printbed temperature controls
+	slicingParameterInputBoxes[3]->setDecimals(0);
+	slicingParameterInputBoxes[3]->setRange(0, 100);
+	slicingParameterInputBoxes[3]->setSingleStep(1);
+	slicingParameterInputBoxes[3]->setValue(60);
+
+	// Nozzle temperature controls
+	slicingParameterInputBoxes[4]->setDecimals(0);
+	slicingParameterInputBoxes[4]->setRange(0, 300);
+	slicingParameterInputBoxes[4]->setSingleStep(1);
+	slicingParameterInputBoxes[4]->setValue(200);
+
+	// Speed multiplier controls
+	slicingParameterInputBoxes[5]->setDecimals(1);
+	slicingParameterInputBoxes[5]->setRange(0, 5);
+	slicingParameterInputBoxes[5]->setSingleStep(0.1);
+	slicingParameterInputBoxes[5]->setValue(1.0);
 
 	// Infill density controls
-	slicingParameterInputBoxes[5]->setDecimals(2);
-	slicingParameterInputBoxes[5]->setValue(2.0);
-	slicingParameterInputBoxes[5]->setRange(0.2, 100.0);
-	slicingParameterInputBoxes[5]->setSingleStep(0.2);
+	slicingParameterInputBoxes[6]->setDecimals(2);
+	slicingParameterInputBoxes[6]->setValue(2.0);
+	slicingParameterInputBoxes[6]->setRange(0.2, 100.0);
+	slicingParameterInputBoxes[6]->setSingleStep(0.2);
 
     // Floor controls
-	slicingParameterInputBoxes[7]->setDecimals(0);
-    slicingParameterInputBoxes[7]->setSingleStep(1);
-    slicingParameterInputBoxes[7]->setValue(2);
+	slicingParameterInputBoxes[8]->setDecimals(0);
+    slicingParameterInputBoxes[8]->setSingleStep(1);
+    slicingParameterInputBoxes[8]->setValue(2);
 
 	// Roof controls
-	slicingParameterInputBoxes[8]->setDecimals(0);
-	slicingParameterInputBoxes[8]->setSingleStep(1);
-	slicingParameterInputBoxes[8]->setValue(2);
+	slicingParameterInputBoxes[9]->setDecimals(0);
+	slicingParameterInputBoxes[9]->setSingleStep(1);
+	slicingParameterInputBoxes[9]->setValue(2);
+
+	// Filament diameter controls
+	slicingParameterInputBoxes[10]->setDecimals(2);
+	slicingParameterInputBoxes[10]->setRange(0, 5.0);
+	slicingParameterInputBoxes[10]->setSingleStep(0.05);
+	slicingParameterInputBoxes[10]->setValue(1.75);
     
     gridWidget->setLayout(gridLayout);
 }
@@ -301,6 +327,11 @@ void MainWindow::setBedDimensions() {
 	loadModel(modelFilePath);
 }
 
+void MainWindow::updateSpeedLabel() {
+	float speed = slicingParameterInputBoxes[5]->value();
+	labels[5]->setText("Speed multiplier (F" + QString::number(speed*1200) + ")");
+}
+
 void MainWindow::updateBedText() {
     double width = bedWidthInput->text().toDouble();
     double depth = bedDepthInput->text().toDouble();
@@ -318,8 +349,21 @@ void MainWindow::generateGcode()
     int sliceAmount = erodedSlices.size();
 	double maxXDistance = static_cast<double>(widget->getMesh()->getMaxXDistance());
 	double maxYDistance = static_cast<double>(widget->getMesh()->getMaxYDistance());
+    // Layer height controls: slicingParameterInputBoxes[0]
+    // Nozzle diameter controls: slicingParameterInputBoxes[2]
+    // Printbed temperature controls: slicingParameterInputBoxes[3]
+    // Nozzle temperature controls: slicingParameterInputBoxes[4]
+    // Speed multiplier controls: slicingParameterInputBoxes[5]
+    // Filament diameter controls: slicingParameterInputBoxes[10]
+
+    //void generateGCode(const double maxXDist, const double maxYDist, const int sliceAmount, const std::vector<Clipper2Lib::PathsD> erodedSlices,
+    //    const std::vector<std::vector<Clipper2Lib::PathsD>> shells, const std::vector<Clipper2Lib::PathsD> infill, const std::vector<std::vector<Clipper2Lib::PathsD>> floors,
+    //    const std::vector<std::vector<Clipper2Lib::PathsD>> roofs, const std::vector<Clipper2Lib::PathsD> erodedSupportPerimeter,
+    //    const std::vector<Clipper2Lib::PathsD> supportInfill,
+    //    const std::string & filename, double layerHeight, double filamentDiameter, double bedTemp, double nozzleTemp, double nozzleDiameter, bool prime);
 	gcodeCreator->generateGCode(maxXDistance, maxYDistance, sliceAmount, erodedSlices, shells, infill, floors, roofs, erodedSupportPerimeter, supportInfill,
-        "test", widget->getSlicer()->getLayerHeight(),1.75, 60.0, 200.0, 0.4, true);
+        "test", widget->getSlicer()->getLayerHeight(), slicingParameterInputBoxes[10]->value(), slicingParameterInputBoxes[3]->value(), slicingParameterInputBoxes[4]->value(),
+        slicingParameterInputBoxes[2]->value(), slicingParameterInputBoxes[5]->value(), true);
 	
 }
 
