@@ -29,10 +29,12 @@ public slots:
 private slots:
 	void sliceModel();
 	void openLoadModelDialog();
+	void openGCodeDialog();
 	void setBedDimensions();
 	void updateBedText();
 	void generateGcode();
 	void limitInfillDensity();
+	void updateSpeedLabel();
 private:
 	ObjectRenderView* widget;
 	QSlider* slider;
@@ -88,6 +90,19 @@ private:
 
 	int sliceAmount = 0;
 
-	void updateSpeedLabel();
+	QLineEdit* filenameInput;
+	QDoubleSpinBox* printbedTempInput;
+	QDoubleSpinBox* nozzleTempInput;
+	QDoubleSpinBox* speedMultiplierInput;
+
+	QLabel* printbedTempLabel;
+	QLabel* nozzleTempLabel;
+	QLabel* speedMultiplierLabel;
+
+	QString gCodeFileName;
+	float speedMultiplier;
+	float printBedTemp;
+	float nozzleTemp;
+
 };
 

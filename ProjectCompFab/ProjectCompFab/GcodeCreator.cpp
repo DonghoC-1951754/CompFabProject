@@ -17,7 +17,7 @@ void GcodeCreator::generateGCode(const double maxXDist, const double maxYDist, c
     const std::vector<Clipper2Lib::PathsD> supportInfill,
     const std::string& filename, double layerHeight, double filamentDiameter, double bedTemp, double nozzleTemp, double nozzleDiameter, float speedMultiplier, bool prime) {
 
-    std::ofstream gcodeFile(filename + "\.gcode");
+    std::ofstream gcodeFile("./gcode/" + filename + ".gcode");
     gcodeFile << std::fixed << std::setprecision(8);
 	printSpeed = speedMultiplier* 2200.0;
 	maxXDistance = maxXDist;
@@ -31,22 +31,19 @@ void GcodeCreator::generateGCode(const double maxXDist, const double maxYDist, c
     writeInitializationGCode(gcodeFile, bedTemp, nozzleTemp, layerHeight, prime);
 
     double E = 0.0;
-    double retractionDistance = 5.0;
+    double retractionDistance = 7.5;
     bool firstPolygon = true;
     bool firstPoint = true;
 
     for (int slice = 0; slice < sliceAmount; slice++) {
-		if (layerHeight * slice > 34.7) {
-            int i = 0;
-		}
 		writeSliceGCode(slice, firstPolygon, firstPoint, E, retractionDistance, gcodeFile, filamentDiameter, layerHeight, nozzleDiameter, erodedSlices, shells, infill, floors, roofs, erodedSupportPerimeter, supportInfill);
     }
 
 	E -= retractionDistance;
     // Finish G-code
     gcodeFile << "G1 E" << E << "F2400\n"; // Retract filament
-    gcodeFile << "G1 Z10 F3000\n"; // Move nozzle up
-    gcodeFile << "G1 X0 Y220.0 Z10 E" << E << "F3000\n";
+    gcodeFile << "G1 Z" << (layerHeight * sliceAmount) +1 << " F3000\n"; // Move nozzle up
+    gcodeFile << "G0 X0 Y220.0 E" << E << "F3000\n";
 	gcodeFile << "M106 S0\n";          // Turn off fan
     gcodeFile << "M104 S0\n";      // Turn off hotend
     gcodeFile << "M140 S0\n";      // Turn off bed

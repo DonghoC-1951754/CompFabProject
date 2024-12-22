@@ -10,6 +10,8 @@
 #include <QFileDialog>
 #include "clipper2/clipper.h"
 #include "SliceOperations.h"
+#include <QFormLayout>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 	modelFilePath = "./resources/hole-test(easy).stl";
@@ -46,9 +48,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(slicerHeightInputBox, &QDoubleSpinBox::valueChanged, this, &MainWindow::changeSlicerHeight);
 	connect(sliceButton, &QPushButton::clicked, this, &MainWindow::sliceModel);
 	connect(loadButton, &QPushButton::clicked, this, &MainWindow::openLoadModelDialog);
-	connect(gcodeButton, &QPushButton::clicked, this, &MainWindow::generateGcode);
+	connect(gcodeButton, &QPushButton::clicked, this, &MainWindow::openGCodeDialog);
 	connect(slicingParameterInputBoxes[2], &QDoubleSpinBox::valueChanged, this, &MainWindow::limitInfillDensity);
-	connect(slicingParameterInputBoxes[5], &QDoubleSpinBox::valueChanged, this, &MainWindow::updateSpeedLabel);
     // Add widgets to the panel layout
     panelLayout->addWidget(label);
     panelLayout->addWidget(loadButton);
@@ -119,6 +120,85 @@ void MainWindow::openLoadModelDialog() {
     }
 }
 
+void MainWindow::openGCodeDialog() {
+    // Create the dialog window
+    QDialog* gcodeDialog = new QDialog(this);
+    gcodeDialog->setWindowTitle("GCode Settings");
+
+    QVBoxLayout* dialogLayout = new QVBoxLayout(gcodeDialog);
+
+    // Filename input
+    filenameInput = new QLineEdit(gcodeDialog);
+    filenameInput->setPlaceholderText("Enter GCode filename");
+    dialogLayout->addWidget(new QLabel("Filename:"));
+    dialogLayout->addWidget(filenameInput);
+
+    // Create form layout for slicing parameters
+    QFormLayout* formLayout = new QFormLayout();
+    printbedTempLabel = new QLabel("Printbed Temperature:");
+    nozzleTempLabel = new QLabel("Nozzle Temperature:");
+    speedMultiplierLabel = new QLabel("Speed Multiplier (F2200):");
+    // Printbed temperature input
+    printbedTempInput = new QDoubleSpinBox(gcodeDialog);
+    printbedTempInput->setDecimals(0);
+    printbedTempInput->setRange(0, 150);
+    printbedTempInput->setSingleStep(1);
+    printbedTempInput->setValue(60);
+    formLayout->addRow(printbedTempLabel, printbedTempInput);
+
+    // Nozzle temperature input
+    nozzleTempInput = new QDoubleSpinBox(gcodeDialog);
+    nozzleTempInput->setDecimals(0);
+    nozzleTempInput->setRange(0, 300);
+    nozzleTempInput->setSingleStep(1);
+    nozzleTempInput->setValue(200);
+    formLayout->addRow(nozzleTempLabel, nozzleTempInput);
+
+    // Speed multiplier input
+    speedMultiplierInput = new QDoubleSpinBox(gcodeDialog);
+    speedMultiplierInput->setDecimals(1);
+    speedMultiplierInput->setRange(0, 5);
+    speedMultiplierInput->setSingleStep(0.1);
+    speedMultiplierInput->setValue(1);
+    formLayout->addRow(speedMultiplierLabel, speedMultiplierInput);
+    connect(speedMultiplierInput, &QDoubleSpinBox::valueChanged, this, &MainWindow::updateSpeedLabel);
+
+    dialogLayout->addLayout(formLayout);
+
+    // Add "Generate" and "Cancel" buttons
+    QHBoxLayout* buttonLayout = new QHBoxLayout();
+    QPushButton* generateButton = new QPushButton("Generate", gcodeDialog);
+    QPushButton* cancelButton = new QPushButton("Cancel", gcodeDialog);
+    buttonLayout->addWidget(generateButton);
+    buttonLayout->addWidget(cancelButton);
+    dialogLayout->addLayout(buttonLayout);
+
+    // Connect buttons
+    connect(generateButton, &QPushButton::clicked, [=]() {
+        QString filename = filenameInput->text();
+        if (filename.isEmpty()) {
+            QMessageBox::warning(gcodeDialog, "Error", "Please enter a filename.");
+            return;
+        }
+
+		// Get the values from the input boxes
+		gCodeFileName = filename;
+		printBedTemp = printbedTempInput->value();
+		nozzleTemp = nozzleTempInput->value();
+		speedMultiplier = speedMultiplierInput->value();
+
+        // Call GCode generation function
+        generateGcode();
+
+        gcodeDialog->accept();
+        });
+
+    connect(cancelButton, &QPushButton::clicked, gcodeDialog, &QDialog::reject);
+
+    // Show the dialog
+    gcodeDialog->exec();
+}
+
 void MainWindow::loadModel(std::string path) {
     widget->loadModel(path);
     widget->resetRendering();
@@ -140,14 +220,11 @@ void MainWindow::createSlicingParameterWidgets()
     labels.push_back(new QLabel(QString("Layer height").arg(1)));
     labels.push_back(new QLabel(QString("Number of shells").arg(2)));
     labels.push_back(new QLabel(QString("Nozzle diameter").arg(3)));
-    labels.push_back(new QLabel(QString("Printbed temperature").arg(4)));
-    labels.push_back(new QLabel(QString("Nozzle temperature").arg(5)));
-    labels.push_back(new QLabel(QString("Speed multiplier (F2200)").arg(6)));
-    labels.push_back(new QLabel(QString("Infill density").arg(7)));
-    labels.push_back(new QLabel(QString("Enable/disable supports").arg(8)));
-    labels.push_back(new QLabel(QString("Floor amount").arg(9)));
-    labels.push_back(new QLabel(QString("Roof amount").arg(10)));
-	labels.push_back(new QLabel(QString("filament diameter").arg(11)));
+    labels.push_back(new QLabel(QString("Infill density").arg(4)));
+    labels.push_back(new QLabel(QString("Enable/disable supports").arg(5)));
+    labels.push_back(new QLabel(QString("Floor amount").arg(6)));
+    labels.push_back(new QLabel(QString("Roof amount").arg(7)));
+	labels.push_back(new QLabel(QString("filament diameter").arg(8)));
 
     for (int row = 0; row < labels.size(); ++row) {
 		slicingParameterInputBoxes.push_back(new QDoubleSpinBox);
@@ -169,46 +246,28 @@ void MainWindow::createSlicingParameterWidgets()
 	slicingParameterInputBoxes[2]->setRange(0.2, 1.0);
 	slicingParameterInputBoxes[2]->setSingleStep(0.2);
     slicingParameterInputBoxes[2]->setValue(0.4);
-	
-    // Printbed temperature controls
-	slicingParameterInputBoxes[3]->setDecimals(0);
-	slicingParameterInputBoxes[3]->setRange(0, 100);
-	slicingParameterInputBoxes[3]->setSingleStep(1);
-	slicingParameterInputBoxes[3]->setValue(60);
-
-	// Nozzle temperature controls
-	slicingParameterInputBoxes[4]->setDecimals(0);
-	slicingParameterInputBoxes[4]->setRange(0, 300);
-	slicingParameterInputBoxes[4]->setSingleStep(1);
-	slicingParameterInputBoxes[4]->setValue(200);
-
-	// Speed multiplier controls
-	slicingParameterInputBoxes[5]->setDecimals(1);
-	slicingParameterInputBoxes[5]->setRange(0, 5);
-	slicingParameterInputBoxes[5]->setSingleStep(0.1);
-	slicingParameterInputBoxes[5]->setValue(1.0);
 
 	// Infill density controls
-	slicingParameterInputBoxes[6]->setDecimals(2);
-	slicingParameterInputBoxes[6]->setValue(2.0);
-	slicingParameterInputBoxes[6]->setRange(0.2, 100.0);
-	slicingParameterInputBoxes[6]->setSingleStep(0.2);
+	slicingParameterInputBoxes[3]->setDecimals(2);
+	slicingParameterInputBoxes[3]->setValue(2.0);
+	slicingParameterInputBoxes[3]->setRange(0.2, 100.0);
+	slicingParameterInputBoxes[3]->setSingleStep(0.2);
 
     // Floor controls
-	slicingParameterInputBoxes[8]->setDecimals(0);
-    slicingParameterInputBoxes[8]->setSingleStep(1);
-    slicingParameterInputBoxes[8]->setValue(2);
+	slicingParameterInputBoxes[5]->setDecimals(0);
+    slicingParameterInputBoxes[5]->setSingleStep(1);
+    slicingParameterInputBoxes[5]->setValue(2);
 
 	// Roof controls
-	slicingParameterInputBoxes[9]->setDecimals(0);
-	slicingParameterInputBoxes[9]->setSingleStep(1);
-	slicingParameterInputBoxes[9]->setValue(2);
+	slicingParameterInputBoxes[6]->setDecimals(0);
+	slicingParameterInputBoxes[6]->setSingleStep(1);
+	slicingParameterInputBoxes[6]->setValue(2);
 
 	// Filament diameter controls
-	slicingParameterInputBoxes[10]->setDecimals(2);
-	slicingParameterInputBoxes[10]->setRange(0, 5.0);
-	slicingParameterInputBoxes[10]->setSingleStep(0.05);
-	slicingParameterInputBoxes[10]->setValue(1.75);
+	slicingParameterInputBoxes[7]->setDecimals(2);
+	slicingParameterInputBoxes[7]->setRange(0, 5.0);
+	slicingParameterInputBoxes[7]->setSingleStep(0.05);
+	slicingParameterInputBoxes[7]->setValue(1.75);
     
 
 
@@ -306,10 +365,10 @@ void MainWindow::calculateSlices()
     // Printbed temperature controls  slicingParameterInputBoxes[3]
     // Nozzle temperature controls slicingParameterInputBoxes[4]
     // Speed multiplier controls slicingParameterInputBoxes[5]
-    // Infill density controls slicingParameterInputBoxes[6]
-    // Floor controls slicingParameterInputBoxes[8]
-    // Roof controls slicingParameterInputBoxes[9]
-    // Filament diameter controls slicingParameterInputBoxes[10]
+    // Infill density controls slicingParameterInputBoxes[3]
+    // Floor controls slicingParameterInputBoxes[5]
+    // Roof controls slicingParameterInputBoxes[6]
+    // Filament diameter controls slicingParameterInputBoxes[7]
     auto allCompiledSlices = widget->getAllSlices();
 	sliceAmount = allCompiledSlices.size();
     // Contour
@@ -320,17 +379,17 @@ void MainWindow::calculateSlices()
     progressBar->setValue(progressBar->value() + 30);
 
     // Floor
-    floors = sliceOperations->generateRoofsAndFloorsInfill(erodedSlices, slicingParameterInputBoxes[8]->value(), true, slicingParameterInputBoxes[2]->value());
+    floors = sliceOperations->generateRoofsAndFloorsInfill(erodedSlices, slicingParameterInputBoxes[5]->value(), true, slicingParameterInputBoxes[2]->value());
     // Roof
-	roofs = sliceOperations->generateRoofsAndFloorsInfill(erodedSlices, slicingParameterInputBoxes[9]->value(), false, slicingParameterInputBoxes[2]->value());
+	roofs = sliceOperations->generateRoofsAndFloorsInfill(erodedSlices, slicingParameterInputBoxes[6]->value(), false, slicingParameterInputBoxes[2]->value());
     
     // Infill
     mostInnerShells = sliceOperations->getMostInnerShells();
-    infill = sliceOperations->generateInfill(mostInnerShells, erodedSlices, slicingParameterInputBoxes[6]->value(), slicingParameterInputBoxes[2]->value());
+    infill = sliceOperations->generateInfill(mostInnerShells, erodedSlices, slicingParameterInputBoxes[3]->value(), slicingParameterInputBoxes[2]->value());
 
     // Support
     erodedSupportPerimeter = sliceOperations->generateErodedSupportPerimeter(allCompiledSlices, slicingParameterInputBoxes[2]->value(), widget->getSlicer()->getLayerHeight());
-    supportInfill = sliceOperations->generateInfill(std::vector<Clipper2Lib::PathsD>(), erodedSupportPerimeter, slicingParameterInputBoxes[6]->value(), slicingParameterInputBoxes[2]->value());
+    supportInfill = sliceOperations->generateInfill(std::vector<Clipper2Lib::PathsD>(), erodedSupportPerimeter, slicingParameterInputBoxes[3]->value(), slicingParameterInputBoxes[2]->value());
 
     // Draw the first complete slice (contour + shells + infill)
     double maxSlicerHeight = allCompiledSlices.size() * widget->getSlicer()->getLayerHeight();
@@ -361,8 +420,9 @@ void MainWindow::setBedDimensions() {
 }
 
 void MainWindow::updateSpeedLabel() {
-	float speed = slicingParameterInputBoxes[5]->value();
-	labels[5]->setText("Speed multiplier (F" + QString::number(speed* 2200) + ")");
+	float speed = speedMultiplierInput->value();
+    speedMultiplierLabel->setText("Speed multiplier (F" + QString::number(speed* 2200) + ")");
+	qDebug() << "Speed: " << speed;
 }
 
 void MainWindow::updateBedText() {
@@ -382,20 +442,14 @@ void MainWindow::generateGcode()
     int sliceAmount = erodedSlices.size();
 	double maxXDistance = static_cast<double>(widget->getMesh()->getMaxXDistance());
 	double maxYDistance = static_cast<double>(widget->getMesh()->getMaxYDistance());
-    // Layer height controls: slicingParameterInputBoxes[0]
-    // Nozzle diameter controls: slicingParameterInputBoxes[2]
-    // Printbed temperature controls: slicingParameterInputBoxes[3]
-    // Nozzle temperature controls: slicingParameterInputBoxes[4]
-    // Speed multiplier controls: slicingParameterInputBoxes[5]
-    // Filament diameter controls: slicingParameterInputBoxes[10]
 
 	gcodeCreator->generateGCode(maxXDistance, maxYDistance, sliceAmount, erodedSlices, shells, infill, floors, roofs, erodedSupportPerimeter, supportInfill,
-        "test", widget->getSlicer()->getLayerHeight(), slicingParameterInputBoxes[10]->value(), slicingParameterInputBoxes[3]->value(), slicingParameterInputBoxes[4]->value(),
-        slicingParameterInputBoxes[2]->value(), slicingParameterInputBoxes[5]->value(), true);
+        gCodeFileName.toStdString(), widget->getSlicer()->getLayerHeight(), slicingParameterInputBoxes[7]->value(), printBedTemp, nozzleTemp,
+        slicingParameterInputBoxes[2]->value(), speedMultiplier, true);
 	
 }
 
 void MainWindow::limitInfillDensity()
 {
-	slicingParameterInputBoxes[6]->setRange(slicingParameterInputBoxes[2]->value(), 100.0);
+	slicingParameterInputBoxes[3]->setRange(slicingParameterInputBoxes[2]->value(), 100.0);
 }
