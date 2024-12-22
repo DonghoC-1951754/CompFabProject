@@ -37,7 +37,7 @@ std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::addShells(const s
     return shelledSlices;
 }
 
-std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vector<Clipper2Lib::PathsD> innerShells, const std::vector<Clipper2Lib::PathsD> erodedSlices, double infillDensity)
+std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vector<Clipper2Lib::PathsD> innerShells, const std::vector<Clipper2Lib::PathsD> erodedSlices, double infillDensity, double nozzleDiameter)
 {
     std::vector<Clipper2Lib::PathsD> infilledSlices;
     Clipper2Lib::PathsD infillGrid = generateInfillGrid(200, 200, infillDensity);
@@ -51,6 +51,8 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vect
     int i = 0;
     for (auto slice : slices) {
         Clipper2Lib::ClipperD clipper;
+
+        slice = Clipper2Lib::InflatePaths(slice, -nozzleDiameter, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
 
         clipper.AddOpenSubject(infillGrid);
         clipper.AddClip(slice);

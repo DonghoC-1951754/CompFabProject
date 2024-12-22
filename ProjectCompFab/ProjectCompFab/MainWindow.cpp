@@ -326,11 +326,11 @@ void MainWindow::calculateSlices()
     
     // Infill
     mostInnerShells = sliceOperations->getMostInnerShells();
-    infill = sliceOperations->generateInfill(mostInnerShells, erodedSlices, slicingParameterInputBoxes[6]->value());
+    infill = sliceOperations->generateInfill(mostInnerShells, erodedSlices, slicingParameterInputBoxes[6]->value(), slicingParameterInputBoxes[2]->value());
 
     // Support
     erodedSupportPerimeter = sliceOperations->generateErodedSupportPerimeter(allCompiledSlices, slicingParameterInputBoxes[2]->value(), widget->getSlicer()->getLayerHeight());
-    supportInfill = sliceOperations->generateInfill(std::vector<Clipper2Lib::PathsD>(), erodedSupportPerimeter, slicingParameterInputBoxes[6]->value());
+    supportInfill = sliceOperations->generateInfill(std::vector<Clipper2Lib::PathsD>(), erodedSupportPerimeter, slicingParameterInputBoxes[6]->value(), slicingParameterInputBoxes[2]->value());
 
     // Draw the first complete slice (contour + shells + infill)
     double maxSlicerHeight = allCompiledSlices.size() * widget->getSlicer()->getLayerHeight();
