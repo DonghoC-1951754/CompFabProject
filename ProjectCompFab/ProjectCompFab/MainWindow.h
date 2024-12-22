@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include <clipper2/clipper.h>
 #include <QLabel>
+#include <QSlider>
 #include "GcodeCreator.h"
 #include <QProgressBar>
 /*
@@ -34,6 +35,7 @@ private slots:
 	void limitInfillDensity();
 private:
 	ObjectRenderView* widget;
+	QSlider* slider;
 	QDoubleSpinBox* slicerHeightInputBox;
 	QPushButton* sliceButton;
 	SliceWindow* sliceWindow;

@@ -24,6 +24,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     QLabel* label = new QLabel("Slicer Controls", sidePanel);
     loadButton = new QPushButton("Load Model", sidePanel);
 
+    slider = new QSlider(Qt::Vertical, this);
+    slider->setRange(0, 100); // Set the range of the slider (0-100)
+    //slider->setTickPosition(QSlider::TicksLeft); // Optional: Add ticks to the slider
+    //slider->setTickInterval(10);
+	slider->setDisabled(true);
+
 	gcodeCreator = new GcodeCreator();
 
 	createObjectRenderView();
@@ -55,6 +61,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 	panelLayout->addWidget(sliceWindow, Qt::AlignBottom);
 
     splitter->addWidget(widget);
+    splitter->addWidget(slider);
     splitter->addWidget(sidePanel);
 
     splitter->setStretchFactor(0, 3);
@@ -91,6 +98,8 @@ void MainWindow::sliceModel() {
 	// slicingParameterInputBoxes[0] == layer height
     slicer->setLayerHeight(slicingParameterInputBoxes[0]->value());
     slicerHeightInputBox->setSingleStep(slicingParameterInputBoxes[0]->value());
+
+    //slider->setTickInterval(slicingParameterInputBoxes[0]->value());
     
     progressBar->setValue(0);
     calculateSlices();
@@ -119,6 +128,7 @@ void MainWindow::loadModel(std::string path) {
     widget->setSlicerHeight(0.2);
 
     slicerHeightInputBox->setDisabled(true);
+	slider->setDisabled(true);
     progressBar->setValue(0);
 }
 
@@ -329,6 +339,14 @@ void MainWindow::calculateSlices()
         slicerHeightInputBox->setEnabled(true);
         slicerHeightInputBox->setValue(widget->getSlicer()->getLayerHeight());
         slicerHeightInputBox->setRange(minSlicerHeight, maxSlicerHeight);
+        
+		// Slider only accepts ints (so multiply by 100)
+        slider->setRange(minSlicerHeight*100, maxSlicerHeight*100);
+        slider->setValue(widget->getSlicer()->getLayerHeight()*100);
+		slider->setTickInterval(slicingParameterInputBoxes[0]->value() * 100);
+        slider->setSingleStep(slicingParameterInputBoxes[0]->value()*100);
+		slider->setTickPosition(QSlider::TicksBothSides);
+        slider->setEnabled(true);
         drawCompleteSlice(0);
     }
     progressBar->setValue(progressBar->value() + 10);
