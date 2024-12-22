@@ -142,7 +142,7 @@ void MainWindow::createSlicingParameterWidgets()
     labels.push_back(new QLabel(QString("Nozzle diameter").arg(3)));
     labels.push_back(new QLabel(QString("Printbed temperature").arg(4)));
     labels.push_back(new QLabel(QString("Nozzle temperature").arg(5)));
-    labels.push_back(new QLabel(QString("Speed multiplier (F1200)").arg(6)));
+    labels.push_back(new QLabel(QString("Speed multiplier (F2200)").arg(6)));
     labels.push_back(new QLabel(QString("Infill density").arg(7)));
     labels.push_back(new QLabel(QString("Enable/disable supports").arg(8)));
     labels.push_back(new QLabel(QString("Floor amount").arg(9)));
@@ -362,7 +362,7 @@ void MainWindow::setBedDimensions() {
 
 void MainWindow::updateSpeedLabel() {
 	float speed = slicingParameterInputBoxes[5]->value();
-	labels[5]->setText("Speed multiplier (F" + QString::number(speed*1200) + ")");
+	labels[5]->setText("Speed multiplier (F" + QString::number(speed* 2200) + ")");
 }
 
 void MainWindow::updateBedText() {

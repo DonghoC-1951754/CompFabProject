@@ -9,7 +9,7 @@
 GcodeCreator::GcodeCreator() {
 	maxXDistance = 0.0;
 	maxYDistance = 0.0;
-	printSpeed = 1200.0;
+	printSpeed = 2200.0;
 }
 void GcodeCreator::generateGCode(const double maxXDist, const double maxYDist, const int sliceAmount, const std::vector<Clipper2Lib::PathsD> erodedSlices,
     const std::vector<std::vector<Clipper2Lib::PathsD>> shells, const std::vector<Clipper2Lib::PathsD> infill, const std::vector<std::vector<Clipper2Lib::PathsD>> floors,
@@ -19,7 +19,7 @@ void GcodeCreator::generateGCode(const double maxXDist, const double maxYDist, c
 
     std::ofstream gcodeFile(filename + "\.gcode");
     gcodeFile << std::fixed << std::setprecision(8);
-	printSpeed = speedMultiplier*1200;
+	printSpeed = speedMultiplier* 2200.0;
 	maxXDistance = maxXDist;
 	maxYDistance = maxYDist;
 
@@ -63,6 +63,14 @@ void GcodeCreator::writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoi
     gcodeFile << "; Slice " << slice << "\n";
     firstPolygon = true;
     gcodeFile << "G0 Z" << (layerHeight * (slice + 1)) << "\n"; // Move to the current layer
+    E -= retractionDistance;
+    gcodeFile << "G1 E" << E << " F6000\n";
+
+    gcodeFile << "G0 X" << erodedSlices[slice][0][0].x << " Y" << erodedSlices[slice][0][0].y << "\n";
+
+    E += retractionDistance;
+    gcodeFile << "G1 E" << E << " F6000\n"; // Restore filament dynamically
+    
     gcodeFile << "; Perimeter" << "\n";
     //ERODED SLICES
     for (const auto& polygon : erodedSlices[slice]) {
