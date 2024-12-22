@@ -41,6 +41,8 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vect
 {
     std::vector<Clipper2Lib::PathsD> infilledSlices;
     Clipper2Lib::PathsD infillGrid = generateInfillGrid(200, 200, infillDensity);
+    //Clipper2Lib::PathsD infillGrid = generateInfillZigzag(200, 200, 10);
+
     std::vector<Clipper2Lib::PathsD> slices;
 
     if (innerShells.size() == 0) slices = erodedSlices;
@@ -49,12 +51,15 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vect
     int i = 0;
     for (auto slice : slices) {
         Clipper2Lib::ClipperD clipper;
-        clipper.AddClip(slice);
+
         clipper.AddOpenSubject(infillGrid);
+        clipper.AddClip(slice);
         Clipper2Lib::PathsD infill;
         Clipper2Lib::PathsD openInfill;
         clipper.Execute(Clipper2Lib::ClipType::Intersection, Clipper2Lib::FillRule::EvenOdd, infill, openInfill);
 		clipper.Clear();
+
+
         clipper.AddOpenSubject(openInfill);
 		clipper.AddClip(allFloorRegions[i]);
         clipper.AddClip(allRoofRegions[i]);
@@ -95,8 +100,15 @@ std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::generateRoofsAndF
 std::vector<Clipper2Lib::PathsD> SliceOperations::generateErodedSupportPerimeter(const std::vector<Clipper2Lib::PathsD> slices, double nozzleDiameter, double layerHeight)
 {
 	auto supportRegions = calcSupportRegions(slices, nozzleDiameter, layerHeight);
-    // Erode ?
-    return supportRegions;
+    // Erode
+    double erosionLength = -nozzleDiameter * 2;
+    std::vector<Clipper2Lib::PathsD> erodedSupportPerimeter;
+
+	for (auto& supportRegion : supportRegions) {
+		erodedSupportPerimeter.push_back(Clipper2Lib::InflatePaths(supportRegion, erosionLength, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2));
+	}
+
+    return erodedSupportPerimeter;
 }
 
 //std::vector<Clipper2Lib::PathsD> SliceOperations::generateSupportInfill(const std::vector<Clipper2Lib::PathsD> supportPerimeters, double infillDensity)
@@ -105,6 +117,27 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::generateErodedSupportPerimeter
 //    return std::vector<Clipper2Lib::PathsD>();
 //}
 
+Clipper2Lib::PathsD SliceOperations::generateInfillZigzag(double buildPlateWidth, double buildPlateDepth, double infillDensity)
+{
+	Clipper2Lib::PathsD grid;
+	//Clipper2Lib::PathD zigzagLine;
+    bool traversed = false;
+	for (double x = 0; x <= buildPlateWidth; x += infillDensity) {
+        Clipper2Lib::PathD zigzagLine;
+        if (traversed) {
+            zigzagLine.push_back(Clipper2Lib::PointD(x, 0.0));
+            zigzagLine.push_back(Clipper2Lib::PointD(x, buildPlateDepth));
+            traversed = false;
+        }
+        else {
+            zigzagLine.push_back(Clipper2Lib::PointD(x, buildPlateDepth));
+            zigzagLine.push_back(Clipper2Lib::PointD(x, 0.0));
+            traversed = true;
+        }
+        grid.push_back(zigzagLine);
+	}
+	return grid;
+}
 
 Clipper2Lib::PathsD SliceOperations::generateInfillGrid(double buildPlateWidth, double buildPlateDepth, double infillDensity)
 {
@@ -113,13 +146,13 @@ Clipper2Lib::PathsD SliceOperations::generateInfillGrid(double buildPlateWidth, 
     for (double x = 0; x <= buildPlateWidth; x += infillDensity) {
         Clipper2Lib::PathD verticalLine;
         if (traversed) {
-            verticalLine.push_back(Clipper2Lib::PointD(x, 0.0));
             verticalLine.push_back(Clipper2Lib::PointD(x, buildPlateDepth));
+            verticalLine.push_back(Clipper2Lib::PointD(x, 0.0));
             traversed = false;
         }
         else {
+            verticalLine.push_back(Clipper2Lib::PointD(x, 0.0));
 			verticalLine.push_back(Clipper2Lib::PointD(x, buildPlateDepth));
-			verticalLine.push_back(Clipper2Lib::PointD(x, 0.0));
 			traversed = true;
         }
         grid.push_back(verticalLine);

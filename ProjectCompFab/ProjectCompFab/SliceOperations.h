@@ -9,6 +9,7 @@ private:
 	std::vector<Clipper2Lib::PathsD> allFloorRegions;
 	std::vector<Clipper2Lib::PathsD> allRoofRegions;
 	Clipper2Lib::PathsD generateInfillGrid(double buildPlateWidth, double buildPlateDepth, double infillDensity);
+	Clipper2Lib::PathsD generateInfillZigzag(double buildPlateWidth, double buildPlateDepth, double infillDensity);
 	std::vector<Clipper2Lib::PathsD> calcRoofsAndFloorRegions(int baseFloorAmount, std::vector<Clipper2Lib::PathsD> perimeter, bool isFloor);
 	std::vector<Clipper2Lib::PathsD> calcSupportRegions(const std::vector<Clipper2Lib::PathsD> slices, double nozzleDiameter, double layerHeight);
 public:

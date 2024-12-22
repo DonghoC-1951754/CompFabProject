@@ -55,6 +55,8 @@ private:
 	// Rectangular Support
 	std::vector<Clipper2Lib::PathsD> erodedSupportPerimeter;
 	std::vector<Clipper2Lib::PathsD> supportInfill;
+	// Zigzag Support
+	std::vector<Clipper2Lib::PathsD> zigzagSupportInfill;
 	GcodeCreator* gcodeCreator;
 	SliceOperations* sliceOperations;
 	

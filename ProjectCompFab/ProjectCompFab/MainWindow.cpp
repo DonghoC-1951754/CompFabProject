@@ -72,7 +72,9 @@ void MainWindow::changeSlicerHeight(double height) {
 	double layerHeight = slicer->getLayerHeight();
     
     widget->setSlicerHeight(height);
-	int stepNumber = (height / layerHeight)-1;
+	int stepNumber = std::round(height / layerHeight)-1;
+	qDebug() << "Step number: " << stepNumber << "height:" << height << "layerHeight:" << layerHeight;
+    qDebug() << "Calc: " << (height / layerHeight) - 1;
     if (erodedSlices.size() > stepNumber) {
 		drawCompleteSlice(stepNumber);
 	}
