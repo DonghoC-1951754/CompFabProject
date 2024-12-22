@@ -198,6 +198,9 @@ void MainWindow::createSlicingParameterWidgets()
 	slicingParameterInputBoxes[10]->setSingleStep(0.05);
 	slicingParameterInputBoxes[10]->setValue(1.75);
     
+
+
+    
     gridWidget->setLayout(gridLayout);
 }
 
@@ -285,6 +288,16 @@ void MainWindow::drawCompleteSlice(int index)
 
 void MainWindow::calculateSlices()
 {
+    // Layer height controls slicingParameterInputBoxes[0]
+    // Shell amount controls slicingParameterInputBoxes[1]
+    // Nozzle diameter controls slicingParameterInputBoxes[2]
+    // Printbed temperature controls  slicingParameterInputBoxes[3]
+    // Nozzle temperature controls slicingParameterInputBoxes[4]
+    // Speed multiplier controls slicingParameterInputBoxes[5]
+    // Infill density controls slicingParameterInputBoxes[6]
+    // Floor controls slicingParameterInputBoxes[8]
+    // Roof controls slicingParameterInputBoxes[9]
+    // Filament diameter controls slicingParameterInputBoxes[10]
     auto allCompiledSlices = widget->getAllSlices();
 	sliceAmount = allCompiledSlices.size();
     // Contour
@@ -295,17 +308,17 @@ void MainWindow::calculateSlices()
     progressBar->setValue(progressBar->value() + 30);
 
     // Floor
-    floors = sliceOperations->generateRoofsAndFloorsInfill(erodedSlices, slicingParameterInputBoxes[7]->value(), true, slicingParameterInputBoxes[2]->value());
+    floors = sliceOperations->generateRoofsAndFloorsInfill(erodedSlices, slicingParameterInputBoxes[8]->value(), true, slicingParameterInputBoxes[2]->value());
     // Roof
-	roofs = sliceOperations->generateRoofsAndFloorsInfill(erodedSlices, slicingParameterInputBoxes[8]->value(), false, slicingParameterInputBoxes[2]->value());
+	roofs = sliceOperations->generateRoofsAndFloorsInfill(erodedSlices, slicingParameterInputBoxes[9]->value(), false, slicingParameterInputBoxes[2]->value());
     
     // Infill
     mostInnerShells = sliceOperations->getMostInnerShells();
-    infill = sliceOperations->generateInfill(mostInnerShells, erodedSlices, slicingParameterInputBoxes[5]->value());
+    infill = sliceOperations->generateInfill(mostInnerShells, erodedSlices, slicingParameterInputBoxes[6]->value());
 
     // Support
     erodedSupportPerimeter = sliceOperations->generateErodedSupportPerimeter(allCompiledSlices, slicingParameterInputBoxes[2]->value(), widget->getSlicer()->getLayerHeight());
-    supportInfill = sliceOperations->generateInfill(std::vector<Clipper2Lib::PathsD>(), erodedSupportPerimeter, slicingParameterInputBoxes[5]->value());
+    supportInfill = sliceOperations->generateInfill(std::vector<Clipper2Lib::PathsD>(), erodedSupportPerimeter, slicingParameterInputBoxes[6]->value());
 
     // Draw the first complete slice (contour + shells + infill)
     double maxSlicerHeight = allCompiledSlices.size() * widget->getSlicer()->getLayerHeight();
@@ -356,11 +369,6 @@ void MainWindow::generateGcode()
     // Speed multiplier controls: slicingParameterInputBoxes[5]
     // Filament diameter controls: slicingParameterInputBoxes[10]
 
-    //void generateGCode(const double maxXDist, const double maxYDist, const int sliceAmount, const std::vector<Clipper2Lib::PathsD> erodedSlices,
-    //    const std::vector<std::vector<Clipper2Lib::PathsD>> shells, const std::vector<Clipper2Lib::PathsD> infill, const std::vector<std::vector<Clipper2Lib::PathsD>> floors,
-    //    const std::vector<std::vector<Clipper2Lib::PathsD>> roofs, const std::vector<Clipper2Lib::PathsD> erodedSupportPerimeter,
-    //    const std::vector<Clipper2Lib::PathsD> supportInfill,
-    //    const std::string & filename, double layerHeight, double filamentDiameter, double bedTemp, double nozzleTemp, double nozzleDiameter, bool prime);
 	gcodeCreator->generateGCode(maxXDistance, maxYDistance, sliceAmount, erodedSlices, shells, infill, floors, roofs, erodedSupportPerimeter, supportInfill,
         "test", widget->getSlicer()->getLayerHeight(), slicingParameterInputBoxes[10]->value(), slicingParameterInputBoxes[3]->value(), slicingParameterInputBoxes[4]->value(),
         slicingParameterInputBoxes[2]->value(), slicingParameterInputBoxes[5]->value(), true);
@@ -369,5 +377,5 @@ void MainWindow::generateGcode()
 
 void MainWindow::limitInfillDensity()
 {
-	slicingParameterInputBoxes[5]->setRange(slicingParameterInputBoxes[2]->value(), 100.0);
+	slicingParameterInputBoxes[6]->setRange(slicingParameterInputBoxes[2]->value(), 100.0);
 }

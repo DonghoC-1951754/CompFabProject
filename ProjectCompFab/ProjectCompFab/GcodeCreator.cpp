@@ -63,11 +63,13 @@ void GcodeCreator::writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoi
     gcodeFile << "; Slice " << slice << "\n";
     firstPolygon = true;
     gcodeFile << "G0 Z" << (layerHeight * (slice + 1)) << "\n"; // Move to the current layer
+    gcodeFile << "; Perimeter" << "\n";
     //ERODED SLICES
     for (const auto& polygon : erodedSlices[slice]) {
         writePolygonGCode(firstPolygon, firstPoint, E, retractionDistance, gcodeFile, polygon, filamentDiameter, layerHeight, nozzleDiameter);
     }
 
+    gcodeFile << "; Shells" << "\n";
     //SHELLS
     firstPolygon = true;
     for (const auto& setOfShells : shells[slice]) {
@@ -76,6 +78,7 @@ void GcodeCreator::writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoi
         }
     }
 
+    gcodeFile << "; Floors" << "\n";
     //FLOORS
     firstPolygon = true;
     for (const auto& setOfFloors : floors[slice]) {
@@ -84,6 +87,7 @@ void GcodeCreator::writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoi
         }
     }
 
+    gcodeFile << "; Roofs" << "\n";
     //ROOFS
     firstPolygon = true;
     for (const auto& setOfRoofs : roofs[slice]) {
@@ -92,7 +96,7 @@ void GcodeCreator::writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoi
         }
     }
 
-
+    gcodeFile << "; Infill" << "\n";
     //INFILL
     for (const auto& line : infill[slice]) {
         E -= retractionDistance;
@@ -104,11 +108,14 @@ void GcodeCreator::writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoi
         gcodeFile << "G1 X" << line[1].x << " Y" << line[1].y << " E" << E << "\n";
     }
 
+    gcodeFile << "; Support Perimeter" << "\n";
     //SUPPORT PERIMETER
     firstPolygon = true;
     for (const auto& supportPolygon : erodedSupportPerimeter[slice]) {
         writePolygonGCode(firstPolygon, firstPoint, E, retractionDistance, gcodeFile, supportPolygon, filamentDiameter, layerHeight, nozzleDiameter);
     }
+
+    gcodeFile << "; Support Infill" << "\n";
     //SUPPORT INFILL
     for (const auto& supportLine : supportInfill[slice]) {
         E -= retractionDistance;
