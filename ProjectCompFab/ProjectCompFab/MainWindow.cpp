@@ -141,7 +141,7 @@ void MainWindow::openGCodeDialog() {
     // Printbed temperature input
     printbedTempInput = new QDoubleSpinBox(gcodeDialog);
     printbedTempInput->setDecimals(0);
-    printbedTempInput->setRange(0, 150);
+    printbedTempInput->setRange(20, 150);
     printbedTempInput->setSingleStep(1);
     printbedTempInput->setValue(60);
     formLayout->addRow(printbedTempLabel, printbedTempInput);
@@ -149,7 +149,7 @@ void MainWindow::openGCodeDialog() {
     // Nozzle temperature input
     nozzleTempInput = new QDoubleSpinBox(gcodeDialog);
     nozzleTempInput->setDecimals(0);
-    nozzleTempInput->setRange(0, 300);
+    nozzleTempInput->setRange(25, 300);
     nozzleTempInput->setSingleStep(1);
     nozzleTempInput->setValue(200);
     formLayout->addRow(nozzleTempLabel, nozzleTempInput);
@@ -157,7 +157,7 @@ void MainWindow::openGCodeDialog() {
     // Speed multiplier input
     speedMultiplierInput = new QDoubleSpinBox(gcodeDialog);
     speedMultiplierInput->setDecimals(1);
-    speedMultiplierInput->setRange(0, 5);
+    speedMultiplierInput->setRange(0.1, 5);
     speedMultiplierInput->setSingleStep(0.1);
     speedMultiplierInput->setValue(1);
     formLayout->addRow(speedMultiplierLabel, speedMultiplierInput);
@@ -362,9 +362,6 @@ void MainWindow::calculateSlices()
     // Layer height controls slicingParameterInputBoxes[0]
     // Shell amount controls slicingParameterInputBoxes[1]
     // Nozzle diameter controls slicingParameterInputBoxes[2]
-    // Printbed temperature controls  slicingParameterInputBoxes[3]
-    // Nozzle temperature controls slicingParameterInputBoxes[4]
-    // Speed multiplier controls slicingParameterInputBoxes[5]
     // Infill density controls slicingParameterInputBoxes[3]
     // Floor controls slicingParameterInputBoxes[5]
     // Roof controls slicingParameterInputBoxes[6]
