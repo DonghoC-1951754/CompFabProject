@@ -420,7 +420,7 @@ void MainWindow::calculateSlices()
     progressText->setText("Progress: generating support...");
     progressBar->setValue(progressBar->value() + 20);
     erodedSupportPerimeter = sliceOperations->generateErodedSupportPerimeter(allCompiledSlices, slicingParameterInputBoxes[2]->value(), widget->getSlicer()->getLayerHeight());
-    supportInfill = sliceOperations->generateInfill(std::vector<Clipper2Lib::PathsD>(), erodedSupportPerimeter, slicingParameterInputBoxes[3]->value(), slicingParameterInputBoxes[2]->value());
+    supportInfill = sliceOperations->generateBasicSupportInfill(erodedSupportPerimeter, slicingParameterInputBoxes[3]->value(), slicingParameterInputBoxes[2]->value());
 
     // Slicing done
     progressText->setText("Progress: done!");

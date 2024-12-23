@@ -87,6 +87,7 @@ std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::generateRoofsAndF
 		allRegions = allRoofRegions;
     }
     std::vector<std::vector<Clipper2Lib::PathsD>> allRingInfills;
+	int test = 0;
     for (auto regions : allRegions) {
         std::vector<Clipper2Lib::PathsD> ringInfillSingleSlice;
         auto singleRing = Clipper2Lib::InflatePaths(regions, -nozzleDiameter, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
@@ -96,6 +97,7 @@ std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::generateRoofsAndF
             singleRing = Clipper2Lib::InflatePaths(singleRing, -nozzleDiameter, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
         }
 		allRingInfills.push_back(ringInfillSingleSlice);
+        ++test;
     }
     return allRingInfills;
 }
@@ -114,13 +116,31 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::generateErodedSupportPerimeter
     return erodedSupportPerimeter;
 }
 
+std::vector<Clipper2Lib::PathsD> SliceOperations::generateBasicSupportInfill(const std::vector<Clipper2Lib::PathsD> supportPerimeters, double infillDensity, double nozzleDiameter)
+{
+	auto verticalInfill = generateInfillVertical(200, 200, infillDensity);
+	std::vector<Clipper2Lib::PathsD> supportInfill;
+    for (auto supportPerimeter : supportPerimeters) {
+		auto erodedSupportPerimeter = Clipper2Lib::InflatePaths(supportPerimeter, -nozzleDiameter, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
+		Clipper2Lib::ClipperD clipper;
+		clipper.AddOpenSubject(verticalInfill);
+		clipper.AddClip(erodedSupportPerimeter);
+		Clipper2Lib::PathsD infill;
+		Clipper2Lib::PathsD openInfill;
+		clipper.Execute(Clipper2Lib::ClipType::Intersection, Clipper2Lib::FillRule::EvenOdd, infill, openInfill);
+		clipper.Clear();
+		supportInfill.push_back(openInfill);
+    }
+	return supportInfill;
+}
+
 //std::vector<Clipper2Lib::PathsD> SliceOperations::generateSupportInfill(const std::vector<Clipper2Lib::PathsD> supportPerimeters, double infillDensity)
 //{
 //    Clipper2Lib::PathsD infillGrid = generateInfillGrid(200, 200, infillDensity);
 //    return std::vector<Clipper2Lib::PathsD>();
 //}
 
-Clipper2Lib::PathsD SliceOperations::generateInfillZigzag(double buildPlateWidth, double buildPlateDepth, double infillDensity)
+Clipper2Lib::PathsD SliceOperations::generateInfillVertical(double buildPlateWidth, double buildPlateDepth, double infillDensity)
 {
 	Clipper2Lib::PathsD grid;
 	//Clipper2Lib::PathD zigzagLine;
@@ -177,6 +197,46 @@ Clipper2Lib::PathsD SliceOperations::generateInfillGrid(double buildPlateWidth, 
     }
     return grid;
 }
+
+//std::vector<Clipper2Lib::PathsD> SliceOperations::calcRoofRegions(int baseRoofAmount, std::vector<Clipper2Lib::PathsD> perimeter) {
+//    std::vector<Clipper2Lib::PathsD> regions;
+//    for (int i = 0; i < perimeter.size() - baseRoofAmount; ++i) {
+//		auto currentLayer = perimeter[i];
+//        std::vector<Clipper2Lib::PathsD> nextLayers;
+//		for (int j = i + 1; j <= i + baseRoofAmount; ++j) {
+//			nextLayers.push_back(perimeter[j]);
+//		}
+//
+//        Clipper2Lib::PathsD intersection;
+//        for (int l = 0; l < nextLayers.size() - 1; ++l) {
+//            intersection = Intersect(nextLayers[l], nextLayers[l + 1], Clipper2Lib::FillRule::EvenOdd);
+//        }
+//
+//		auto clippedRegion = Difference(currentLayer, intersection, Clipper2Lib::FillRule::EvenOdd);
+//		regions.push_back(clippedRegion);
+//    }
+//
+//    for (int k = perimeter.size() - baseRoofAmount; k < perimeter.size(); ++k) {
+//		regions.push_back(perimeter[k]);
+//    }
+//    return regions;
+//}
+
+//std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::generateRoofInfill(std::vector<Clipper2Lib::PathsD> perimeter, int baseRoofAmount, double nozzleDiameter) {
+//    allRoofRegions = calcRoofRegions(baseRoofAmount, perimeter);
+//    std::vector<std::vector<Clipper2Lib::PathsD>> allRingInfills;
+//    for (auto regions : allRoofRegions) {
+//        std::vector<Clipper2Lib::PathsD> ringInfillSingleSlice;
+//        auto singleRing = Clipper2Lib::InflatePaths(regions, -nozzleDiameter, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
+//        //ringInfillSingleSlice.push_back(singleRing);
+//        while (!singleRing.empty()) {
+//            ringInfillSingleSlice.push_back(singleRing);
+//            singleRing = Clipper2Lib::InflatePaths(singleRing, -nozzleDiameter, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
+//        }
+//        allRingInfills.push_back(ringInfillSingleSlice);
+//    }
+//	return allRingInfills;
+//}
 
 std::vector<Clipper2Lib::PathsD> SliceOperations::calcRoofsAndFloorRegions(int baseFloorAmount, std::vector<Clipper2Lib::PathsD> perimeter, bool isFloor)
 {
