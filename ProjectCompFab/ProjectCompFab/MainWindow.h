@@ -26,6 +26,7 @@ public:
 	int getSliceAmount() { return sliceAmount; }
 public slots:
 	void changeSlicerHeight(double height);
+	void sliderValueChanged(int value);
 private slots:
 	void sliceModel();
 	void openLoadModelDialog();
@@ -47,6 +48,7 @@ private:
 	QWidget* gridWidget;
 	QWidget* sidePanel;
 	QProgressBar* progressBar;
+	QLabel* progressText;
 	std::vector<QLabel*> labels;
 	std::vector<QDoubleSpinBox*> slicingParameterInputBoxes;
 	//std::vector<Clipper2Lib::PathsD> allCompiledSlices;

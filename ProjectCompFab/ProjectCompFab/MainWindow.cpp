@@ -56,6 +56,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     panelLayout->addWidget(slicerHeightInputBox);
 	panelLayout->addWidget(sliceButton);
 	panelLayout->addWidget(progressBar);
+    panelLayout->addWidget(progressText);
+    panelLayout->addSpacing(15);
 	panelLayout->addWidget(gcodeButton);
     panelLayout->addWidget(gridWidget);
     panelLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -84,6 +86,7 @@ void MainWindow::changeSlicerHeight(double height) {
 	qDebug() << "Step number: " << stepNumber << "height:" << height << "layerHeight:" << layerHeight;
     qDebug() << "Calc: " << (height / layerHeight) - 1;
     if (erodedSlices.size() > stepNumber) {
+		slider->setValue(height * 100);
 		drawCompleteSlice(stepNumber);
 	}
 }
@@ -106,6 +109,25 @@ void MainWindow::sliceModel() {
     calculateSlices();
 
 	gcodeButton->setDisabled(false);
+}
+
+void MainWindow::sliderValueChanged(int value)
+{
+    int stepSize = slider->singleStep();
+    if (value % stepSize != 0) {
+        if ((value % stepSize) < (stepSize / 2)) {
+			slider->setValue(value - (value % stepSize));
+			slicerHeightInputBox->setValue(slider->value() / 100.0);
+        }
+        else {
+            slider->setValue(value + (stepSize - (value % stepSize)));
+            slicerHeightInputBox->setValue(slider->value() / 100.0);
+        }
+	}
+	else {
+		slicerHeightInputBox->setValue(slider->value() / 100.0);
+	}
+	
 }
 
 void MainWindow::openLoadModelDialog() {
@@ -210,6 +232,7 @@ void MainWindow::loadModel(std::string path) {
     slicerHeightInputBox->setDisabled(true);
 	slider->setDisabled(true);
     progressBar->setValue(0);
+	progressText->setText("Progress: not sliced yet...");
 }
 
 void MainWindow::createSlicingParameterWidgets()
@@ -344,6 +367,7 @@ void MainWindow::createProgressBar()
     progressBar = new QProgressBar(sidePanel);
     progressBar->setRange(0, 100);
     progressBar->setValue(0);
+    progressText = new QLabel("Progress: not sliced yet...");
 }
 
 void MainWindow::drawCompleteSlice(int index)
@@ -366,27 +390,41 @@ void MainWindow::calculateSlices()
     // Floor controls slicingParameterInputBoxes[5]
     // Roof controls slicingParameterInputBoxes[6]
     // Filament diameter controls slicingParameterInputBoxes[7]
+    progressText->setText("Progress: calculating perimeters...");
     auto allCompiledSlices = widget->getAllSlices();
 	sliceAmount = allCompiledSlices.size();
+    progressBar->setValue(progressBar->value() + 10);
     // Contour
+    progressText->setText("Progress: eroding perimeters...");
     erodedSlices = sliceOperations->erodeSlicesForGCode(allCompiledSlices, slicingParameterInputBoxes[2]->value());
-    progressBar->setValue(progressBar->value() + 60);
+    progressBar->setValue(progressBar->value() + 10);
     // Shell
+    progressText->setText("Progress: generating shells...");
     shells = sliceOperations->addShells(erodedSlices, slicingParameterInputBoxes[1]->value(), slicingParameterInputBoxes[2]->value());
-    progressBar->setValue(progressBar->value() + 30);
+
 
     // Floor
+    progressText->setText("Progress: generating floors and roofs...");
+    progressBar->setValue(progressBar->value() + 20);
     floors = sliceOperations->generateRoofsAndFloorsInfill(erodedSlices, slicingParameterInputBoxes[5]->value(), true, slicingParameterInputBoxes[2]->value());
     // Roof
 	roofs = sliceOperations->generateRoofsAndFloorsInfill(erodedSlices, slicingParameterInputBoxes[6]->value(), false, slicingParameterInputBoxes[2]->value());
-    
+
     // Infill
+    progressText->setText("Progress: generating sparse infill...");
+    progressBar->setValue(progressBar->value() + 20);
     mostInnerShells = sliceOperations->getMostInnerShells();
     infill = sliceOperations->generateInfill(mostInnerShells, erodedSlices, slicingParameterInputBoxes[3]->value(), slicingParameterInputBoxes[2]->value());
 
     // Support
+    progressText->setText("Progress: generating support...");
+    progressBar->setValue(progressBar->value() + 20);
     erodedSupportPerimeter = sliceOperations->generateErodedSupportPerimeter(allCompiledSlices, slicingParameterInputBoxes[2]->value(), widget->getSlicer()->getLayerHeight());
     supportInfill = sliceOperations->generateInfill(std::vector<Clipper2Lib::PathsD>(), erodedSupportPerimeter, slicingParameterInputBoxes[3]->value(), slicingParameterInputBoxes[2]->value());
+
+    // Slicing done
+    progressText->setText("Progress: done!");
+    progressBar->setValue(progressBar->value() + 20);
 
     // Draw the first complete slice (contour + shells + infill)
     double maxSlicerHeight = allCompiledSlices.size() * widget->getSlicer()->getLayerHeight();
@@ -399,13 +437,15 @@ void MainWindow::calculateSlices()
 		// Slider only accepts ints (so multiply by 100)
         slider->setRange(minSlicerHeight*100, maxSlicerHeight*100);
         slider->setValue(widget->getSlicer()->getLayerHeight()*100);
-		slider->setTickInterval(slicingParameterInputBoxes[0]->value() * 100);
+		//slider->setTickInterval(slicingParameterInputBoxes[0]->value() * 100);
         slider->setSingleStep(slicingParameterInputBoxes[0]->value()*100);
-		slider->setTickPosition(QSlider::TicksBothSides);
+        slider->setPageStep(slicingParameterInputBoxes[0]->value()*100);
+        connect(slider, &QSlider::valueChanged, this, &MainWindow::sliderValueChanged);
+
+
         slider->setEnabled(true);
         drawCompleteSlice(0);
     }
-    progressBar->setValue(progressBar->value() + 10);
 }
 
 void MainWindow::setBedDimensions() {

@@ -52,6 +52,7 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vect
     for (auto slice : slices) {
         Clipper2Lib::ClipperD clipper;
 
+        // Erode the slice temporarily for space between infill and wall
         slice = Clipper2Lib::InflatePaths(slice, -nozzleDiameter, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
 
         clipper.AddOpenSubject(infillGrid);
