@@ -9,6 +9,7 @@
 #include <QSlider>
 #include "GcodeCreator.h"
 #include <QProgressBar>
+#include <QCheckBox>
 /*
 * Window that shows all widgets and controls in 1 place
 * Contains RenderView and controls
@@ -51,6 +52,7 @@ private:
 	QLabel* progressText;
 	std::vector<QLabel*> labels;
 	std::vector<QDoubleSpinBox*> slicingParameterInputBoxes;
+	QCheckBox* enableSupport;
 	//std::vector<Clipper2Lib::PathsD> allCompiledSlices;
 	std::vector<Clipper2Lib::PathsD> erodedSlices;
 	std::vector<std::vector<Clipper2Lib::PathsD>> shells;

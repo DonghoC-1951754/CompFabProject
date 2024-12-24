@@ -244,15 +244,17 @@ void MainWindow::createSlicingParameterWidgets()
     labels.push_back(new QLabel(QString("Number of shells").arg(2)));
     labels.push_back(new QLabel(QString("Nozzle diameter").arg(3)));
     labels.push_back(new QLabel(QString("Infill density").arg(4)));
-    labels.push_back(new QLabel(QString("Enable/disable supports").arg(5)));
+    labels.push_back(new QLabel(QString("Enable supports").arg(5)));
     labels.push_back(new QLabel(QString("Floor amount").arg(6)));
     labels.push_back(new QLabel(QString("Roof amount").arg(7)));
 	labels.push_back(new QLabel(QString("filament diameter").arg(8)));
 
     for (int row = 0; row < labels.size(); ++row) {
 		slicingParameterInputBoxes.push_back(new QDoubleSpinBox);
-        gridLayout->addWidget(labels[row], row, 0);
-        gridLayout->addWidget(slicingParameterInputBoxes[row], row, 1);
+        if (row != 4) {
+            gridLayout->addWidget(labels[row], row, 0);
+            gridLayout->addWidget(slicingParameterInputBoxes[row], row, 1);
+        }
     }
 
     // Layer height controls
@@ -292,7 +294,9 @@ void MainWindow::createSlicingParameterWidgets()
 	slicingParameterInputBoxes[7]->setSingleStep(0.05);
 	slicingParameterInputBoxes[7]->setValue(1.75);
     
-
+    gridLayout->addWidget(labels[4], 8, 0);
+	enableSupport = new QCheckBox();
+    gridLayout->addWidget(enableSupport, 8, 1);
 
     
     gridWidget->setLayout(gridLayout);
@@ -377,8 +381,10 @@ void MainWindow::drawCompleteSlice(int index)
     sliceWindow->setSliceInfill(infill[index]);
 	sliceWindow->setSliceFloorInfill(floors[index]);
     sliceWindow->setSliceRoofInfill(roofs[index]);
-    sliceWindow->setBasicSupportPerimeter(erodedSupportPerimeter[index]);
-    sliceWindow->setBasicSupportInfill(supportInfill[index]);
+    if (enableSupport->isChecked()) {
+        sliceWindow->setBasicSupportPerimeter(erodedSupportPerimeter[index]);
+        sliceWindow->setBasicSupportInfill(supportInfill[index]);
+    }
 }
 
 void MainWindow::calculateSlices()
@@ -419,8 +425,11 @@ void MainWindow::calculateSlices()
     // Support
     progressText->setText("Progress: generating support...");
     progressBar->setValue(progressBar->value() + 20);
-    erodedSupportPerimeter = sliceOperations->generateErodedSupportPerimeter(allCompiledSlices, slicingParameterInputBoxes[2]->value(), widget->getSlicer()->getLayerHeight());
-    supportInfill = sliceOperations->generateBasicSupportInfill(erodedSupportPerimeter, slicingParameterInputBoxes[3]->value(), slicingParameterInputBoxes[2]->value());
+    if (enableSupport->isChecked()) {
+        erodedSupportPerimeter = sliceOperations->generateErodedSupportPerimeter(allCompiledSlices, slicingParameterInputBoxes[2]->value(), widget->getSlicer()->getLayerHeight());
+        supportInfill = sliceOperations->generateBasicSupportInfill(erodedSupportPerimeter, slicingParameterInputBoxes[3]->value(), slicingParameterInputBoxes[2]->value());
+    }
+
 
     // Slicing done
     progressText->setText("Progress: done!");
