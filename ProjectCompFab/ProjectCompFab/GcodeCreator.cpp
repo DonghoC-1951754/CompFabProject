@@ -15,7 +15,7 @@ void GcodeCreator::generateGCode(const double maxXDist, const double maxYDist, c
     const std::vector<std::vector<Clipper2Lib::PathsD>> shells, const std::vector<Clipper2Lib::PathsD> infill, const std::vector<std::vector<Clipper2Lib::PathsD>> floors,
     const std::vector<std::vector<Clipper2Lib::PathsD>> roofs, const std::vector<Clipper2Lib::PathsD> erodedSupportPerimeter, 
     const std::vector<Clipper2Lib::PathsD> supportInfill,
-    const std::string& filename, double layerHeight, double filamentDiameter, double bedTemp, double nozzleTemp, double nozzleDiameter, float speedMultiplier, bool prime) {
+    const std::string& filename, double layerHeight, double filamentDiameter, double bedTemp, double nozzleTemp, double nozzleDiameter, float speedMultiplier, bool prime, bool supportToggle) {
 
     std::ofstream gcodeFile("./gcode/" + filename + ".gcode");
     gcodeFile << std::fixed << std::setprecision(8);
@@ -36,7 +36,7 @@ void GcodeCreator::generateGCode(const double maxXDist, const double maxYDist, c
     bool firstPoint = true;
 
     for (int slice = 0; slice < sliceAmount; slice++) {
-		writeSliceGCode(slice, firstPolygon, firstPoint, E, retractionDistance, gcodeFile, filamentDiameter, layerHeight, nozzleDiameter, erodedSlices, shells, infill, floors, roofs, erodedSupportPerimeter, supportInfill);
+		writeSliceGCode(slice, firstPolygon, firstPoint, E, retractionDistance, gcodeFile, filamentDiameter, layerHeight, nozzleDiameter, erodedSlices, shells, infill, floors, roofs, erodedSupportPerimeter, supportInfill, supportToggle);
     }
 
 	E -= retractionDistance;
@@ -56,7 +56,7 @@ void GcodeCreator::generateGCode(const double maxXDist, const double maxYDist, c
 void GcodeCreator::writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoint, double& E, double retractionDistance, std::ofstream& gcodeFile, 
     double filamentDiameter, double layerHeight, double nozzleDiameter, const std::vector<Clipper2Lib::PathsD>& erodedSlices, 
     const std::vector<std::vector<Clipper2Lib::PathsD>>& shells, const std::vector<Clipper2Lib::PathsD>& infill, const std::vector<std::vector<Clipper2Lib::PathsD>> floors,
-	const std::vector<std::vector<Clipper2Lib::PathsD>> roofs, const std::vector<Clipper2Lib::PathsD> erodedSupportPerimeter, const std::vector<Clipper2Lib::PathsD> supportInfill) {
+	const std::vector<std::vector<Clipper2Lib::PathsD>> roofs, const std::vector<Clipper2Lib::PathsD> erodedSupportPerimeter, const std::vector<Clipper2Lib::PathsD> supportInfill, bool supportToggle) {
     gcodeFile << "; Slice " << slice << "\n";
     firstPolygon = true;
     gcodeFile << "G0 Z" << (layerHeight * (slice + 1)) << "\n"; // Move to the current layer
@@ -113,24 +113,32 @@ void GcodeCreator::writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoi
         gcodeFile << "G1 X" << line[1].x << " Y" << line[1].y << " E" << E << "\n";
     }
 
-    gcodeFile << "; Support Perimeter" << "\n";
-    //SUPPORT PERIMETER
-    firstPolygon = true;
-    for (const auto& supportPolygon : erodedSupportPerimeter[slice]) {
-        writePolygonGCode(firstPolygon, firstPoint, E, retractionDistance, gcodeFile, supportPolygon, filamentDiameter, layerHeight, nozzleDiameter);
-    }
+    if (supportToggle) {
+        gcodeFile << "; Support Perimeter" << "\n";
+        //SUPPORT PERIMETER
+        if (!erodedSupportPerimeter[slice].empty()) {
+            firstPolygon = true;
+            for (const auto& supportPolygon : erodedSupportPerimeter[slice]) {
+                writePolygonGCode(firstPolygon, firstPoint, E, retractionDistance, gcodeFile, supportPolygon, filamentDiameter, layerHeight, nozzleDiameter);
+            }
+        }
 
-    gcodeFile << "; Support Infill" << "\n";
-    //SUPPORT INFILL
-    for (const auto& supportLine : supportInfill[slice]) {
-        E -= retractionDistance;
-        gcodeFile << "G1 E" << E << " F6000\n";
-        gcodeFile << "G0 X" << supportLine[0].x << " Y" << supportLine[0].y << "\n";
-        E += retractionDistance;
-        gcodeFile << "G1 E" << E << " F" << printSpeed <<"\n"; // Restore filament dynamically
-        E += calculateExtrusionLength(supportLine[0].x, supportLine[0].y, supportLine[1].x, supportLine[1].y, filamentDiameter, layerHeight, nozzleDiameter);
-        gcodeFile << "G1 X" << supportLine[1].x << " Y" << supportLine[1].y << " E" << E << "\n";
+        gcodeFile << "; Support Infill" << "\n";
+        //SUPPORT INFILL
+        if (!supportInfill[slice].empty()) {
+            for (const auto& supportLine : supportInfill[slice]) {
+                E -= retractionDistance;
+                gcodeFile << "G1 E" << E << " F6000\n";
+                gcodeFile << "G0 X" << supportLine[0].x << " Y" << supportLine[0].y << "\n";
+                E += retractionDistance;
+                gcodeFile << "G1 E" << E << " F" << printSpeed << "\n"; // Restore filament dynamically
+                E += calculateExtrusionLength(supportLine[0].x, supportLine[0].y, supportLine[1].x, supportLine[1].y, filamentDiameter, layerHeight, nozzleDiameter);
+                gcodeFile << "G1 X" << supportLine[1].x << " Y" << supportLine[1].y << " E" << E << "\n";
+            }
+        }
     }
+   
+    
 }
 
 void GcodeCreator::writePolygonGCode(bool& firstPolygon, bool& firstPoint, double &E, double retractionDistance, std::ofstream& gcodeFile, 

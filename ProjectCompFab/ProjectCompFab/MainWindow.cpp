@@ -491,7 +491,7 @@ void MainWindow::generateGcode()
 
 	gcodeCreator->generateGCode(maxXDistance, maxYDistance, sliceAmount, erodedSlices, shells, infill, floors, roofs, erodedSupportPerimeter, supportInfill,
         gCodeFileName.toStdString(), widget->getSlicer()->getLayerHeight(), slicingParameterInputBoxes[7]->value(), printBedTemp, nozzleTemp,
-        slicingParameterInputBoxes[2]->value(), speedMultiplier, true);
+        slicingParameterInputBoxes[2]->value(), speedMultiplier, true, enableSupport->isChecked());
 	
 }
 
