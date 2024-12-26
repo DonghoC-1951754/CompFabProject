@@ -13,6 +13,7 @@ private:
 	std::vector<Clipper2Lib::PathsD> calcRoofsAndFloorRegions(int baseFloorAmount, std::vector<Clipper2Lib::PathsD> perimeter, bool isFloor);
 	std::vector<Clipper2Lib::PathsD> calcRoofRegions(int baseRoofAmount, std::vector<Clipper2Lib::PathsD> perimeter);
 	std::vector<Clipper2Lib::PathsD> calcSupportRegions(const std::vector<Clipper2Lib::PathsD> slices, double nozzleDiameter, double layerHeight);
+	void removeLastSupportLayer(std::vector<Clipper2Lib::PathsD>& supportLayers);
 public:
 	std::vector<Clipper2Lib::PathsD> erodeSlicesForGCode(const std::vector<Clipper2Lib::PathsD> slices, double nozzleDiameter);
 	std::vector<std::vector<Clipper2Lib::PathsD>> addShells(const std::vector<Clipper2Lib::PathsD> slices, int shellAmount, double nozzleDiameter);

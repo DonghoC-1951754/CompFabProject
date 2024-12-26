@@ -43,7 +43,6 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vect
     std::vector<Clipper2Lib::PathsD> infilledSlices;
 	double infillDensityDouble = infillDensity / 100;
 	double spacing = nozzleDiameter / sqrt(infillDensityDouble);
-	qDebug() << "Spacing: " << spacing;
     Clipper2Lib::PathsD infillGrid = generateInfillGrid(200, 200, spacing);
     //Clipper2Lib::PathsD infillGrid = generateInfillZigzag(200, 200, 10);
 
@@ -106,6 +105,15 @@ std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::generateRoofsAndF
     return allRingInfills;
 }
 
+void SliceOperations::removeLastSupportLayer(std::vector<Clipper2Lib::PathsD>& supportLayers)
+{
+    for (int i = 0; i < supportLayers.size()-1; ++i) {
+        if (!supportLayers[i].empty() && supportLayers[i+1].empty()) {
+			supportLayers[i] = Clipper2Lib::PathsD();
+        }
+    }
+}
+
 std::vector<Clipper2Lib::PathsD> SliceOperations::generateErodedSupportPerimeter(const std::vector<Clipper2Lib::PathsD> slices, double nozzleDiameter, double layerHeight)
 {
 	auto supportRegions = calcSupportRegions(slices, nozzleDiameter, layerHeight);
@@ -116,7 +124,7 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::generateErodedSupportPerimeter
 	for (auto& supportRegion : supportRegions) {
 		erodedSupportPerimeter.push_back(Clipper2Lib::InflatePaths(supportRegion, erosionLength, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2));
 	}
-
+	removeLastSupportLayer(erodedSupportPerimeter);
     return erodedSupportPerimeter;
 }
 
