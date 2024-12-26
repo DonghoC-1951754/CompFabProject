@@ -1,4 +1,5 @@
 #include "SliceOperations.h"
+#include <QDebug>
 
 
 std::vector<Clipper2Lib::PathsD> SliceOperations::erodeSlicesForGCode(const std::vector<Clipper2Lib::PathsD> slices, double nozzleDiameter)
@@ -40,7 +41,10 @@ std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::addShells(const s
 std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vector<Clipper2Lib::PathsD> innerShells, const std::vector<Clipper2Lib::PathsD> erodedSlices, double infillDensity, double nozzleDiameter)
 {
     std::vector<Clipper2Lib::PathsD> infilledSlices;
-    Clipper2Lib::PathsD infillGrid = generateInfillGrid(200, 200, infillDensity);
+	double infillDensityDouble = infillDensity / 100;
+	double spacing = nozzleDiameter / sqrt(infillDensityDouble);
+	qDebug() << "Spacing: " << spacing;
+    Clipper2Lib::PathsD infillGrid = generateInfillGrid(200, 200, spacing);
     //Clipper2Lib::PathsD infillGrid = generateInfillZigzag(200, 200, 10);
 
     std::vector<Clipper2Lib::PathsD> slices;
@@ -162,11 +166,11 @@ Clipper2Lib::PathsD SliceOperations::generateInfillVertical(double buildPlateWid
 	return grid;
 }
 
-Clipper2Lib::PathsD SliceOperations::generateInfillGrid(double buildPlateWidth, double buildPlateDepth, double infillDensity)
+Clipper2Lib::PathsD SliceOperations::generateInfillGrid(double buildPlateWidth, double buildPlateDepth, double spacing)
 {
     Clipper2Lib::PathsD grid;
 	bool traversed = false;
-    for (double x = 0; x <= buildPlateWidth; x += infillDensity) {
+    for (double x = 0; x <= buildPlateWidth; x += spacing) {
         Clipper2Lib::PathD verticalLine;
         if (traversed) {
             verticalLine.push_back(Clipper2Lib::PointD(x, buildPlateDepth));
@@ -180,7 +184,7 @@ Clipper2Lib::PathsD SliceOperations::generateInfillGrid(double buildPlateWidth, 
         }
         grid.push_back(verticalLine);
     }
-    for (double y = 0; y <= buildPlateDepth; y += infillDensity) {
+    for (double y = 0; y <= buildPlateDepth; y += spacing) {
         Clipper2Lib::PathD horizontalLine;
         if (traversed) {
             horizontalLine.push_back(Clipper2Lib::PointD(0.0, y));

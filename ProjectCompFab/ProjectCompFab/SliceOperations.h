@@ -8,7 +8,7 @@ private:
 	std::vector<Clipper2Lib::PathsD> mostInnerShells;
 	std::vector<Clipper2Lib::PathsD> allFloorRegions;
 	std::vector<Clipper2Lib::PathsD> allRoofRegions;
-	Clipper2Lib::PathsD generateInfillGrid(double buildPlateWidth, double buildPlateDepth, double infillDensity);
+	Clipper2Lib::PathsD generateInfillGrid(double buildPlateWidth, double buildPlateDepth, double spacing);
 	Clipper2Lib::PathsD generateInfillVertical(double buildPlateWidth, double buildPlateDepth, double infillDensity);
 	std::vector<Clipper2Lib::PathsD> calcRoofsAndFloorRegions(int baseFloorAmount, std::vector<Clipper2Lib::PathsD> perimeter, bool isFloor);
 	std::vector<Clipper2Lib::PathsD> calcRoofRegions(int baseRoofAmount, std::vector<Clipper2Lib::PathsD> perimeter);

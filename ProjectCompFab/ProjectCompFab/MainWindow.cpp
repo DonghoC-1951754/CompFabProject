@@ -243,7 +243,7 @@ void MainWindow::createSlicingParameterWidgets()
     labels.push_back(new QLabel(QString("Layer height").arg(1)));
     labels.push_back(new QLabel(QString("Number of shells").arg(2)));
     labels.push_back(new QLabel(QString("Nozzle diameter").arg(3)));
-    labels.push_back(new QLabel(QString("Infill density").arg(4)));
+    labels.push_back(new QLabel(QString("Infill density (%)").arg(4)));
     labels.push_back(new QLabel(QString("Enable supports").arg(5)));
     labels.push_back(new QLabel(QString("Floor amount").arg(6)));
     labels.push_back(new QLabel(QString("Roof amount").arg(7)));
@@ -273,10 +273,10 @@ void MainWindow::createSlicingParameterWidgets()
     slicingParameterInputBoxes[2]->setValue(0.4);
 
 	// Infill density controls
-	slicingParameterInputBoxes[3]->setDecimals(2);
-	slicingParameterInputBoxes[3]->setValue(2.0);
-	slicingParameterInputBoxes[3]->setRange(0.2, 100.0);
-	slicingParameterInputBoxes[3]->setSingleStep(0.2);
+	slicingParameterInputBoxes[3]->setDecimals(1);
+	slicingParameterInputBoxes[3]->setValue(20.0);
+	slicingParameterInputBoxes[3]->setRange(0.0, 100.0);
+	slicingParameterInputBoxes[3]->setSingleStep(1);
 
     // Floor controls
 	slicingParameterInputBoxes[5]->setDecimals(0);
