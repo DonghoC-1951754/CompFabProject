@@ -184,7 +184,7 @@ void SliceRenderView::setSliceRoofInfill(std::vector<Clipper2Lib::PathsD> roofs)
 			for (const auto& point : line) {
 				tempLine.push_back(glm::vec2(point.x, point.y));
 			}
-			floorInfill2D.push_back(tempLine);
+			roofInfill2D.push_back(tempLine);
 		}
 	}
 	update();
