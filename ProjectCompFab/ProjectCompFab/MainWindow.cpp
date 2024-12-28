@@ -108,10 +108,11 @@ void MainWindow::showColorGuide() {
     QMessageBox colorGuideBox;
     colorGuideBox.setWindowTitle("Color Guide");
     colorGuideBox.setText(
-        "<p><span style='color:rgb(255, 255, 255);'>Black:</span> Polygons</p>"
+        "<p><span style='color:rgb(255, 255, 255);'>Black:</span> Perimeters</p>"
         "<p><span style='color:rgb(0, 255, 0);'>Green:</span> Shells</p>"
         "<p><span style='color:rgb(0, 0, 255);'>Blue:</span> Infill</p>"
-        "<p><span style='color:rgb(255, 0, 0);'>Red:</span> Floors and Roofs</p>"
+        "<p><span style='color:rgb(255, 0, 0);'>Red:</span> Floors</p>"
+        "<p><span style='color:rgb(255, 0, 255);'>Purple:</span> Roofs</p>"
         "<p><span style='color:rgb(128, 204, 255);'>Light Blue:</span> Support Perimeters and Support Infill</p>"
     );
     colorGuideBox.setIcon(QMessageBox::Information);
