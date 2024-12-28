@@ -44,12 +44,24 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     gcodeButton = new QPushButton("Create GCode", sidePanel);
 	gcodeButton->setDisabled(true);
+    
+    QHBoxLayout* sliceWindowHeaderLayout = new QHBoxLayout();
+    QLabel* sliceWindowLabel = new QLabel("Slice Window", sidePanel);
+    QPushButton* colorGuideButton = new QPushButton("Color Guide", sidePanel);
 
+    // Add the label and button to the horizontal layout
+    sliceWindowHeaderLayout->addWidget(sliceWindowLabel);
+    sliceWindowHeaderLayout->addWidget(colorGuideButton);
+
+    
+    
     connect(slicerHeightInputBox, &QDoubleSpinBox::valueChanged, this, &MainWindow::changeSlicerHeight);
 	connect(sliceButton, &QPushButton::clicked, this, &MainWindow::sliceModel);
 	connect(loadButton, &QPushButton::clicked, this, &MainWindow::openLoadModelDialog);
 	connect(gcodeButton, &QPushButton::clicked, this, &MainWindow::openGCodeDialog);
 	connect(slicingParameterInputBoxes[2], &QDoubleSpinBox::valueChanged, this, &MainWindow::limitInfillDensity);
+    connect(colorGuideButton, &QPushButton::clicked, this, &MainWindow::showColorGuide);
+
     // Add widgets to the panel layout
     panelLayout->addWidget(label);
     panelLayout->addWidget(loadButton);
@@ -61,6 +73,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 	panelLayout->addWidget(gcodeButton);
     panelLayout->addWidget(gridWidget);
     panelLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    panelLayout->addLayout(sliceWindowHeaderLayout);
 	panelLayout->addWidget(sliceWindow, Qt::AlignBottom);
 
     splitter->addWidget(widget);
@@ -90,6 +103,21 @@ void MainWindow::changeSlicerHeight(double height) {
 		drawCompleteSlice(stepNumber);
 	}
 }
+
+void MainWindow::showColorGuide() {
+    QMessageBox colorGuideBox;
+    colorGuideBox.setWindowTitle("Color Guide");
+    colorGuideBox.setText(
+        "<p><span style='color:rgb(255, 255, 255);'>Black:</span> Polygons</p>"
+        "<p><span style='color:rgb(0, 255, 0);'>Green:</span> Shells</p>"
+        "<p><span style='color:rgb(0, 0, 255);'>Blue:</span> Infill</p>"
+        "<p><span style='color:rgb(255, 0, 0);'>Red:</span> Floors and Roofs</p>"
+        "<p><span style='color:rgb(128, 204, 255);'>Light Blue:</span> Support Perimeters and Support Infill</p>"
+    );
+    colorGuideBox.setIcon(QMessageBox::Information);
+    colorGuideBox.exec();
+}
+
 
 MainWindow::~MainWindow() {
 	delete widget;

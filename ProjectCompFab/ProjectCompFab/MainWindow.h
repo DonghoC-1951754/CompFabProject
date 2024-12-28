@@ -37,6 +37,7 @@ private slots:
 	void generateGcode();
 	void limitInfillDensity();
 	void updateSpeedLabel();
+	void showColorGuide();
 private:
 	ObjectRenderView* widget;
 	QSlider* slider;

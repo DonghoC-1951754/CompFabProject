@@ -35,7 +35,7 @@ void SliceRenderView::paintGL() {
 
 	for (const auto& polygon : polygons2D) {
 		glBegin(GL_LINE_STRIP);
-		glColor3f(1.0f, 0.0f, 0.5f);
+		glColor3f(0.0f, 0.0f, 0.0f); // Black
 		for (const auto& vertex : polygon) {
 			glVertex2f(vertex.x, vertex.y);
 		}
@@ -44,7 +44,7 @@ void SliceRenderView::paintGL() {
 	}
 	for (const auto& line : shells2D) {
 		glBegin(GL_LINE_STRIP);
-		glColor3f(0.4f, 1.0f, 0.0f);
+		glColor3f(0.0f, 1.0f, 0.0f); //Green
 		for (const auto& vertex : line) {
 			glVertex2f(vertex.x, vertex.y);
 		}
@@ -53,7 +53,7 @@ void SliceRenderView::paintGL() {
 	}
 	for (const auto& line : infill2D) {
 		glBegin(GL_LINE_STRIP);
-		glColor3f(0.0f, 0.2f, 1.0f);
+		glColor3f(0.0f, 0.0f, 1.0f); // Blue
 		for (const auto& vertex : line) {
 			glVertex2f(vertex.x, vertex.y);
 		}
@@ -62,7 +62,7 @@ void SliceRenderView::paintGL() {
 	}
 	for (const auto& line : floorInfill2D) {
 		glBegin(GL_LINE_STRIP);
-		glColor3f(0.8f, 0.4f, 0.0f);
+		glColor3f(1.0f, 0.0f, 0.0f); //Red
 		for (const auto& vertex : line) {
 			glVertex2f(vertex.x, vertex.y);
 		}
@@ -71,7 +71,7 @@ void SliceRenderView::paintGL() {
 	}
 	for (const auto& line : roofInfill2D) {
 		glBegin(GL_LINE_STRIP);
-		glColor3f(1.0f, 0.6f, 0.0f);
+		glColor3f(1.0f, 0.0f, 0.0f); //Red
 		for (const auto& vertex : line) {
 			glVertex2f(vertex.x, vertex.y);
 		}
@@ -80,7 +80,7 @@ void SliceRenderView::paintGL() {
 	}
 	for (const auto& line : basicSupportPerimeters2D) {
 		glBegin(GL_LINE_STRIP);
-		glColor3f(0.0f, 1.0f, 0.0f);
+		glColor3f(0.5f, 0.8f, 1.0f);//light blue
 		for (const auto& vertex : line) {
 			glVertex2f(vertex.x, vertex.y);
 		}
@@ -89,7 +89,7 @@ void SliceRenderView::paintGL() {
 	}
 	for (const auto& line : basicSupportInfill2D) {
 		glBegin(GL_LINE_STRIP);
-		glColor3f(0.0f, 1.0f, 0.0f);
+		glColor3f(0.5f, 0.8f, 1.0f);//light blue
 		for (const auto& vertex : line) {
 			glVertex2f(vertex.x, vertex.y);
 		}
