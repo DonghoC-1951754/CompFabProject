@@ -18,20 +18,15 @@ std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::addShells(const s
 {
     mostInnerShells.clear();
     std::vector<std::vector<Clipper2Lib::PathsD>> shelledSlices;
-    double stepSize = -nozzleDiameter;
     for (auto slice : slices) {
         std::vector<Clipper2Lib::PathsD> shells;
         Clipper2Lib::PathsD shell = slice;
         for (int i = 0; i < shellAmount; i++) {
-            Clipper2Lib::PathsD currentShell;
-            shell = Clipper2Lib::InflatePaths(shell, stepSize, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
-            for (auto path : shell) {
-                currentShell.push_back(path);
-            }
+            shell = Clipper2Lib::InflatePaths(shell, -nozzleDiameter, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon);
             if (i == shellAmount - 1) {
                 mostInnerShells.push_back(shell);
             }
-            shells.push_back(currentShell);
+            shells.push_back(shell);
         }
         shelledSlices.push_back(shells);
     }
