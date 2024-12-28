@@ -187,6 +187,7 @@ void MainWindow::openGCodeDialog() {
     nozzleTempLabel = new QLabel("Nozzle Temperature:");
     speedMultiplierLabel = new QLabel("Speed Multiplier (F2200):");
 	retractionLabel = new QLabel("Enable Retraction:");
+	primeLabel = new QLabel("Enable Prime:");
 
     // Printbed temperature input
     printbedTempInput = new QDoubleSpinBox(gcodeDialog);
@@ -218,6 +219,11 @@ void MainWindow::openGCodeDialog() {
 	enableRetraction->setChecked(true);
 	formLayout->addRow(retractionLabel, enableRetraction);
 
+	// Prime checkbox
+	enablePrime = new QCheckBox(gcodeDialog);
+	enablePrime->setChecked(true);
+	formLayout->addRow(primeLabel, enablePrime);
+
     dialogLayout->addLayout(formLayout);
 
     // Add "Generate" and "Cancel" buttons
@@ -242,6 +248,7 @@ void MainWindow::openGCodeDialog() {
         nozzleTemp = nozzleTempInput->value();
         speedMultiplier = speedMultiplierInput->value();
 		retractionToggle = enableRetraction->isChecked();
+		primeToggle = enablePrime->isChecked();
 
         // Call GCode generation function
         generateGcode();
@@ -525,7 +532,7 @@ void MainWindow::generateGcode()
 
     gcodeCreator = new GcodeCreator(maxXDistance, maxYDistance, sliceAmount, slicingParameterInputBoxes[7]->value(),
         printBedTemp, nozzleTemp, slicingParameterInputBoxes[2]->value(), speedMultiplier,
-		widget->getSlicer()->getLayerHeight(), true, enableSupport->isChecked(), retractionToggle,
+		widget->getSlicer()->getLayerHeight(), primeToggle, enableSupport->isChecked(), retractionToggle,
         erodedSlices, shells, infill, floors, roofs, erodedSupportPerimeter, supportInfill);
 
     gcodeCreator->generateGCode(gCodeFileName.toStdString());

@@ -44,7 +44,7 @@ private:
 	std::vector<Clipper2Lib::PathsD> supportInfill;
 
 	double calculateExtrusionLength(double prevX, double prevY, double currentX, double currentY, double factor = 1.0);
-	void writeInitializationGCode(std::ofstream& gcodeFile);
+	void writeInitializationGCode(std::ofstream& gcodeFile, const std::string& filename);
 
 	void writePolygonGCode(bool& firstPolygon, bool& firstPoint, double& E, std::ofstream& gcodeFile, const Clipper2Lib::PathD& polygon);
 
