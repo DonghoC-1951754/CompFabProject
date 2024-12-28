@@ -71,7 +71,7 @@ void SliceRenderView::paintGL() {
 	}
 	for (const auto& line : roofInfill2D) {
 		glBegin(GL_LINE_STRIP);
-		glColor3f(1.0f, 0.0f, 0.0f); //Red
+		glColor3f(1.0f, 0.0f, 1.0f);//Purple
 		for (const auto& vertex : line) {
 			glVertex2f(vertex.x, vertex.y);
 		}
