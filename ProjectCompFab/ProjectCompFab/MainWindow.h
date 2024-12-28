@@ -99,15 +99,19 @@ private:
 	QDoubleSpinBox* printbedTempInput;
 	QDoubleSpinBox* nozzleTempInput;
 	QDoubleSpinBox* speedMultiplierInput;
+	QCheckBox* enableRetraction;
+
 
 	QLabel* printbedTempLabel;
 	QLabel* nozzleTempLabel;
 	QLabel* speedMultiplierLabel;
+	QLabel* retractionLabel;
 
 	QString gCodeFileName;
 	float speedMultiplier;
 	float printBedTemp;
 	float nozzleTemp;
+	bool retractionToggle;
 
 };
 

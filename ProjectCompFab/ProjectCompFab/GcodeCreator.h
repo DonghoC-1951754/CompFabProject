@@ -8,23 +8,48 @@
 class GcodeCreator
 {
 public:
-	GcodeCreator();
-	void generateGCode(const double maxXDist, const double maxYDist, const int sliceAmount, const std::vector<Clipper2Lib::PathsD> erodedSlices,
-		const std::vector<std::vector<Clipper2Lib::PathsD>> shells, const std::vector<Clipper2Lib::PathsD> infill, const std::vector<std::vector<Clipper2Lib::PathsD>> floors,
-		const std::vector<std::vector<Clipper2Lib::PathsD>> roofs, const std::vector<Clipper2Lib::PathsD> erodedSupportPerimeter,
-		const std::vector<Clipper2Lib::PathsD> supportInfill,
-		const std::string& filename, double layerHeight, double filamentDiameter, double bedTemp, double nozzleTemp, double nozzleDiameter, float speedMultiplier, bool prime, bool supportToggle);
+	GcodeCreator(double maxXDistance, double maxYDistance, int sliceAmount, double filamentDiameter,
+		double bedTemp, double nozzleTemp, double nozzleDiameter, float speedMultiplier,
+		double layerHeight, bool prime, bool supportToggle, bool retractionToggle,
+		const std::vector<Clipper2Lib::PathsD>& erodedSlices,
+		const std::vector<std::vector<Clipper2Lib::PathsD>>& shells,
+		const std::vector<Clipper2Lib::PathsD>& infill,
+		const std::vector<std::vector<Clipper2Lib::PathsD>>& floors,
+		const std::vector<std::vector<Clipper2Lib::PathsD>>& roofs,
+		const std::vector<Clipper2Lib::PathsD>& erodedSupportPerimeter,
+		const std::vector<Clipper2Lib::PathsD>& supportInfill);
+	void generateGCode(const std::string& filename);
 private:
-	double calculateExtrusionLength(double prevX, double prevY, double currentX, double currentY, double filamentDiameter, double layerHeight, double nozzleDiameter, double factor = 1.0);
-	void writeInitializationGCode(std::ofstream& gcodeFile, double bedTemp, double nozzleTemp, double layerHeight, bool prime);
-	void writePolygonGCode(bool& firstPolygon, bool& firstPoint, double& E, double retractionDistance, std::ofstream& gcodeFile,
-		const Clipper2Lib::PathD& polygon, double filamentDiameter, double layerHeight, double nozzleDiameter);
-	void writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoint, double& E, double retractionDistance, std::ofstream& gcodeFile,
-		double filamentDiameter, double layerHeight, double nozzleDiameter, const std::vector<Clipper2Lib::PathsD>& erodedSlices,
-		const std::vector<std::vector<Clipper2Lib::PathsD>>& shells, const std::vector<Clipper2Lib::PathsD>& infill, const std::vector<std::vector<Clipper2Lib::PathsD>> floors,
-		const std::vector<std::vector<Clipper2Lib::PathsD>> roofs, const std::vector<Clipper2Lib::PathsD> erodedSupportPerimeter, const std::vector<Clipper2Lib::PathsD> supportInfill, bool supportToggle);
-	
-	double maxXDistance;
-	double maxYDistance;
+	// Configuration parameters, moved to private members for easier management
+	double maxXDist;
+	double maxYDist;
+	double layerHeight;
+	double filamentDiameter;
+	double bedTemp;
+	double nozzleTemp;
+	double nozzleDiameter;
+	double retractionDistance = 7.5;
 	float printSpeed;
+	int sliceAmount;
+	bool prime;
+	bool supportToggle;
+	bool retractionToggle;
+
+	std::vector<Clipper2Lib::PathsD> erodedSlices;
+	std::vector<std::vector<Clipper2Lib::PathsD>> shells;
+	std::vector<Clipper2Lib::PathsD> infill;
+	std::vector<std::vector<Clipper2Lib::PathsD>> floors;
+	std::vector<std::vector<Clipper2Lib::PathsD>> roofs;
+	std::vector<Clipper2Lib::PathsD> erodedSupportPerimeter;
+	std::vector<Clipper2Lib::PathsD> supportInfill;
+
+	double calculateExtrusionLength(double prevX, double prevY, double currentX, double currentY, double factor = 1.0);
+	void writeInitializationGCode(std::ofstream& gcodeFile);
+
+	void writePolygonGCode(bool& firstPolygon, bool& firstPoint, double& E, std::ofstream& gcodeFile, const Clipper2Lib::PathD& polygon);
+
+	void writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoint, double& E, std::ofstream& gcodeFile);
+
+	void retractionStep(double& E, std::ofstream& gcodeFile, Clipper2Lib::PointD nextPoint);
+
 };
