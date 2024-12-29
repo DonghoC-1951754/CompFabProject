@@ -53,10 +53,9 @@ void GcodeCreator::generateGCode(const std::string& filename) {
 
     double E = 0.0;
     bool firstPolygon = true;
-    bool firstPoint = true;
 
     for (int slice = 0; slice < sliceAmount; slice++) {
-        writeSliceGCode(slice, firstPolygon, firstPoint, E, gcodeFile);
+        writeSliceGCode(slice, firstPolygon, E, gcodeFile);
     }
 
     E -= retractionDistance;
@@ -73,21 +72,21 @@ void GcodeCreator::generateGCode(const std::string& filename) {
     gcodeFile.close();
 }
 
-void GcodeCreator::writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoint, double& E, std::ofstream& gcodeFile) {
+void GcodeCreator::writeSliceGCode(int slice, bool& firstPolygon, double& E, std::ofstream& gcodeFile) {
     gcodeFile << "; Slice " << slice << "\n";
     gcodeFile << "G0 Z" << (layerHeight * (slice + 1)) << "\n"; // Move to the current layer
 
     gcodeFile << "; Perimeter" << "\n";
     //ERODED SLICES
     for (const auto& polygon : erodedSlices[slice]) {
-        writePolygonGCode(firstPolygon, firstPoint, E, gcodeFile, polygon);
+        writePolygonGCode(firstPolygon, E, gcodeFile, polygon);
     }
 
     gcodeFile << "; Shells" << "\n";
     //SHELLS
     for (const auto& setOfShells : shells[slice]) {
         for (const auto& shell : setOfShells) {
-            writePolygonGCode(firstPolygon, firstPoint, E, gcodeFile, shell);
+            writePolygonGCode(firstPolygon, E, gcodeFile, shell);
         }
     }
 
@@ -95,7 +94,7 @@ void GcodeCreator::writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoi
     //FLOORS
     for (const auto& setOfFloors : floors[slice]) {
         for (const auto& floor : setOfFloors) {
-            writePolygonGCode(firstPolygon, firstPoint, E, gcodeFile, floor);
+            writePolygonGCode(firstPolygon, E, gcodeFile, floor);
         }
     }
 
@@ -103,24 +102,14 @@ void GcodeCreator::writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoi
     //ROOFS
     for (const auto& setOfRoofs : roofs[slice]) {
         for (const auto& roof : setOfRoofs) {
-            writePolygonGCode(firstPolygon, firstPoint, E, gcodeFile, roof);
+            writePolygonGCode(firstPolygon, E, gcodeFile, roof);
         }
     }
 
     gcodeFile << "; Infill" << "\n";
     //INFILL
     for (const auto& line : infill[slice]) {
-		if (retractionToggle) {
-            E -= retractionDistance;
-            gcodeFile << "G1 E" << E << " F6000\n";
-		}
-        gcodeFile << "G0 X" << line[0].x << " Y" << line[0].y << "\n";
-        if (retractionToggle) {
-            E += retractionDistance;
-        }
-        gcodeFile << "G1 E" << E << " F" << printSpeed << "\n"; // Restore filament dynamically
-        E += calculateExtrusionLength(line[0].x, line[0].y, line[1].x, line[1].y);
-        gcodeFile << "G1 X" << line[1].x << " Y" << line[1].y << " E" << E << "\n";
+		writeInfillGCode(E, gcodeFile, line);
     }
 
     if (supportToggle) {
@@ -128,7 +117,7 @@ void GcodeCreator::writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoi
         //SUPPORT PERIMETER
         if (!erodedSupportPerimeter[slice].empty()) {
             for (const auto& supportPolygon : erodedSupportPerimeter[slice]) {
-                writePolygonGCode(firstPolygon, firstPoint, E, gcodeFile, supportPolygon);
+                writePolygonGCode(firstPolygon, E, gcodeFile, supportPolygon);
             }
         }
 
@@ -136,17 +125,7 @@ void GcodeCreator::writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoi
         //SUPPORT INFILL
         if (!supportInfill[slice].empty()) {
             for (const auto& supportLine : supportInfill[slice]) {
-				if (retractionToggle) {
-                    E -= retractionDistance;
-                    gcodeFile << "G1 E" << E << " F6000\n";
-				}
-                gcodeFile << "G0 X" << supportLine[0].x << " Y" << supportLine[0].y << "\n";
-                if (retractionToggle) {
-                    E += retractionDistance;
-                }
-                gcodeFile << "G1 E" << E << " F" << printSpeed << "\n"; // Restore filament dynamically
-                E += calculateExtrusionLength(supportLine[0].x, supportLine[0].y, supportLine[1].x, supportLine[1].y);
-                gcodeFile << "G1 X" << supportLine[1].x << " Y" << supportLine[1].y << " E" << E << "\n";
+				writeInfillGCode(E, gcodeFile, supportLine);
             }
         }
     }
@@ -154,17 +133,31 @@ void GcodeCreator::writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoi
 
 }
 
-void GcodeCreator::writePolygonGCode(bool& firstPolygon, bool& firstPoint, double& E, std::ofstream& gcodeFile, const Clipper2Lib::PathD& polygon) {
+void GcodeCreator::writeInfillGCode(double& E, std::ofstream& gcodeFile, const Clipper2Lib::PathD& line) {
+    if (retractionToggle) {
+        E -= (retractionDistance + infillRetractionExtra);
+        gcodeFile << "G1 E" << E << " F6000\n";
+    }
+    gcodeFile << "G0 X" << line[0].x << " Y" << line[0].y << "\n";
+    if (retractionToggle) {
+        E += (retractionDistance + infillRetractionExtra);
+        gcodeFile << "G1 E" << E << " F" << printSpeed << "\n"; // Restore filament dynamically
+    }
+    E += calculateExtrusionLength(line[0].x, line[0].y, line[1].x, line[1].y);
+    gcodeFile << "G1 X" << line[1].x << " Y" << line[1].y << " E" << E << "\n";
+}
+
+void GcodeCreator::writePolygonGCode(bool& firstPolygon, double& E, std::ofstream& gcodeFile, const Clipper2Lib::PathD& polygon) {
     if (!firstPolygon) {
         if (retractionToggle) {
             retractionStep(E, gcodeFile, polygon[0]);
         }
     }
+    firstPolygon = false; 
 
-    firstPolygon = false; // After the first polygon
     gcodeFile << "G1 F" << printSpeed << "\n"; // Set feed rate
     double prevX = polygon[0].x, prevY = polygon[0].y;
-    firstPoint = true; // To check if it's the first point in the polygon
+    bool firstPoint = true; // To check if it's the first point in the polygon
     double prevE = 0;
     for (const auto& point : polygon) {
         if (!firstPoint) {

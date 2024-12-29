@@ -29,6 +29,7 @@ private:
 	double nozzleTemp;
 	double nozzleDiameter;
 	double retractionDistance = 7.5;
+	double infillRetractionExtra = 2.5;
 	float printSpeed;
 	int sliceAmount;
 	bool prime;
@@ -45,10 +46,11 @@ private:
 
 	double calculateExtrusionLength(double prevX, double prevY, double currentX, double currentY, double factor = 1.0);
 	void writeInitializationGCode(std::ofstream& gcodeFile, const std::string& filename);
+	void writeInfillGCode(double& E, std::ofstream& gcodeFile, const Clipper2Lib::PathD& line);
 
-	void writePolygonGCode(bool& firstPolygon, bool& firstPoint, double& E, std::ofstream& gcodeFile, const Clipper2Lib::PathD& polygon);
+	void writePolygonGCode(bool& firstPolygon, double& E, std::ofstream& gcodeFile, const Clipper2Lib::PathD& polygon);
 
-	void writeSliceGCode(int slice, bool& firstPolygon, bool& firstPoint, double& E, std::ofstream& gcodeFile);
+	void writeSliceGCode(int slice, bool& firstPolygon, double& E, std::ofstream& gcodeFile);
 
 	void retractionStep(double& E, std::ofstream& gcodeFile, Clipper2Lib::PointD nextPoint);
 
