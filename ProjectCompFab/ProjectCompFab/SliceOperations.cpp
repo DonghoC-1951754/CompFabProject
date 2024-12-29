@@ -22,7 +22,7 @@ std::vector<std::vector<Clipper2Lib::PathsD>> SliceOperations::addShells(const s
         std::vector<Clipper2Lib::PathsD> shells;
         Clipper2Lib::PathsD shell = slice;
         for (int i = 0; i < shellAmount; i++) {
-            shell = Clipper2Lib::InflatePaths(shell, -0.6, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon);
+            shell = Clipper2Lib::InflatePaths(shell, -nozzleDiameter, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon);
             if (i == shellAmount - 1) {
                 mostInnerShells.push_back(shell);
             }
