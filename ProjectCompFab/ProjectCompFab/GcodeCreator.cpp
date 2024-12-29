@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <qmath.h>
 #include <QDebug>
+#include <filesystem>
 
 
 GcodeCreator::GcodeCreator(double maxXDistance, double maxYDistance, int sliceAmount, double filamentDiameter,
@@ -41,7 +42,16 @@ GcodeCreator::GcodeCreator(double maxXDistance, double maxYDistance, int sliceAm
 
 
 void GcodeCreator::generateGCode(const std::string& filename) {
-    std::ofstream gcodeFile("./gcode/" + filename + ".gcode");
+    const std::string directory = "./gcode";
+    if (!std::filesystem::exists(directory)) {
+        if (!std::filesystem::create_directory(directory)) {
+            std::cerr << "Failed to create the /gcode directory.\n";
+            return;
+        }
+    }
+
+    // Open the file for writing
+    std::ofstream gcodeFile(directory + "/" + filename + ".gcode");
     gcodeFile << std::fixed << std::setprecision(8);
 
     if (!gcodeFile.is_open()) {
