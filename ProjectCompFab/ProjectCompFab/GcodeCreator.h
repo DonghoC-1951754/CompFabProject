@@ -29,7 +29,6 @@ private:
 	double nozzleTemp;
 	double nozzleDiameter;
 	double retractionDistance = 7.5;
-	double infillRetractionExtra = 2.5;
 	float printSpeed;
 	int sliceAmount;
 	bool prime;

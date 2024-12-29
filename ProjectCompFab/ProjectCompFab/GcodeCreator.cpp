@@ -135,12 +135,12 @@ void GcodeCreator::writeSliceGCode(int slice, bool& firstPolygon, double& E, std
 
 void GcodeCreator::writeInfillGCode(double& E, std::ofstream& gcodeFile, const Clipper2Lib::PathD& line) {
     if (retractionToggle) {
-        E -= (retractionDistance + infillRetractionExtra);
+        E -= retractionDistance;
         gcodeFile << "G1 E" << E << " F6000\n";
     }
     gcodeFile << "G0 X" << line[0].x << " Y" << line[0].y << "\n";
     if (retractionToggle) {
-        E += (retractionDistance + infillRetractionExtra);
+        E += retractionDistance;
         gcodeFile << "G1 E" << E << " F" << printSpeed << "\n"; // Restore filament dynamically
     }
     E += calculateExtrusionLength(line[0].x, line[0].y, line[1].x, line[1].y);
