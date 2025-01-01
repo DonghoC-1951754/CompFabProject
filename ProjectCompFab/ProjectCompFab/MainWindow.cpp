@@ -351,10 +351,11 @@ void MainWindow::createBedDimensions() {
 
     bedDimensionsLayout = new QHBoxLayout();
 
-    bedWidthInput = new QLineEdit(sidePanel);
-    bedWidthInput->setPlaceholderText("Width");
-    bedWidthInput->setText("180.0");
-    bedWidthInput->setValidator(new QDoubleValidator(0.0, 1000.0, 2, sidePanel));
+    bedWidthInput = new QDoubleSpinBox(sidePanel);
+    bedWidthInput->setDecimals(0);
+    bedWidthInput->setRange(50, 1000);
+    bedWidthInput->setSingleStep(1);
+    bedWidthInput->setValue(180);
     bedWidthInput->setMinimumWidth(80);
     bedDimensionsLayout->addWidget(bedWidthInput);
 
@@ -364,10 +365,11 @@ void MainWindow::createBedDimensions() {
     xLabel = new QLabel("x", sidePanel);
     bedDimensionsLayout->addWidget(xLabel);
 
-    bedDepthInput = new QLineEdit(sidePanel);
-    bedDepthInput->setPlaceholderText("Depth");
-    bedDepthInput->setText("180.0");
-    bedDepthInput->setValidator(new QDoubleValidator(0.0, 1000.0, 2, sidePanel));
+    bedDepthInput = new QDoubleSpinBox(sidePanel);
+    bedDepthInput->setDecimals(0);
+    bedDepthInput->setRange(50, 1000);
+    bedDepthInput->setSingleStep(1);
+    bedDepthInput->setValue(180);
     bedDepthInput->setMinimumWidth(80);
     bedDimensionsLayout->addWidget(bedDepthInput);
 
@@ -379,8 +381,10 @@ void MainWindow::createBedDimensions() {
     setDimLayout->addWidget(setDimButton);
     connect(setDimButton, &QPushButton::clicked, this, &MainWindow::setBedDimensions);
     connect(setDimButton, &QPushButton::clicked, this, &MainWindow::updateBedText);
-    connect(bedWidthInput, &QLineEdit::textChanged, this, &MainWindow::updateBedText);
-    connect(bedDepthInput, &QLineEdit::textChanged, this, &MainWindow::updateBedText);
+    connect(bedWidthInput, &QDoubleSpinBox::textChanged, this, &MainWindow::updateBedText);
+    connect(bedDepthInput, &QDoubleSpinBox::textChanged, this, &MainWindow::updateBedText);
+
+
 
     depthUnitLabel = new QLabel("mm", sidePanel);
     bedDimensionsLayout->addWidget(depthUnitLabel);
@@ -390,6 +394,7 @@ void MainWindow::createBedDimensions() {
 
     panelLayout->addLayout(bedDimensionsMainLayout);
 }
+
 
 void MainWindow::createSlicerHeightInput()
 {

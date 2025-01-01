@@ -82,10 +82,10 @@ private:
 	QVBoxLayout* bedDimensionsMainLayout;
 	QLabel* bedLabel;
 	QHBoxLayout* bedDimensionsLayout;
-	QLineEdit* bedWidthInput;
+	QDoubleSpinBox* bedWidthInput;
 	QLabel* widthUnitLabel;
 	QLabel* xLabel;
-	QLineEdit* bedDepthInput;
+	QDoubleSpinBox* bedDepthInput;
 	QLabel* depthUnitLabel;
 	QHBoxLayout* setDimLayout;
 	QPushButton* setDimButton;
