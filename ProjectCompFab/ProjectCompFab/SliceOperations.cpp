@@ -7,7 +7,7 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::erodeSlicesForGCode(const std:
     std::vector<Clipper2Lib::PathsD> erodedSlices;
     double offsetValue = -nozzleDiameter / 2;
     for (auto slice : slices) {
-        Clipper2Lib::PathsD erodedPaths = Clipper2Lib::InflatePaths(slice, offsetValue, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
+        Clipper2Lib::PathsD erodedPaths = Clipper2Lib::InflatePaths(slice, offsetValue, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon);
         erodedSlices.push_back(erodedPaths);
     }
 

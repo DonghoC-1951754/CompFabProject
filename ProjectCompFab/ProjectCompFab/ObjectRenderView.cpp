@@ -1,6 +1,11 @@
 #include "ObjectRenderView.h"
 #include "ObjectLoader.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>  // For glm::perspective, glm::lookAt, etc.
+#include <glm/gtc/type_ptr.hpp>  
+
+
 
 ObjectRenderView::ObjectRenderView(QWidget* parent)
     : QOpenGLWidget(parent), cameraPos(0.0f, 10.0f, 100.0f), targetPos(90.0f, 10.0f, -90.0f), zoomFactor(1.0f)
@@ -31,102 +36,153 @@ void ObjectRenderView::loadModel(const std::string& filename) {
 
 void ObjectRenderView::resetRendering() {
     makeCurrent();
-	setupMesh();
+	//setupMesh();
     update();
 }
 
 void ObjectRenderView::initializeGL() {
+    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
     initializeOpenGLFunctions();
-    glEnable(GL_DEPTH_TEST);
+   
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
 
-    setupMesh();
-	setupSlicer();
-	setupPlate();
+    // Set light properties
+    GLfloat diffuse_light[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse_light);
 
-	// Compile the shader program
-    shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/vertex_shader.glsl");
-    shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/fragment_shader.glsl");
-    shaderProgram.link();
+    GLfloat no_light[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    glLightfv(GL_LIGHT0, GL_AMBIENT, no_light);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, no_light);
 
+    // Enable smooth shading
+    glShadeModel(GL_SMOOTH);
+
+    setupSlicer();
+    setupPlate();
 
     // Slicing plane shader
-	slicerProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/slicingPlaneVert.glsl");
-	slicerProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/slicingPlaneFrag.glsl");
-	slicerProgram.link();
+    slicerProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/slicingPlaneVert.glsl");
+    slicerProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/slicingPlaneFrag.glsl");
+    slicerProgram.link();
 
-
-	// Build plate shader
-	plateShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/printBedVert.glsl");
+    // Build plate shader
+    plateShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/printBedVert.glsl");
     plateShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/printBedFrag.glsl");
-	plateShader.link();
+    plateShader.link();
 
     
 }
 
 void ObjectRenderView::paintGL() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  // Clear buffers
 
-    // Setup model, view and projection matrices
-	QMatrix4x4 model, view, projection;
-    model.setToIdentity();
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), float(width()) / float(height()), 0.1f, 10000.0f);
+
+    glm::mat4 view = glm::lookAt(
+        glm::vec3(cameraPos.x(), cameraPos.y(), cameraPos.z()), // Camera position (eye)
+        glm::vec3(targetPos.x(), targetPos.y(), targetPos.z()), // Look-at position (center)
+        glm::vec3(0.0f, 1.0f, 0.0f)  // Up vector
+    );
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glMultMatrixf(glm::value_ptr(projection));  // Apply projection matrix
+
+    // Load the view matrix into OpenGL (camera transformations)
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glMultMatrixf(glm::value_ptr(view));  // Apply view matrix
+
+    // Apply transformations and render the model
+    glPushMatrix();
+    //glTranslatef(0.0f, 0.0f, -5.0f);  // Move model into view
+    glScalef(1.0f, 1.0f, -1.0f);
+    renderMesh();  // Replace with your actual mesh rendering code
+    glPopMatrix();
+
+    drawAxes();
+
     
 
+    QMatrix4x4 modelShader, viewShader, projectionShader;
+    modelShader.setToIdentity();
+
     // position, where looking, leave be
-    view.lookAt(cameraPos, targetPos, QVector3D(0, 1, 0));
-    projection.perspective(45.0f, float(width()) / float(height()), 0.1f, 10000.0f);
+    viewShader.lookAt(cameraPos, targetPos, QVector3D(0, 1, 0));
+    projectionShader.perspective(45.0f, float(width()) / float(height()), 0.1f, 10000.0f);
 
+    //view.lookAt(cameraPos, targetPos, QVector3D(0, 1, 0));
     plateShader.bind();
-
-    plateShader.setUniformValue("model", model);
-    plateShader.setUniformValue("view", view);
-    plateShader.setUniformValue("projection", projection);
+    plateShader.setUniformValue("model", modelShader);
+    plateShader.setUniformValue("view", viewShader);
+    plateShader.setUniformValue("projection", projectionShader);
 
     plateShader.release();
 
     drawPlate();
 
     slicerProgram.bind();
-    model.setToIdentity();
-    slicerProgram.setUniformValue("model", model);
-    slicerProgram.setUniformValue("view", view);
-    slicerProgram.setUniformValue("projection", projection);
-    drawAxes();
+    modelShader.setToIdentity();
+    slicerProgram.setUniformValue("model", modelShader);
+    slicerProgram.setUniformValue("view", viewShader);
+    slicerProgram.setUniformValue("projection", projectionShader);
     renderSlicer();
-
-    shaderProgram.bind();
-    shaderProgram.setUniformValue("model", model);
-    shaderProgram.setUniformValue("view", view);
-    shaderProgram.setUniformValue("projection", projection);
-    renderMesh();
-
-    shaderProgram.release();
-
 }
 
 void ObjectRenderView::renderMesh() {
-    QMatrix4x4 model, projection, view;
-    model.setToIdentity();
-	model.scale(1.0f, 1.0f, -1.0f);
-    view.lookAt(cameraPos, targetPos, QVector3D(0, 1, 0));
-    projection.perspective(45.0f, float(width()) / float(height()), 0.1f, 10000.0f);
 
-    shaderProgram.setUniformValue("model", model);
-    shaderProgram.setUniformValue("view", view);
-    shaderProgram.setUniformValue("projection", projection);
-    QVector3D objectColor(1.0f, 0.0f, 0.0f);  // Red color
-    shaderProgram.setUniformValue("objectColor", objectColor);
-    shaderProgram.setUniformValue("lightColor", QVector3D(1.0f, 1.0f, 1.0f));
-	shaderProgram.setUniformValue("lightPos", QVector3D(360.0f, 15.0f, -40.0f));
+    //glBegin(GL_LINES);
+    //glColor3f(0.0f, 0.0f, 1.0f); // Blue color for normals
 
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0); // Unbind VAO
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
+    auto indices = mesh->indices;
+    auto vertices = mesh->vertices;
+
+    //for (unsigned int i = 0; i < indices.size(); i++) {
+    //    const Vertex& vertex = vertices[indices[i]];
+    //    glVertex3f(vertex.getPosition().x, vertex.getPosition().y, vertex.getPosition().z);
+    //    glVertex3f(vertex.getPosition().x + vertex.getNormal().x, vertex.getPosition().y + vertex.getNormal().y, vertex.getPosition().z + vertex.getNormal().z);
+    //}
+
+    //glEnd();  // End normal lines rendering
+
+	glEnable(GL_LIGHTING);
+
+    GLfloat light_position[] = { cameraPos.x(), cameraPos.y(), -cameraPos.z(), 1.0f};
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+    // Set material properties
+    GLfloat material_diffuse[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, material_diffuse);
+
+    GLfloat no_material[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    glMaterialfv(GL_FRONT, GL_AMBIENT, no_material);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, no_material);
+
+    glBegin(GL_TRIANGLES);
+
+    for (unsigned int i = 0; i < indices.size(); i++) {
+        const Vertex& vertex = vertices[indices[i]];
+
+        // Set the normal for the lighting calculation
+        glNormal3f(vertex.getNormal().x, vertex.getNormal().y, vertex.getNormal().z);
+
+        // Set the color or material properties (you can customize these for your object)
+        glColor3f(1.0f, 0.0f, 0.0f);  // Red color for the object
+
+        // Render the vertex
+        glVertex3f(vertex.getPosition().x, vertex.getPosition().y, vertex.getPosition().z);
+    }
+
+    glEnd();  // End triangle rendering
+
+    glFlush();
+	glDisable(GL_LIGHTING);
+
 }
 
 void ObjectRenderView::renderSlicer() {
@@ -247,41 +303,9 @@ void ObjectRenderView::wheelEvent(QWheelEvent* event) {
 
 
 
-void ObjectRenderView::setupMesh() {
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO); // Generate the Element Buffer Object
-
-    glBindVertexArray(VAO);
-
-    // Bind the vertex buffer
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, mesh->vertices.size() * sizeof(Vertex), &mesh->vertices[0], GL_STATIC_DRAW);
-
-    // Bind the index buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->indices.size() * sizeof(unsigned int), &mesh->indices[0], GL_STATIC_DRAW);
-
-    // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)Vertex::offsetPosition());
-    glEnableVertexAttribArray(0);
-    // Normal attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)Vertex::offsetNormal());
-    glEnableVertexAttribArray(1);
-
-    // Texture coordinate attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TextureCoords));
-    glEnableVertexAttribArray(2);
-
-    glBindVertexArray(0);
-}
-
 void ObjectRenderView::drawAxes() {
-    // Set up a simple line shader (if not already in the shader program)
-    QMatrix4x4 model;
-    model.setToIdentity();
-
-    slicerProgram.setUniformValue("model", model);
+    // Save the current matrix state
+    glPushMatrix();
 
     // Define axis vertices
     QVector3D origin(0, 0, 0);
@@ -290,54 +314,28 @@ void ObjectRenderView::drawAxes() {
     QVector3D zAxis(0, 0, -100);
 
     // Draw X axis in red
-    slicerProgram.setUniformValue("planeColor", QVector4D(1.0f, 0.0f, 0.0f, 1.0f));  // Red color
+    glColor3f(1.0f, 0.0f, 0.0f);  // Red color for X axis
     glBegin(GL_LINES);
     glVertex3f(origin.x(), origin.y(), origin.z());
     glVertex3f(xAxis.x(), xAxis.y(), xAxis.z());
     glEnd();
 
     // Draw Y axis in green
-    slicerProgram.setUniformValue("planeColor", QVector4D(0.0f, 1.0f, 0.0f, 1.0f));  // Green color
+    glColor3f(0.0f, 1.0f, 0.0f);  // Green color for Y axis
     glBegin(GL_LINES);
     glVertex3f(origin.x(), origin.y(), origin.z());
     glVertex3f(yAxis.x(), yAxis.y(), yAxis.z());
     glEnd();
 
     // Draw Z axis in blue
-    slicerProgram.setUniformValue("planeColor", QVector4D(0.0f, 0.0f, 1.0f, 1.0f));  // Blue color
+    glColor3f(0.0f, 0.0f, 1.0f);  // Blue color for Z axis
     glBegin(GL_LINES);
     glVertex3f(origin.x(), origin.y(), origin.z());
     glVertex3f(zAxis.x(), zAxis.y(), zAxis.z());
     glEnd();
-}
 
-void ObjectRenderView::setupSlicer() {
-	slicer->setWidth(plateWidth);
-	slicer->setDepth(plateDepth);
-    //TODO update standardHeight in slicer.h
-    glGenVertexArrays(1, &VAO1);
-    glGenBuffers(1, &VBO1);
-    glGenBuffers(1, &EBO1);
-
-    glBindVertexArray(VAO1);
-    
-	auto vertices = slicer->getVertices();
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO1);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-
-    // Generate and bind the EBO
-   
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO1);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertices.size() * sizeof(int), vertices.data(), GL_STATIC_DRAW);
-
-    // Define the vertex attribute pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (GLvoid*)0); // Position
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
-    glBindVertexArray(0); // Unbind VAO
-
+    // Restore the matrix state
+    glPopMatrix();
 }
 
 
@@ -380,6 +378,35 @@ void ObjectRenderView::setupPlate() {
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+}
+
+void ObjectRenderView::setupSlicer() {
+    slicer->setWidth(plateWidth);
+    slicer->setDepth(plateDepth);
+    //TODO update standardHeight in slicer.h
+    glGenVertexArrays(1, &VAO1);
+    glGenBuffers(1, &VBO1);
+    glGenBuffers(1, &EBO1);
+
+    glBindVertexArray(VAO1);
+
+    auto vertices = slicer->getVertices();
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO1);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
+    // Generate and bind the EBO
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO1);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertices.size() * sizeof(int), vertices.data(), GL_STATIC_DRAW);
+
+    // Define the vertex attribute pointers
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (GLvoid*)0); // Position
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
+    glBindVertexArray(0); // Unbind VAO
+
 }
 
 void ObjectRenderView::drawPlate() {
