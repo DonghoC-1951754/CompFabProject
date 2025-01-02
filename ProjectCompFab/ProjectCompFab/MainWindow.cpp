@@ -185,9 +185,10 @@ void MainWindow::openGCodeDialog() {
     QFormLayout* formLayout = new QFormLayout();
     printbedTempLabel = new QLabel("Printbed Temperature:");
     nozzleTempLabel = new QLabel("Nozzle Temperature:");
-    speedMultiplierLabel = new QLabel("Speed Multiplier (F2200):");
+    speedMultiplierLabel = new QLabel("Speed Multiplier (F3000):");
 	retractionLabel = new QLabel("Enable Retraction:");
-	primeLabel = new QLabel("Enable Prime:");
+	primeLabel = new QLabel("Enable Priming:");
+	speedCalcLabel = new QLabel("Short Segment Speed Reduction:");
 
     // Printbed temperature input
     printbedTempInput = new QDoubleSpinBox(gcodeDialog);
@@ -224,6 +225,11 @@ void MainWindow::openGCodeDialog() {
 	enablePrime->setChecked(true);
 	formLayout->addRow(primeLabel, enablePrime);
 
+    // Speed reduction checkbox
+    enableSpeedCalc = new QCheckBox(gcodeDialog);
+    enableSpeedCalc->setChecked(false);
+    formLayout->addRow(speedCalcLabel, enableSpeedCalc);
+
     dialogLayout->addLayout(formLayout);
 
     // Add "Generate" and "Cancel" buttons
@@ -249,6 +255,7 @@ void MainWindow::openGCodeDialog() {
         speedMultiplier = speedMultiplierInput->value();
 		retractionToggle = enableRetraction->isChecked();
 		primeToggle = enablePrime->isChecked();
+		speedToggle = enableSpeedCalc->isChecked();
 
         // Call GCode generation function
         generateGcode();
@@ -513,7 +520,7 @@ void MainWindow::setBedDimensions() {
 
 void MainWindow::updateSpeedLabel() {
     float speed = speedMultiplierInput->value();
-    speedMultiplierLabel->setText("Speed multiplier (F" + QString::number(speed * 2200) + ")");
+    speedMultiplierLabel->setText("Speed multiplier (F" + QString::number(speed * 3000) + ")");
     qDebug() << "Speed: " << speed;
 }
 
@@ -537,7 +544,7 @@ void MainWindow::generateGcode()
 
     gcodeCreator = new GcodeCreator(maxXDistance, maxYDistance, sliceAmount, slicingParameterInputBoxes[7]->value(),
         printBedTemp, nozzleTemp, slicingParameterInputBoxes[2]->value(), speedMultiplier,
-		widget->getSlicer()->getLayerHeight(), primeToggle, enableSupport->isChecked(), retractionToggle,
+		widget->getSlicer()->getLayerHeight(), primeToggle, enableSupport->isChecked(), retractionToggle, speedToggle,
         erodedSlices, shells, infill, floors, roofs, erodedSupportPerimeter, supportInfill);
 
     gcodeCreator->generateGCode(gCodeFileName.toStdString());

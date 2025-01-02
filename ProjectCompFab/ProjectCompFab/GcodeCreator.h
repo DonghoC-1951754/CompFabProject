@@ -10,7 +10,7 @@ class GcodeCreator
 public:
 	GcodeCreator(double maxXDistance, double maxYDistance, int sliceAmount, double filamentDiameter,
 		double bedTemp, double nozzleTemp, double nozzleDiameter, float speedMultiplier,
-		double layerHeight, bool prime, bool supportToggle, bool retractionToggle,
+		double layerHeight, bool prime, bool supportToggle, bool retractionToggle, bool speedToggle,
 		const std::vector<Clipper2Lib::PathsD>& erodedSlices,
 		const std::vector<std::vector<Clipper2Lib::PathsD>>& shells,
 		const std::vector<Clipper2Lib::PathsD>& infill,
@@ -28,12 +28,15 @@ private:
 	double bedTemp;
 	double nozzleTemp;
 	double nozzleDiameter;
-	double retractionDistance = 7.5;
+	double retractionDistance;
+	double speedCalcCutoff;
 	float printSpeed;
+	float minSpeedMultiplier;
 	int sliceAmount;
 	bool prime;
 	bool supportToggle;
 	bool retractionToggle;
+	bool speedToggle;
 
 	std::vector<Clipper2Lib::PathsD> erodedSlices;
 	std::vector<std::vector<Clipper2Lib::PathsD>> shells;
@@ -53,4 +56,7 @@ private:
 
 	void retractionStep(double& E, std::ofstream& gcodeFile, Clipper2Lib::PointD nextPoint);
 
+	double calculateSegmentLength(double x1, double y1, double x2, double y2);
+
+	double calculateAdjustedSpeed(double segmentLength);
 };

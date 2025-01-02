@@ -9,8 +9,8 @@
 
 
 GcodeCreator::GcodeCreator(double maxXDistance, double maxYDistance, int sliceAmount, double filamentDiameter,
-    double bedTemp, double nozzleTemp, double nozzleDiameter, float speedMultiplier,
-    double layerHeight, bool prime, bool supportToggle, bool retractionToggle,
+	double bedTemp, double nozzleTemp, double nozzleDiameter, float speedMultiplier,
+    double layerHeight, bool prime, bool supportToggle, bool retractionToggle, bool speedToggle,
     const std::vector<Clipper2Lib::PathsD>& erodedSlices,
     const std::vector<std::vector<Clipper2Lib::PathsD>>& shells,
     const std::vector<Clipper2Lib::PathsD>& infill,
@@ -29,6 +29,7 @@ GcodeCreator::GcodeCreator(double maxXDistance, double maxYDistance, int sliceAm
     prime(prime),
     supportToggle(supportToggle),
 	retractionToggle(retractionToggle),
+	speedToggle(speedToggle),
     erodedSlices(erodedSlices),  // Initialize with passed list
     shells(shells),              // Initialize with passed 2D vector
     infill(infill),              // Initialize with passed list
@@ -36,7 +37,10 @@ GcodeCreator::GcodeCreator(double maxXDistance, double maxYDistance, int sliceAm
     roofs(roofs),                // Initialize with passed 2D vector
     erodedSupportPerimeter(erodedSupportPerimeter), // Initialize with passed list
     supportInfill(supportInfill), // Initialize with passed list
-    printSpeed(speedMultiplier * 2200.0)
+    printSpeed(speedMultiplier * 3000.0),
+	minSpeedMultiplier(0.5),
+	speedCalcCutoff(10.0),
+	retractionDistance(7.5)
 {
 }
 
@@ -149,10 +153,21 @@ void GcodeCreator::writeInfillGCode(double& E, std::ofstream& gcodeFile, const C
         gcodeFile << "G1 E" << E << " F6000\n";
     }
     gcodeFile << "G0 X" << line[0].x << " Y" << line[0].y << "\n";
+
+    double segmentLength = calculateSegmentLength(line[0].x, line[0].y, line[1].x, line[1].y);  // Calculate segment length
+    double adjustedSpeed = printSpeed;  // Default to printSpeed
+
+    if (speedToggle and segmentLength <= speedCalcCutoff) {
+        adjustedSpeed = calculateAdjustedSpeed(segmentLength);  // Adjust speed based on segment length
+    }
+
     if (retractionToggle) {
         E += retractionDistance;
-        gcodeFile << "G1 E" << E << " F" << printSpeed << "\n"; // Restore filament dynamically
+        gcodeFile << "G1 E" << E << " F" << adjustedSpeed << "\n"; // Restore filament dynamically
     }
+	else {
+		gcodeFile << "G1 F" << adjustedSpeed << "\n"; // Set feed rate
+	}
     E += calculateExtrusionLength(line[0].x, line[0].y, line[1].x, line[1].y);
     gcodeFile << "G1 X" << line[1].x << " Y" << line[1].y << " E" << E << "\n";
 }
@@ -165,23 +180,33 @@ void GcodeCreator::writePolygonGCode(bool& firstPolygon, double& E, std::ofstrea
     }
     firstPolygon = false; 
 
-    gcodeFile << "G1 F" << printSpeed << "\n"; // Set feed rate
     double prevX = polygon[0].x, prevY = polygon[0].y;
     bool firstPoint = true; // To check if it's the first point in the polygon
-    double prevE = 0;
+
     for (const auto& point : polygon) {
+        double adjustedSpeed = printSpeed;  // Default to printSpeed
         if (!firstPoint) {
             E += calculateExtrusionLength(prevX, prevY, point.x, point.y);
+            double segmentLength = calculateSegmentLength(prevX, prevY, point.x, point.y);
+            if (speedToggle and segmentLength <= speedCalcCutoff) {
+                adjustedSpeed = calculateAdjustedSpeed(segmentLength);  // Adjust speed based on segment length
+            }
         }
-        gcodeFile << "G1 X" << point.x << " Y" << point.y << " E" << E << "\n";
+        gcodeFile << "G1 X" << point.x << " Y" << point.y << " E" << E << " F" << adjustedSpeed <<"\n";
         // Update the previous point
         prevX = point.x;
         prevY = point.y;
-        prevE = E;
         firstPoint = false;
     }
+    double finalSegmentLength = calculateSegmentLength(prevX, prevY, polygon[0].x, polygon[0].y); // Last segment
+    double finalAdjustedSpeed = printSpeed;  // Default to printSpeed
+
+    if (speedToggle and finalSegmentLength <= speedCalcCutoff) {
+        finalAdjustedSpeed = calculateAdjustedSpeed(finalSegmentLength);  // Adjust speed for the final segment
+    }
+
     E += calculateExtrusionLength(prevX, prevY, polygon[0].x, polygon[0].y);
-    gcodeFile << "G1 X" << polygon[0].x << " Y" << polygon[0].y << " E" << E << "\n"; // Close the loop
+    gcodeFile << "G1 X" << polygon[0].x << " Y" << polygon[0].y << " E" << E << " F" << finalAdjustedSpeed << "\n"; // Close the loop
     gcodeFile << "G0 F6000 X" << polygon[0].x << " Y " << polygon[0].y << "\n";
 }
 
@@ -232,4 +257,22 @@ void GcodeCreator::retractionStep(double& E, std::ofstream& gcodeFile, Clipper2L
 
     E += retractionDistance;
     gcodeFile << "G1 E" << E << "\n"; // Restore filament dynamically
+}
+
+
+double GcodeCreator::calculateSegmentLength(double x1, double y1, double x2, double y2) {
+    return std::sqrt(std::pow(x2 - x1, 2) + std::pow(y2 - y1, 2));
+}
+
+double GcodeCreator::calculateAdjustedSpeed(double segmentLength) {
+    if (segmentLength > speedCalcCutoff) {
+        return printSpeed; // Full speed for long segments
+    }
+    else if (segmentLength > 0.0) {
+		double reductionFactor = minSpeedMultiplier + ((1-minSpeedMultiplier) * (segmentLength / speedCalcCutoff)); // Linear interpolation to be between minSpeedMultiplier and 1.0
+        return printSpeed * reductionFactor;
+    }
+    else {
+        return printSpeed * minSpeedMultiplier; // Minimum speed for zero or negative segment length
+    }
 }

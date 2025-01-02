@@ -101,13 +101,14 @@ private:
 	QDoubleSpinBox* speedMultiplierInput;
 	QCheckBox* enableRetraction;
 	QCheckBox* enablePrime;
-
+	QCheckBox* enableSpeedCalc;
 
 	QLabel* printbedTempLabel;
 	QLabel* nozzleTempLabel;
 	QLabel* speedMultiplierLabel;
 	QLabel* retractionLabel;
 	QLabel* primeLabel;
+	QLabel* speedCalcLabel;
 
 	QString gCodeFileName;
 	float speedMultiplier;
@@ -115,6 +116,7 @@ private:
 	float nozzleTemp;
 	bool retractionToggle;
 	bool primeToggle;
+	bool speedToggle;
 
 };
 
