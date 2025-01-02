@@ -49,6 +49,8 @@ void ObjectRenderView::initializeGL() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Set light properties
     GLfloat diffuse_light[] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -131,6 +133,8 @@ void ObjectRenderView::paintGL() {
     slicerProgram.setUniformValue("model", modelShader);
     slicerProgram.setUniformValue("view", viewShader);
     slicerProgram.setUniformValue("projection", projectionShader);
+    slicerProgram.setUniformValue("planeColor", QVector4D(0.1f, 0.0f, 0.3f, 0.5f));  // Red color
+
     renderSlicer();
 }
 
@@ -188,7 +192,6 @@ void ObjectRenderView::renderMesh() {
 void ObjectRenderView::renderSlicer() {
 	
 	slicer->setPlaneSize(plateWidth, plateDepth);
-    //TODO update standardHeight in slicer.h
     slicer->setStandardHeight(slicerHeight);
 
     QMatrix4x4 model;

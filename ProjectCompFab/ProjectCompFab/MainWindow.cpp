@@ -161,6 +161,7 @@ void MainWindow::openLoadModelDialog() {
     dialog.setDirectory("./resources");
     QString filePath = dialog.getOpenFileName(this, "Open File", "", "STL Files (*.stl)");
     if (!filePath.isEmpty()) {
+		modelFilePath = filePath.toStdString();
         loadModel(filePath.toStdString());
     }
     else {
