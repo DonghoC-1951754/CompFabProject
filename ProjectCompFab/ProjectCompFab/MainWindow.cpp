@@ -520,7 +520,7 @@ void MainWindow::setBedDimensions() {
 
 void MainWindow::updateSpeedLabel() {
     float speed = speedMultiplierInput->value();
-    speedMultiplierLabel->setText("Speed multiplier (F" + QString::number(speed * 3000) + ")");
+    speedMultiplierLabel->setText("Speed Multiplier (F" + QString::number(speed * 3000) + ")");
     qDebug() << "Speed: " << speed;
 }
 
