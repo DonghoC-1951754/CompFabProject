@@ -90,6 +90,9 @@ private:
 	QHBoxLayout* setDimLayout;
 	QPushButton* setDimButton;
 
+	double bedWidth;
+	double bedDepth;
+
 	void drawCompleteSlice(int index);
 	void calculateSlices();
 

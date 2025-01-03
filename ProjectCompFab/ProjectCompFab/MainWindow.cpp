@@ -32,7 +32,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     //slider->setTickInterval(10);
     slider->setDisabled(true);
 
-
+	bedWidth = 180;
+	bedDepth = 180;
     createObjectRenderView();
     createBedDimensions();
     createSlicerHeightInput();
@@ -512,10 +513,10 @@ void MainWindow::calculateSlices()
 }
 
 void MainWindow::setBedDimensions() {
-    double width = bedWidthInput->text().toDouble();
-    double depth = bedDepthInput->text().toDouble();
-    widget->setPlateWidth(width);
-    widget->setPlateDepth(depth);
+    bedWidth = bedWidthInput->text().toDouble();
+    bedDepth = bedDepthInput->text().toDouble();
+    widget->setPlateWidth(bedWidth);
+    widget->setPlateDepth(bedDepth);
     loadModel(modelFilePath);
 }
 
@@ -526,11 +527,11 @@ void MainWindow::updateSpeedLabel() {
 }
 
 void MainWindow::updateBedText() {
-    double width = bedWidthInput->text().toDouble();
-    double depth = bedDepthInput->text().toDouble();
+	double bedWidthCurrentInput = bedWidthInput->text().toDouble();
+	double bedDepthCurrentInput = bedDepthInput->text().toDouble();
     setDimButton->setDisabled(true);
-    setDimButton->setText("Dimensions are: " + QString::number(width) + " x " + QString::number(depth));
-    if (!(widget->getPlateWidth() == width && widget->getPlateDepth() == depth)) {
+    setDimButton->setText("Dimensions are: " + QString::number(bedWidth) + " x " + QString::number(bedDepth));
+    if (!(widget->getPlateWidth() == bedWidthCurrentInput && widget->getPlateDepth() == bedDepthCurrentInput)) {
         setDimButton->setEnabled(true);
         setDimButton->setText("Set dimensions");
     }
@@ -543,7 +544,7 @@ void MainWindow::generateGcode()
     double maxXDistance = static_cast<double>(widget->getMesh()->getMaxXDistance());
     double maxYDistance = static_cast<double>(widget->getMesh()->getMaxYDistance());
 
-    gcodeCreator = new GcodeCreator(maxXDistance, maxYDistance, sliceAmount, slicingParameterInputBoxes[7]->value(),
+    gcodeCreator = new GcodeCreator(maxXDistance, maxYDistance, bedWidth, bedDepth, sliceAmount, slicingParameterInputBoxes[7]->value(),
         printBedTemp, nozzleTemp, slicingParameterInputBoxes[2]->value(), speedMultiplier,
 		widget->getSlicer()->getLayerHeight(), primeToggle, enableSupport->isChecked(), retractionToggle, speedToggle,
         erodedSlices, shells, infill, floors, roofs, erodedSupportPerimeter, supportInfill);

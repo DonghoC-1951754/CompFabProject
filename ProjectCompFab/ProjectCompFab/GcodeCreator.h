@@ -8,7 +8,7 @@
 class GcodeCreator
 {
 public:
-	GcodeCreator(double maxXDistance, double maxYDistance, int sliceAmount, double filamentDiameter,
+	GcodeCreator(double maxXDistance, double maxYDistance, float bedWidth, float bedDepth, int sliceAmount, double filamentDiameter,
 		double bedTemp, double nozzleTemp, double nozzleDiameter, float speedMultiplier,
 		double layerHeight, bool prime, bool supportToggle, bool retractionToggle, bool speedToggle,
 		const std::vector<Clipper2Lib::PathsD>& erodedSlices,
@@ -32,6 +32,8 @@ private:
 	double speedCalcCutoff;
 	float printSpeed;
 	float minSpeedMultiplier;
+	float bedWidth;
+	float bedDepth;
 	int sliceAmount;
 	bool prime;
 	bool supportToggle;

@@ -8,7 +8,7 @@
 #include <filesystem>
 
 
-GcodeCreator::GcodeCreator(double maxXDistance, double maxYDistance, int sliceAmount, double filamentDiameter,
+GcodeCreator::GcodeCreator(double maxXDistance, double maxYDistance, float bedWidth, float bedDepth, int sliceAmount, double filamentDiameter,
 	double bedTemp, double nozzleTemp, double nozzleDiameter, float speedMultiplier,
     double layerHeight, bool prime, bool supportToggle, bool retractionToggle, bool speedToggle,
     const std::vector<Clipper2Lib::PathsD>& erodedSlices,
@@ -20,6 +20,8 @@ GcodeCreator::GcodeCreator(double maxXDistance, double maxYDistance, int sliceAm
     const std::vector<Clipper2Lib::PathsD>& supportInfill)
     : maxXDist(maxXDistance),
     maxYDist(maxYDistance),
+	bedWidth(bedWidth),
+	bedDepth(bedDepth),
     sliceAmount(sliceAmount),
     filamentDiameter(filamentDiameter),
     bedTemp(bedTemp),
@@ -39,7 +41,7 @@ GcodeCreator::GcodeCreator(double maxXDistance, double maxYDistance, int sliceAm
     supportInfill(supportInfill), // Initialize with passed list
     printSpeed(speedMultiplier * 3000.0),
 	minSpeedMultiplier(0.5),
-	speedCalcCutoff(10.0),
+	speedCalcCutoff(5.0),
 	retractionDistance(7.5)
 {
 }
@@ -76,7 +78,7 @@ void GcodeCreator::generateGCode(const std::string& filename) {
     // Finish G-code
     gcodeFile << "G1 E" << E << "F2400\n"; // Retract filament
     gcodeFile << "G1 Z" << (layerHeight * sliceAmount) + 1 << " F3000\n"; // Move nozzle up
-    gcodeFile << "G0 X0 Y220.0 E" << E << "F3000\n";
+    gcodeFile << "G0 X0.5 Y" << bedDepth-0.5 << " E" << E << "F3000\n";
     gcodeFile << "M106 S0\n";          // Turn off fan
     gcodeFile << "M104 S0\n";      // Turn off hotend
     gcodeFile << "M140 S0\n";      // Turn off bed
