@@ -324,7 +324,7 @@ void MainWindow::createSlicingParameterWidgets()
 
     // Infill density controls
     slicingParameterInputBoxes[3]->setDecimals(1);
-    slicingParameterInputBoxes[3]->setValue(20.0);
+    slicingParameterInputBoxes[3]->setValue(10.0);
     slicingParameterInputBoxes[3]->setRange(0.0, 100.0);
     slicingParameterInputBoxes[3]->setSingleStep(1);
 

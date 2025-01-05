@@ -161,11 +161,11 @@ void ObjectRenderView::renderMesh() {
 
     // Set material properties
     GLfloat material_diffuse[] = { 1.0f, 0.0f, 0.0f, 1.0f };
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, material_diffuse);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, material_diffuse);
 
-    GLfloat no_material[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-    glMaterialfv(GL_FRONT, GL_AMBIENT, no_material);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, no_material);
+    GLfloat no_material[] = { 0.5f, 0.0f, 0.0f, 1.0f };
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, no_material);
+    //glMaterialfv(GL_FRONT, GL_SPECULAR, no_material);
 
     glBegin(GL_TRIANGLES);
 

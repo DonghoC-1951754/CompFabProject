@@ -51,7 +51,7 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vect
         Clipper2Lib::ClipperD clipper;
 
         // Erode the slice temporarily for space between infill and wall
-        //slice = Clipper2Lib::InflatePaths(slice, -nozzleDiameter, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
+        // slice = Clipper2Lib::InflatePaths(slice, -nozzleDiameter, Clipper2Lib::JoinType::Square, Clipper2Lib::EndType::Polygon, 2);
 
         clipper.AddOpenSubject(infillGrid);
         clipper.AddClip(slice);
@@ -59,7 +59,6 @@ std::vector<Clipper2Lib::PathsD> SliceOperations::generateInfill(const std::vect
         Clipper2Lib::PathsD openInfill;
         clipper.Execute(Clipper2Lib::ClipType::Intersection, Clipper2Lib::FillRule::EvenOdd, infill, openInfill);
 		clipper.Clear();
-
 
         clipper.AddOpenSubject(openInfill);
 		clipper.AddClip(allFloorRegions[i]);

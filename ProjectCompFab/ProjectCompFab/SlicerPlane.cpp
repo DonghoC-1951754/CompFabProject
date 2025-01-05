@@ -34,12 +34,12 @@ void SlicerPlane::setContours(std::vector<std::vector<std::vector<glm::dvec3>>> 
 Clipper2Lib::PathsD SlicerPlane::compilePolygons()
 {
 	Clipper2Lib::ClipperD clipper;
-	//clipper.AddSubject(contours);
-	//Clipper2Lib::PathsD unionResult;
-	//clipper.Execute(Clipper2Lib::ClipType::Union, Clipper2Lib::FillRule::EvenOdd, unionResult);
-	//clipper.Clear();
-	Clipper2Lib::PathsD unionPolygons = Clipper2Lib::Union(contours, Clipper2Lib::FillRule::EvenOdd);
-	return unionPolygons;
+	clipper.AddSubject(contours);
+	Clipper2Lib::PathsD unionResult;
+	clipper.Execute(Clipper2Lib::ClipType::Union, Clipper2Lib::FillRule::EvenOdd, unionResult);
+	clipper.Clear();
+	//Clipper2Lib::PathsD unionPolygons = Clipper2Lib::Union(contours, Clipper2Lib::FillRule::EvenOdd);
+	return unionResult;
 }
 
 void SlicerPlane::setStandardHeight(float standardHeight)
